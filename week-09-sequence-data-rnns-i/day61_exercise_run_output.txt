@@ -1,0 +1,10 @@
+ids: [1, 2, 3, 4, 1, 5]
+lookup returns the table's own rows: True
+gradient row for 'the'  (used twice): [2.0, 2.0, 2.0]
+gradient row for 'good' (used once) : [1.0, 1.0, 1.0]
+gradient row for '<pad>' (not used) : [0.0, 0.0, 0.0]
+with dE[ids] += dX instead, 'the' gets: [1.0, 1.0, 1.0] <- one contribution lost
+
+padded ids: [4, 5, 0, 0, 0, 0, 0, 0]  real words: 2
+max |h_masked   - h_alone| = 0.00e+00
+max |h_unmasked - h_alone| = 1.63e+00

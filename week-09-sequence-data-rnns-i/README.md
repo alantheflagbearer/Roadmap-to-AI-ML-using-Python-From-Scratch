@@ -67,5 +67,22 @@ Exercise: [`day60_exercise.py`](day60_exercise.py) isolates the clipper and its 
 ![Unclipped learns then collapses; clipped holds](clipping_before_after.png)
 ![Clipping: robust at T=20, enables large lr at T=10, can't fix T=40](clipping_limits.png)
 
+## Day 61 — A many-to-one RNN classifier on a real short-text sentiment dataset
+[`day61_many_to_one_sentiment.py`](day61_many_to_one_sentiment.py) — the first real text of the week: 3,000 one-sentence reviews from Amazon, IMDb and Yelp, each labelled positive or negative (Kotzias et al., KDD 2015 — the UCI "Sentiment Labelled Sentences" dataset, included in [`sentiment_labelled_sentences/`](sentiment_labelled_sentences) with its original readme). "Many-to-one" = many words in, one label out. Three new pieces, each checked: a text pipeline (tokenize → vocabulary built on training sentences only → integer ids → pad), an embedding table (forward is a row lookup, backward is a scatter-add via `np.add.at`), and masking (a padded step carries the hidden state forward unchanged). The gradient check passes on all six parameters for both readouts (max relative error 3.85e-08), and a 3-word sentence gets the identical prediction alone and inside a batch padded to 40 (difference 0.00e+00 with the mask, 1.19e-02 without).
+
+Then the honest comparison, on a 2,000 / 400 / 600 split, against an order-blind bag-of-words logistic regression:
+- **The RNN learns, then memorizes.** Best validation epoch: test 0.760; by the last epoch training accuracy is 0.993 and test has slid to 0.728. Read without the mask, the same trained network scores 0.518 — chance.
+- **It does not beat the baseline.** Bag-of-words: **0.817** test. RNN reading its last state: **0.737** (five seeds, 0.677–0.773). RNN reading the mean of all states: **0.797** (0.777–0.808) — better and far steadier than last, but still not ahead of the baseline. About 14% of test tokens are words the model never learned.
+- **It is not using word order.** Shuffling the words of every test sentence flips 20.5% of the last-state RNN's predictions, yet accuracy barely moves (0.737 → 0.726). Training on sentences scrambled once costs nothing (0.744); re-scrambling every epoch *helps* (0.790), acting as data augmentation that stops the network memorizing exact sequences. Hand-written negation probes show both models treating "not" as a negative word rather than a switch ("not bad" → P(positive) 0.001).
+
+This is a negative result reported as measured: it does not show that order is unimportant for sentiment, only that this vanilla RNN, from scratch on 2,000 sentences, did not learn to use it. From this day on, each section of the complete guide opens with a plain-language **definition** and a **real-world scenario** before the specification, code and output.
+
+Study guide: [`day61_many_to_one_sentiment_complete_guide.pdf`](day61_many_to_one_sentiment_complete_guide.pdf) · Syntax walkthrough: [`day61_syntax_line_by_line.pdf`](day61_syntax_line_by_line.pdf) · [Run output](day61_run_output.txt)
+
+Exercise: [`day61_exercise.py`](day61_exercise.py) isolates the embedding lookup (including why `dE[ids] += dX` silently loses a repeated word's gradient) and masking, on a six-word vocabulary with no training ([run output](day61_exercise_run_output.txt)).
+
+![Training accuracy climbs to ~1.0 while validation and test stall](sentiment_training_curve.png)
+![Readout, sentence length, and word-order ablation](sentiment_readout_and_order.png)
+
 ---
 [← Back to main README](../README.md)

@@ -1,0 +1,127 @@
+======================================================================
+1. TEXT -> NUMBERS -- tokenize, build a vocabulary, encode, pad
+======================================================================
+A network multiplies numbers; it cannot multiply words. Each sentence is split into tokens, each token is replaced by an integer id from a vocabulary built on the training sentences only, and every sentence is padded with id 0 to a common length so a batch fits in one array.
+
+sentences: 3000  (positive 1500, negative 1500)  sources: amazon 1000, imdb 1000, yelp 1000
+split: train 2000, validation 400, test 600  (positive fraction 0.501 / 0.517 / 0.483)
+tokens per sentence: min 0, median 10, 90th percentile 22, max 73; 20 sentences longer than 40 are truncated; 2 have no word tokens and become a single <unk>
+distinct words in training sentences: 4053; kept (seen at least twice): 1721; vocabulary size with <pad> and <unk>: 1723
+test tokens that are <unk>: 14.4%
+
+worked example (training sentence, label 0):
+  text   : I have been to very few places to eat that under no circumstances would I ever return to, and this tops the list.
+  tokens : ['i', 'have', 'been', 'to', 'very', 'few', 'places', 'to', 'eat', 'that', 'under', 'no', 'circumstances', 'would', 'i', 'ever', 'return', 'to', 'and', 'this', 'tops', 'the', 'list']
+  ids    : [737, 682, 130, 1526, 1606, 554, 1100, 1526, 461, 1485, 1573, 988, 1, 1700, 737, 497, 1231, 1526, 52, 1507, 1, 1488, 857]  + 17 padding zeros
+  decoded: ['i', 'have', 'been', 'to', 'very', 'few', 'places', 'to', 'eat', 'that', 'under', 'no', '<unk>', 'would', 'i', 'ever', 'return', 'to', 'and', 'this', '<unk>', 'the', 'list']
+Actual output from this lesson's run.
+
+======================================================================
+2. CHECKING THE NEW PIECES -- gradient check, and batch invariance
+======================================================================
+(a) Numeric gradient check of all six parameters, on a tiny network and a batch of four sentences with DIFFERENT lengths and a repeated word, for both readouts. (b) Batch invariance: a 3-word sentence must get the same prediction alone as it does inside a batch padded to 40 positions.
+
+ readout          E        Wxh        Whh         bh        Why         by        max
+    last   1.20e-08   2.44e-09   3.28e-09   1.10e-09   1.90e-09   1.94e-09   1.20e-08
+    mean   1.09e-08   7.82e-09   3.85e-08   1.93e-09   1.17e-09   1.95e-09   3.85e-08
+gradient row of <pad> is exactly zero: True;  rows of the 4 unused words are exactly zero: True
+Actual output from this lesson's run.
+
+P(positive) for the 3-word sentence:
+  alone, no padding            : 0.4496053643
+  in the batch, WITH mask      : 0.4496053643   |difference| = 0.00e+00
+  in the batch, WITHOUT mask   : 0.4377539816   |difference| = 1.19e-02
+Actual output from this lesson's run.
+
+======================================================================
+3. THE ORDER-BLIND BASELINE -- bag-of-words logistic regression
+======================================================================
+Each sentence becomes a vector of 0s and 1s: which vocabulary words appear in it. Word ORDER is thrown away. A softmax regression on those vectors is the bar the RNN has to clear: anything the RNN adds must come from order.
+
+best validation accuracy 0.772 at epoch 314; test accuracy there 0.817  (chance = 0.500; 600 test sentences, so one standard error is roughly 0.02)
+most negative words: bad, poor, not, worst, slow, don't, terrible, then, waste, no
+most positive words: great, love, nice, good, excellent, awesome, perfect, delicious, loved, enjoyed
+Actual output from this lesson's run.
+
+======================================================================
+4. TRAINING THE MANY-TO-ONE RNN -- last hidden state, tracked every epoch
+======================================================================
+Embedding 16, hidden 16, learning rate 0.1, clip threshold 1.0, batch 32, 40 epochs, seed 0. The network reads a sentence word by word and predicts from the hidden state after the last real word. Validation accuracy picks the epoch; test accuracy is recorded alongside but never used to choose.
+
+ epoch  train loss  train acc  val acc  test acc  steps clipped
+     0      0.6899      0.569    0.535     0.542           4.8%
+     3      0.6418      0.682    0.662     0.603          19.0%
+     6      0.5548      0.697    0.625     0.605          71.4%
+     9      0.4690      0.752    0.675     0.680          84.1%
+    12      0.3766      0.822    0.693     0.683          93.7%
+    15      0.3277      0.887    0.775     0.760          93.7%
+    18      0.2597      0.926    0.718     0.748          95.2%
+    21      0.2032      0.954    0.735     0.755          93.7%
+    24      0.1443      0.969    0.720     0.733          85.7%
+    27      0.1195      0.965    0.725     0.735          82.5%
+    30      0.0760      0.982    0.693     0.693          69.8%
+    33      0.0433      0.992    0.705     0.743          49.2%
+    36      0.0263      0.989    0.700     0.718          30.2%
+    39      0.0116      0.993    0.713     0.728          12.7%
+Actual output from this lesson's run.
+
+best validation accuracy 0.775 at epoch 15: train 0.887, test 0.760
+at the end (epoch 39): train 0.993, validation 0.713, test 0.728
+bag-of-words baseline on the same split: validation 0.772, test 0.817
+same best-epoch network, but reading the state after the padding instead (no mask): test 0.518
+Actual output from this lesson's run.
+
+saved sentiment_training_curve.png
+
+======================================================================
+5. WHICH STATE TO READ? -- last hidden state vs. the mean of all of them
+======================================================================
+Two ways to turn many hidden states into one prediction. LAST: read only the final state, so everything about the sentence must survive to the end. MEAN: average the states after every real word, so each word has a direct path to the output. Five seeds each, at two learning rates; test accuracy is taken at each run's best validation epoch. One row repeats LAST without Day 60's clipping.
+
+ readout    lr  clip  val mean  test mean  test std  test min  test max  final train
+    last   0.1   1.0     0.737      0.737     0.035     0.677     0.773        0.997
+    last   0.3   1.0     0.686      0.688     0.011     0.672     0.698        1.000
+    mean   0.1   1.0     0.740      0.765     0.015     0.743     0.788        0.928
+    mean   0.3   1.0     0.766      0.797     0.013     0.777     0.808        0.988
+    last   0.1  None     0.708      0.712     0.028     0.677     0.752        1.000
+bag-of-words baseline     0.772      0.817
+Actual output from this lesson's run.
+
+learning rate chosen on validation: last -> 0.1, mean -> 0.3
+
+test accuracy by sentence length (mean over the five seeds):
+    length  sentences    last    mean  bag-of-words
+       1-6        196   0.817   0.854         0.862
+      7-12        182   0.710   0.768         0.802
+     13-20        148   0.726   0.780         0.811
+     21-40         74   0.614   0.754         0.743
+Actual output from this lesson's run.
+
+======================================================================
+6. DOES THE RNN USE WORD ORDER? -- the one thing it has that the baseline does not
+======================================================================
+Three tests on the LAST-state RNN. (a) Shuffle the words inside every TEST sentence: how many predictions flip, and does accuracy change? (b) TRAIN on scrambled sentences -- scrambled once and reused, or re-scrambled every epoch -- and test on normal sentences. If real word order carried usable signal, (b) should hurt. (c) Hand-written negation probes.
+
+              trained on     val    test  test std  test, words shuffled  predictions flipped
+                original   0.737   0.737     0.035                 0.726                20.5%
+           shuffled once   0.730   0.744     0.020                 0.753                16.3%
+   reshuffled each epoch   0.764   0.790     0.011                 0.794                 5.8%
+   bag-of-words baseline   0.772   0.817                           0.817                 0.0%
+Actual output from this lesson's run.
+
+negation probes (hand-written for this lesson, not from the dataset) -- P(positive):
+sentence                          RNN    BoW   negated sentence                  RNN    BoW
+good                            0.924  0.855   not good                        0.070  0.373
+bad                             0.012  0.033   not bad                         0.001  0.003
+i love this phone               0.902  0.871   i do not love this phone        0.066  0.259
+the food was great              0.762  0.940   the food was not great          0.657  0.614
+would recommend                 0.532  0.580   would not recommend             0.026  0.122
+this movie is terrible          0.071  0.172   this movie is not terrible      0.007  0.020
+Actual output from this lesson's run.
+
+saved sentiment_readout_and_order.png
+
+======================================================================
+7. WHAT COMES NEXT
+======================================================================
+Every piece needed to run an RNN on real text now exists and is checked: tokens, ids, padding, an embedding table, masking, a many-to-one readout, clipping. What 2,000 sentences and a vanilla RNN did NOT deliver is a use for word order -- the numbers above are the evidence. Day 62 changes the output side: many-to-many, one label per word instead of one per sentence, where position is the whole task. Week 10 changes the cell: the LSTM (Day 63).
