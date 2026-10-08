@@ -1,0 +1,10 @@
+forget gate f : [[0.1355 0.4245]]
+input gate  i : [[0.256  0.1941]]
+candidate   g : [[-0.4658  0.4035]]
+output gate o : [[0.2207 0.6392]]
+old cell state: [[-0.5903 -0.0141]]
+new cell state: [[-0.1992  0.0723]]   = f * old + i * g
+new hidden    : [[-0.0434  0.0462]]   = o * tanh(new cell state)
+
+max difference from the gate-by-gate version: 1.39e-17 (match)
+weights in this cell: 48  (a vanilla RNN of the same size has 12)
