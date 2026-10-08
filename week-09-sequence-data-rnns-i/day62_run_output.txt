@@ -1,0 +1,216 @@
+======================================================================
+0. THE SIX PARTS -- what each exercise script contributes today
+======================================================================
+Code is copied from each dayNN_exercise.py. Lines that had to change are marked CHANGED in this script; lines that exist only because of today's topic are marked NEW.
+
+from              what is reused                            changed today?
+Day 56 exercise   softmax, one_hot, PlainFCNet              no -- verbatim
+Day 57 exercise   rnn_step_forward, rnn_forward             2 lines (a vector per word)
+Day 58 exercise   rnn_backward (BPTT)                       1 new line (gradient at EVERY step)
+Day 59 exercise   grad_norm_by_timestep                     the same 1 new line
+Day 60 exercise   clip_by_global_norm                       no -- verbatim
+Day 61 exercise   ids + padding, E[ids], np.add.at, mask    mask applied to the LOSS
+
+======================================================================
+1. THE TASK AND THE DATA -- one tag for every word
+======================================================================
+Part-of-speech tagging: label each word with its grammatical role. Source: Universal Dependencies English Web Treebank (blogs, emails, reviews, newsgroups, answers). Train = the treebank's dev file, validation and test = its test file, split at a document boundary, so no document is shared between train and test.
+
+split        sentences    words  longest
+train             2001    25148       75
+validation         430     6634       81
+test              1647    18460       65
+
+distinct words in training sentences: 4812; kept (seen at least twice): 2080; vocabulary size with <pad> and <unk>: 2082
+test words that are <unk>: 20.2%
+
+17 tags, by share of training words:
+   NOUN 16.7%   PUNCT 12.2%    VERB 10.8%    PRON  8.8%     ADP  8.1%     DET  7.6%
+  PROPN  7.4%     ADJ  7.4%     AUX  6.2%     ADV  4.9%   CCONJ  3.1%    PART  2.6%
+  SCONJ  1.6%     NUM  1.5%    INTJ  0.5%     SYM  0.3%       X  0.2%
+
+worked example (training sentence):
+  words: the       sheikh    in        wheel     -         chair     has       been      attacked 
+  tags : DET       NOUN      ADP       NOUN      PUNCT     NOUN      AUX       AUX       VERB     
+Actual output from this lesson's run.
+
+======================================================================
+2. THE ASSEMBLED MODEL -- gradient check through all six parts at once
+======================================================================
+A tiny tagger (12 words, 3 tags, embedding 4, hidden 5) on four sentences of lengths 5, 2, 4, 1, with one word repeated. Every entry of every parameter is nudged by +-1e-5 and the change in the masked loss is compared with the gradient the assembled backward pass computed. Pass rule: |numeric - analytic| <= 1e-10 + 1e-6 * |numeric| for every entry.
+
+ parameter  entries  max relative error  max |difference|  all entries pass
+         E       48            1.92e-07          2.45e-10              True
+       Wxh       20            5.30e-08          5.75e-11              True
+       Whh       25            3.12e-06          4.01e-11              True
+        bh        5            5.49e-09          1.83e-10              True
+       Why       15            1.37e-08          7.76e-11              True
+        by        3            7.30e-09          1.63e-10              True
+every parameter passes: True;  gradient row of <pad> exactly zero: True
+Actual output from this lesson's run.
+
+the largest relative error is at Whh(0, 1), where the gradient itself is tiny: -4.217e-07. The same entry at three nudge sizes:
+   nudge         numeric        analytic   |difference|
+   1e-04   -4.216716e-07   -4.216712e-07       4.12e-13
+   1e-05   -4.216738e-07   -4.216712e-07       2.63e-12
+   1e-06   -4.217737e-07   -4.216712e-07       1.03e-10
+Actual output from this lesson's run.
+
+======================================================================
+3. TWO BASELINES WITH NO MEMORY -- each word tagged on its own
+======================================================================
+(a) Most-frequent-tag: give every word the tag it had most often in training; unknown words get the most common tag of rare training words. No learning. (b) Day 56's PlainFCNet, fed ONE word at a time as a one-hot vector. Both see only the current word, so the same word always gets the same tag.
+
+(a) most-frequent-tag: unknown words are tagged NOUN; validation 0.7673, test 0.8016
+
+(b) PlainFCNet on one word at a time (2082 inputs -> 32 -> 17):
+ epoch  train acc  val acc  test acc
+     0     0.6281   0.5841    0.6292
+     3     0.6385   0.6168    0.6575
+     6     0.8509   0.7576    0.7998
+     9     0.8526   0.7653    0.7953
+    12     0.8455   0.7560    0.7938
+    15     0.8443   0.7563    0.7920
+    18     0.8514   0.7626    0.7960
+    19     0.8495   0.7624    0.7940
+best validation 0.7665 at epoch 16; test there 0.7987
+tag given to EVERY unknown word: most-frequent-tag -> NOUN, PlainFCNet -> NOUN
+Actual output from this lesson's run.
+
+======================================================================
+4. TRAINING THE TAGGER -- tracked every epoch, three seeds
+======================================================================
+Embedding 32, hidden 32, learning rate 1.0, clip threshold 1.0, batch 32 sentences, 25 epochs. The loss is the mean over real words. Validation accuracy picks the epoch; test accuracy is recorded alongside but never used to choose.
+
+seed 0:
+ epoch  train loss  train acc  val acc  test acc  steps clipped  largest grad
+     0      1.8593     0.6092   0.5968    0.6069           0.0%         0.560
+     3      0.6930     0.7954   0.7385    0.7718           0.0%         0.608
+     6      0.4904     0.8557   0.7847    0.8014           0.0%         0.709
+     9      0.3839     0.8879   0.8155    0.8219           0.0%         0.772
+    12      0.3231     0.8811   0.7816    0.8181           0.0%         0.605
+    15      0.2971     0.9116   0.8113    0.8321           0.0%         0.820
+    18      0.2650     0.9236   0.8208    0.8367           0.0%         0.749
+    21      0.2425     0.9273   0.8254    0.8338           0.0%         0.568
+    24      0.2244     0.9277   0.8092    0.8323           0.0%         0.622
+Actual output from this lesson's run.
+
+ seed  best epoch  val there  test there  train at end  test at end
+    0          21     0.8254      0.8338        0.9277       0.8323
+    1          12     0.8253      0.8334        0.9324       0.8236
+    2          17     0.8274      0.8308        0.9277       0.8167
+
+RNN tagger test accuracy, mean of 3 seeds: 0.8327  (min 0.8308, max 0.8338)
+no-memory baselines on the same test words: most-frequent-tag 0.8016, PlainFCNet 0.7987
+test set: 18460 words, so one standard error is about 0.003
+Actual output from this lesson's run.
+
+saved tagger_training_curve.png
+
+======================================================================
+5. WHERE DOES MEMORY HELP? -- the RNN against models that see one word at a time
+======================================================================
+Test words are split into three groups: UNAMBIGUOUS (known word that had one tag in training), AMBIGUOUS (known word that had several), UNKNOWN (<unk>). A no-memory model must give every <unk> the same tag. Two controls: the SAME tagger trained with its recurrent weights held at zero (memory off), and the trained tagger fed test sentences with their words shuffled.
+
+                           all words   unambiguous     ambiguous       unknown
+share of test words           100.0%         37.7%         42.2%         20.2%
+most-frequent-tag             0.8016        0.9814        0.8474        0.3705
+PlainFCNet (Day 56)           0.7987        0.9814        0.8404        0.3705
+RNN, memory off               0.7714        0.9810        0.8367        0.2440
+RNN tagger                    0.8327        0.9693        0.8740        0.4914
+tag the memory-off tagger (seed 0) gives unknown words: PROPN (100% of them)
+Actual output from this lesson's run.
+
+UNKNOWN test words, grouped by the word just before them (accuracy = mean of 3 seeds):
+word before           count  most common true tag  RNN mostly says  RNN acc  most-freq acc
+(start of sentence)     359           PROPN (41%)     PROPN (100%)    0.412          0.162
+the / a / an            445            NOUN (62%)      NOUN (100%)    0.618          0.625
+to                       95            VERB (66%)       VERB (96%)    0.639          0.063
+i / you / we / they      52            VERB (77%)      VERB (100%)    0.769          0.058
+of / in / for / on      205           PROPN (45%)       NOUN (74%)    0.434          0.307
+,                       100            NOUN (46%)      PROPN (44%)    0.303          0.460
+another unknown word    715            NOUN (45%)       NOUN (62%)    0.445          0.450
+Actual output from this lesson's run.
+
+shuffle test -- RNN tagger on normal test sentences 0.8327, on the same sentences with words shuffled 0.7487  (most-frequent-tag is 0.8016 either way)
+Actual output from this lesson's run.
+
+a short test sentence where memory helps most:
+  word      atal     pharmacy ,        karol    bag      .       
+  in vocab? NO       NO       yes      NO       NO       yes     
+  true tag  PROPN    PROPN    PUNCT    PROPN    PROPN    PUNCT   
+  most-freq NOUN     NOUN     PUNCT    NOUN     NOUN     PUNCT   
+  RNN       PROPN    PROPN    PUNCT    PROPN    PROPN    PUNCT   
+
+a short test sentence where the RNN does worse:
+  word      mountain ,        cliffs   ,        peat     bogs     ,        valleys 
+  in vocab? NO       yes      NO       yes      NO       NO       yes      NO      
+  true tag  NOUN     PUNCT    NOUN     PUNCT    NOUN     NOUN     PUNCT    NOUN    
+  most-freq NOUN     PUNCT    NOUN     PUNCT    NOUN     NOUN     PUNCT    NOUN    
+  RNN       PROPN    PUNCT    PROPN    PUNCT    NOUN     PROPN    PUNCT    PROPN   
+Actual output from this lesson's run.
+
+======================================================================
+6. TWO PARTS DOING THEIR JOB -- Day 59's probe and Day 60's clipping
+======================================================================
+(a) Day 59's probe on the trained tagger: how much gradient reaches each word's hidden state, for today's loss (every word has its own) and for a loss on the LAST word only (Day 61's shape). All 20-word test sentences, same network. (b) Day 60's clipping: the tagger trained with and without it, at this lesson's hidden size (32) and at a larger one (64).
+
+(a) 26 test sentences of exactly 20 words; gradient norm at each word's hidden state:
+ word position  loss on every word  own output only  loss on last word only
+             0            3.07e-02         1.51e-02                1.05e-05
+             4            2.88e-02         1.77e-02                5.84e-05
+             9            2.93e-02         2.01e-02                2.00e-04
+            14            3.76e-02         2.67e-02                1.29e-03
+            17            3.48e-02         2.61e-02                5.45e-03
+            18            2.77e-02         2.59e-02                9.82e-03
+            19            1.23e-02         1.23e-02                1.23e-02
+ratio first word / last word:  every-word loss 2.49,  last-word-only loss 8.48e-04
+Actual output from this lesson's run.
+
+(b) test accuracy at the best validation epoch, three seeds each:
+ hidden   lr  clip   seed 0   seed 1   seed 2     mean  steps clipped  largest grad
+     32  1.0   1.0   0.8338   0.8334   0.8308   0.8327          0.06%          1.20
+     32  1.0  None   0.8338   0.8231   0.8311   0.8294          0.00%          1.20
+     32  2.0   1.0   0.8287   0.8320   0.8287   0.8298          0.13%          1.36
+     32  2.0  None   0.8287   0.8330   0.8300   0.8306          0.00%          1.34
+     64  1.5   1.0   0.8236   0.8227   0.8228   0.8230          0.23%          3.19
+     64  1.5  None   0.8232   0.5139   0.8224   0.7198          0.00%        595.92
+     64  2.0   1.0   0.8264   0.8146   0.8208   0.8206          0.61%          4.73
+     64  2.0  None   0.4859   0.5402   0.4530   0.4930          0.00%       5541.60
+Actual output from this lesson's run.
+
+saved tagger_memory_and_parts.png
+
+======================================================================
+7. A LIMIT -- this RNN reads left to right only
+======================================================================
+The hidden state at word t has seen words 0..t and nothing after it. To measure what that leaves out, the SAME tagger is trained on every sentence written backwards -- a right-to-left reader, which sees only what FOLLOWS each word -- and its predictions are flipped back and compared, word by word, with the left-to-right tagger's. Three seeds each.
+
+ seed  left-to-right  right-to-left  both right  at least one right  they disagree
+    0         0.8338         0.8353      0.7671              0.9020         0.1788
+    1         0.8334         0.8314      0.7618              0.9029         0.1812
+    2         0.8308         0.8306      0.7575              0.9039         0.1891
+Actual output from this lesson's run.
+
+word group      left-to-right  right-to-left
+unambiguous            0.9693         0.9734
+ambiguous              0.8740         0.8905
+unknown                0.4914         0.4478
+Actual output from this lesson's run.
+
+the tags the left-to-right tagger (seed 0) gets wrong most often:
+ true tag  test words  accuracy   most common wrong answer
+        X          40    0.0000         NOUN (55% of them)
+      NUM         376    0.4335        PROPN (27% of them)
+    PROPN        1306    0.5291         NOUN (37% of them)
+     INTJ          96    0.5417        PROPN (23% of them)
+    SCONJ         250    0.6080          ADP (31% of them)
+      SYM          87    0.6092        PUNCT (17% of them)
+Actual output from this lesson's run.
+
+saved week9_parts_diagram.png
+
+======================================================================
+8. THE WEEK IN ONE PARAGRAPH
+======================================================================
+Day 56 showed why sequences need something new; Day 57 built the recurrent cell; Day 58 trained it with BPTT; Day 59 measured how gradient fades or explodes over long distances; Day 60 capped the step so explosions cannot wreck training; Day 61 put real text in. Today those six parts became one model that tags every word of a sentence. What still limits it is what Day 59 measured: a plain RNN cannot carry information far. Week 10 replaces the cell with one built for that: the LSTM (Day 63).

@@ -2,7 +2,7 @@
 
 A daily-practice log following a 52-week (365-day) roadmap from Python fundamentals through classical ML, deep learning, and into applied AI. Most lessons don't just call a library function — they build the underlying idea (gradient descent, backprop, convolution, dropout...) from scratch in NumPy first, then show the framework equivalent. Each day is a self-contained script; from Week 1 onward, most days add a paired study guide (a concept walkthrough and a line-by-line syntax breakdown, both PDF).
 
-**Currently on Day 61** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
+**Currently on Day 62** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
 
 ## How this repo is organized
 
@@ -22,11 +22,11 @@ A daily-practice log following a 52-week (365-day) roadmap from Python fundament
 | 6 | 36–41 | Neural Networks from Scratch | [→ folder](week-06-neural-networks-from-scratch) |
 | 7 | 42–48 | CNNs I & II | [→ folder](week-07-cnns-i-and-ii) |
 | 8 | 49–55 | Classic CNN Architectures + Regularization | [→ folder](week-08-classic-cnn-architectures) |
-| 9 | 56–62 (of 56–62) | Sequence Data & RNNs I — in progress | [→ folder](week-09-sequence-data-rnns-i) |
+| 9 | 56–62 | Sequence Data & RNNs I | [→ folder](week-09-sequence-data-rnns-i) |
 
 Weeks 10 onward (LSTM/GRU, attention, Transformers, tokenization, a mini-GPT, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
 
-Starting with Week 6, the same small neural-network library — written entirely in NumPy, no framework — is extended week over week: the `net.forward()` / `net.backward()` core built on Day 36 is still what every later script, all the way through Day 61, trains against.
+Starting with Week 6, the same small neural-network library — written entirely in NumPy, no framework — is extended week over week: the `net.forward()` / `net.backward()` core built on Day 36 is still what every later script, all the way through Day 62, trains against.
 
 ## Recent visuals
 
@@ -39,6 +39,7 @@ Starting with Week 6, the same small neural-network library — written entirely
 | ![Sequential data failure modes](week-09-sequence-data-rnns-i/sequential_failure_modes.png) No position invariance (FC) vs. a capped receptive field (Conv1D) — Day 56 | ![RNN long-range sensitivity](week-09-sequence-data-rnns-i/rnn_long_range_sensitivity.png) Does x_0 survive to h_T at long range? — Day 57 |
 | ![BPTT training short vs long](week-09-sequence-data-rnns-i/bptt_training_short_vs_long.png) T=40 trains anyway: noise suppressed, spikes latched — Day 58 | ![Exploding gradients during training](week-09-sequence-data-rnns-i/exploding_during_training.png) Gradient spikes as Whh's spectral radius crosses ~2 — Day 59 |
 | ![Clipping before and after](week-09-sequence-data-rnns-i/clipping_before_after.png) Unclipped learns then collapses; clipping holds — Day 60 | ![Sentiment RNN readout and word order](week-09-sequence-data-rnns-i/sentiment_readout_and_order.png) Real reviews: the RNN doesn't beat bag-of-words, or use word order — Day 61 |
+| ![Week 9 parts diagram](week-09-sequence-data-rnns-i/week9_parts_diagram.png) Six exercise parts, one many-to-many tagger — Day 62 | ![Tagger: memory, gradient probe, clipping](week-09-sequence-data-rnns-i/tagger_memory_and_parts.png) Where memory helps; clipping decisive at hidden 64 — Day 62 |
 
 ## Featured project: Titanic EDA (Day 13)
 

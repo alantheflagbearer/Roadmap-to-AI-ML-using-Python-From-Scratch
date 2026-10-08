@@ -84,5 +84,24 @@ Exercise: [`day61_exercise.py`](day61_exercise.py) isolates the embedding lookup
 ![Training accuracy climbs to ~1.0 while validation and test stall](sentiment_training_curve.png)
 ![Readout, sentence length, and word-order ablation](sentiment_readout_and_order.png)
 
+## Day 62 — The Week 9 build: a many-to-many RNN tagger from the six exercise parts
+[`day62_many_to_many_tagger.py`](day62_many_to_many_tagger.py) — two jobs in one day. The syllabus topic is the **many-to-many** RNN (an output for *every* input), and this is the week's integration day, so the final model is assembled from the six exercise scripts of Days 56–61: Day 56's helpers and `PlainFCNet` (the no-memory baseline), Day 57's cell and forward pass, Day 58's BPTT, Day 59's gradient probe, Day 60's clipper, Day 61's ids/padding/embedding. Only one idea is new, and in BPTT it is one line: `dh = dh + dH[:, t, :]` — every timestep's own output adds its gradient. The task is part-of-speech tagging on real, hand-tagged sentences from the Universal Dependencies English Web Treebank (Silveira et al., 2014; CC BY-SA 4.0 — a trimmed word/tag copy with licence and attribution is in [`ud_english_ewt_pos/`](ud_english_ewt_pos)): 2,001 training sentences, 430 validation, 1,647 test, split at document boundaries. 20.2% of test words are unknown to the model.
+
+- **The assembled model is correct.** A gradient check through the whole pipeline passes on all six parameters. One entry showed a relative error of 3.12e-06; rather than accept or dismiss it, the entry was examined — its gradient is 4e-07 and the absolute disagreement 2.63e-12, growing as the nudge shrinks, which is the signature of rounding in the numeric estimate, not a bug.
+- **It beats the no-memory baselines, modestly.** Most-frequent-tag (pure counting): 0.8016. Day 56's dense net fed one word at a time: 0.7987. RNN tagger, mean of three seeds: **0.8327**.
+- **The gain is where context is needed — and memory has a cost.** Unknown words 0.4914 vs 0.3705; ambiguous words 0.8740 vs 0.8474; but *unambiguous* words slightly worse, 0.9693 vs 0.9814. The same tagger with its recurrent weights held at zero scores 0.7714. After *to*, the tagger calls an unknown word a VERB and is right 0.639 of the time (baseline 0.063); after a comma it is worse than the baseline (0.303 vs 0.460).
+- **Order matters here.** Shuffling the test words drops the tagger from 0.8327 to 0.7487 — the test that changed nothing on Day 61.
+- **Day 59's probe:** with a loss at every word, the gradient at the first word of a 20-word sentence is 3.07e-02; with a loss on the last word only, the same network passes back 1.05e-05. Many-to-many does not cure vanishing gradients, it avoids depending on them.
+- **Day 60's clipping:** no measurable effect at this lesson's hidden size (32). At hidden 64 it decides the outcome: at lr 2.0 all three unclipped seeds collapse (mean 0.4930) while the clipped ones reach 0.8206, with clipping firing on only 0.61% of steps.
+- **A limit:** the tagger reads left to right. The same tagger trained on reversed sentences scores the same (0.8353 vs 0.8338, seed 0) but disagrees on 17.9% of words, and at least one of the two is right on 90.2% — information to the right that a one-direction RNN never sees.
+
+Study guide: [`day62_many_to_many_tagger_complete_guide.pdf`](day62_many_to_many_tagger_complete_guide.pdf) · Syntax walkthrough: [`day62_syntax_line_by_line.pdf`](day62_syntax_line_by_line.pdf) · [Run output](day62_run_output.txt)
+
+No separate exercise script today: Day 62 *is* the week's exercise — the six earlier ones combined. The lesson script trains 31 small networks and takes roughly 10–20 minutes to run on a laptop.
+
+![How the six exercise parts fit together](week9_parts_diagram.png)
+![Tagger training curve](tagger_training_curve.png)
+![Where memory helps, the gradient probe, and clipping](tagger_memory_and_parts.png)
+
 ---
 [← Back to main README](../README.md)
