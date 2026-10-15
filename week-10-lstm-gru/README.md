@@ -37,5 +37,20 @@ Exercise: [`day64_exercise.py`](day64_exercise.py) loops Day 63's exercise cell 
 ![The forward pass unrolled](lstm_unrolled_diagram.png)
 ![Cell state growth and saturation by forget bias](lstm_cell_state_growth.png)
 
+## Day 65 — The LSTM backward pass, a gradient check, and a first training run
+[`day65_lstm_backward_pass.py`](day65_lstm_backward_pass.py) — Day 64's cache walked backwards: two gradients flowing back in time, dh through the gates and W, dc along the cell-state line, where each step back multiplies it by the forget gate (Day 63's direct route, now as a gradient).
+
+- **Gradient check, on its own:** a loss that uses every hidden state, the last hidden state and the last cell state, with padding; all 136 entries of W, b, X, h0 and c0 pass (largest relative error 4.88e-09). **Through the trained classifier:** W, b, Why, by all pass (1.99e-07).
+- **The direct route:** with the gates cut off from h, the gradient at c_0 equals the gradient at c_T times the product of forget gates (difference 6.94e-17). In a normal untrained LSTM at forget bias 2 the indirect routes carry far more (6.125373e+01 vs. 1.313349e+00).
+- **Gradient reaching the first input before training**, Day 59's sign task: 3.279e-04 at 20 steps with forget bias 0, falling to 3.298e-15 at 100; with forget bias 2 it is 9.932e+00 at 100.
+- **First training runs**, Day 59's data and Day 60's setup (clipping at 1.0), lr 0.05 and 0.2, three seeds each, 54 runs. Forget bias 0: **0 of 18** runs learn (final ≥ 0.9), even at 20 steps where Day 60's clipped RNN reached 0.955. Forget bias 2: **12 of 12** at 20 and 40 steps (the RNN ended at 0.525 at 40) and 4 of 6 at 100 (the two failures end at 0.782 and 0.682). Forget bias 1 is in between. Seeds matter: one setting ended at 0.605 for one seed and 0.978 for another.
+
+Study guide: [`day65_lstm_backward_pass_complete_guide.pdf`](day65_lstm_backward_pass_complete_guide.pdf) · Syntax walkthrough: [`day65_syntax_line_by_line.pdf`](day65_syntax_line_by_line.pdf) · [Run output](day65_run_output.txt)
+
+Exercise: [`day65_exercise.py`](day65_exercise.py) adds the backward pass to Day 64's exercise loop and checks every entry of W and b numerically ([run output](day65_exercise_run_output.txt)) — the LSTM version of Day 58's exercise.
+
+![One step of the LSTM backward pass](lstm_backward_diagram.png)
+![Gradient reach and training results by forget bias](lstm_training_by_forget_bias.png)
+
 ---
 [← Back to main README](../README.md)

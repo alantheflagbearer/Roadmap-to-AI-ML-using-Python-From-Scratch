@@ -1,0 +1,82 @@
+======================================================================
+1. THE BACKWARD PASS ON ITS OWN -- every weight, every input, both starting states
+======================================================================
+4 sequences of lengths 5, 2, 4, 1 (padded to 5), 2 inputs, 3 hidden units, random weights and biases, random non-zero h0 and c0. The loss uses all three places gradient can enter: L = sum(R1 * every h_t) + sum(R2 * last h) + sum(R3 * last c), with fixed random R1, R2, R3. Pass rule (Day 62): |numeric - analytic| <= 1e-10 + 1e-6 * |numeric| for every entry.
+
+  array  entries  max relative error  max |difference|    pass
+      W       60            4.88e-09          1.60e-10    True
+      b       12            2.25e-10          4.76e-10    True
+      X       40            1.72e-10          6.74e-11    True
+     h0       12            3.07e-10          3.81e-11    True
+     c0       12            1.46e-09          3.31e-11    True
+every entry passes: True;  gradient at padded inputs exactly zero: True
+Actual output from this lesson's run.
+
+======================================================================
+2. THE SAME CHECK THROUGH THE CLASSIFIER THAT IS TRAINED
+======================================================================
+Same sequences and lengths; labels 0, 1, 1, 0. LSTMClassifier (3 hidden units, forget bias 1, extra random biases) reads the last real hidden state; the loss is its mean cross-entropy, exactly as in training.
+
+  array  entries  max relative error  max |difference|    pass
+      W       60            1.99e-07          5.56e-11    True
+      b       12            1.84e-09          1.25e-10    True
+    Why        6            9.38e-11          6.62e-12    True
+     by        2            2.83e-12          1.03e-12    True
+every entry passes: True
+Actual output from this lesson's run.
+
+======================================================================
+3. THE DIRECT ROUTE, AS A GRADIENT
+======================================================================
+Day 63 measured the cell-state line going forward. Going backward, every step multiplies dL/dc by that step's forget gate. With the gates cut off from h (the rows of W that multiply h set to zero) that line is the ONLY route from c_T back to c_0, so dL/dc_0 must equal dL/dc_T times the product of the forget gates, exactly. 16 units, 200 sequences of 30 N(0,1) inputs, forget bias 2.
+
+gates cut off from h: ||dL/dc_0|| = 1.184025e+00,  direct route alone = 1.184025e+00,  max |difference| = 6.94e-17
+
+normal LSTM: ||dL/dc_0|| = 6.125373e+01,  direct route alone = 1.313349e+00,  max |difference| = 4.75e+00
+Actual output from this lesson's run.
+
+======================================================================
+4. HOW MUCH GRADIENT REACHES THE FIRST INPUT -- before any training
+======================================================================
+Day 59's sign task: the label is the sign of x_0, so x_0 is the only input that matters. For an untrained classifier (16 units, seed 7) on the 400 test sequences: ||dL/dx_0|| divided by ||dL/dx_(T-1)||, the gradient reaching the first input relative to the last. Now measured with the backward pass, so there is no lower limit on what can be measured.
+
+    T  forget bias 0.0  forget bias 1.0  forget bias 2.0
+   20        3.279e-04        5.715e-02        6.973e-01
+   40        4.857e-07        1.763e-02        1.524e+00
+  100        3.298e-15        1.189e-03        9.932e+00
+Actual output from this lesson's run.
+
+======================================================================
+5. THE FIRST LSTM TRAINING RUNS -- Day 59's sign task at 20, 40 and 100 steps
+======================================================================
+16 units, 600 training and 400 test sequences (Day 59's seeds), batch 30, 150 epochs, clipping at 1.0 (Day 60). Learning rate 0.05 (Day 60's) and 0.2; forget bias 0, 1 and 2; seeds 7, 8, 9 (initial weights and batch order). Test accuracy every 10 epochs. Reference, same data and setup, lr 0.05, clipped at 1.0 (Day 60): vanilla RNN 0.955 final at 20 steps, 0.525 at 40.
+
+   T  f-bias    lr   peak / final test accuracy, seeds 7, 8, 9    final >= 0.9
+  20     0.0  0.05   0.565/0.522  0.542/0.535  0.515/0.512               0 of 3
+  20     0.0   0.2   0.532/0.515  0.532/0.520  0.530/0.477               0 of 3
+  20     1.0  0.05   0.965/0.965  0.945/0.945  0.948/0.925               3 of 3
+  20     1.0   0.2   0.980/0.980  0.985/0.983  0.990/0.990               3 of 3
+  20     2.0  0.05   0.970/0.970  0.960/0.960  0.970/0.970               3 of 3
+  20     2.0   0.2   0.988/0.988  0.985/0.983  0.995/0.993               3 of 3
+  40     0.0  0.05   0.492/0.490  0.535/0.487  0.507/0.487               0 of 3
+  40     0.0   0.2   0.532/0.510  0.515/0.492  0.510/0.485               0 of 3
+  40     1.0  0.05   0.950/0.938  0.905/0.887  0.975/0.960               2 of 3
+  40     1.0   0.2   0.810/0.810  0.760/0.605  0.985/0.978               1 of 3
+  40     2.0  0.05   0.978/0.978  0.978/0.978  0.980/0.960               3 of 3
+  40     2.0   0.2   0.990/0.985  0.990/0.985  0.985/0.980               3 of 3
+ 100     0.0  0.05   0.542/0.492  0.525/0.490  0.525/0.497               0 of 3
+ 100     0.0   0.2   0.540/0.520  0.530/0.517  0.525/0.515               0 of 3
+ 100     1.0  0.05   0.535/0.475  0.892/0.885  0.925/0.820               0 of 3
+ 100     1.0   0.2   0.527/0.472  0.988/0.985  0.545/0.472               1 of 3
+ 100     2.0  0.05   0.785/0.782  0.963/0.943  0.963/0.938               2 of 3
+ 100     2.0   0.2   0.682/0.682  0.985/0.975  0.983/0.973               2 of 3
+Actual output from this lesson's run.
+
+saved lstm_training_by_forget_bias.png
+
+saved lstm_backward_diagram.png
+
+======================================================================
+6. WHAT COMES NEXT
+======================================================================
+The LSTM now has a checked backward pass and has been trained. Day 66 builds the GRU, a simpler gated cell with one state instead of two, and Day 67 compares a trained RNN, LSTM and GRU side by side on Week 9's data.

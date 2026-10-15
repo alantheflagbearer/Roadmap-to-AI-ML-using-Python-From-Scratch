@@ -1,0 +1,4 @@
+W: all 60 entries checked
+b: all 12 entries checked
+
+max relative error: 1.38e-09 (PASS)
