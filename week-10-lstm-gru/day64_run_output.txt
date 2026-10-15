@@ -1,0 +1,117 @@
+======================================================================
+1. THE FORWARD PASS -- checked against the same steps done by hand
+======================================================================
+A batch of 4 sequences, 3 steps each, 2 inputs, 5 hidden units, random weights. lstm_forward runs the loop; the reference calls Day 63's lstm_step_forward three times by hand, passing h and c along manually.
+
+ step   max |h loop - h by hand|   max |c loop - c by hand|
+    0                   0.00e+00                   0.00e+00
+    1                   0.00e+00                   0.00e+00
+    2                   0.00e+00                   0.00e+00
+Actual output from this lesson's run.
+
+what the cache holds for the backward pass (m=4, T=3, D=2, H=5):
+  X     shape (4, 3, 2)   
+  h0    shape (4, 5)      
+  c0    shape (4, 5)      
+  W     shape (7, 20)     
+  b     shape (20,)       
+  mask  shape (4, 3)      
+  H     shape (4, 3, 5)   
+  C     shape (4, 3, 5)   
+  F     shape (4, 3, 5)   
+  I     shape (4, 3, 5)   
+  G     shape (4, 3, 5)   
+  O     shape (4, 3, 5)   
+Actual output from this lesson's run.
+
+any length works -- the same weights (384 numbers) on three different lengths:
+  T=5    hidden states (2, 5, 8)     cell states (2, 5, 8)     largest |h| 0.285  largest |c| 0.483
+  T=50   hidden states (2, 50, 8)    cell states (2, 50, 8)    largest |h| 0.466  largest |c| 0.794
+  T=500  hidden states (2, 500, 8)   cell states (2, 500, 8)   largest |h| 0.464  largest |c| 0.963
+Actual output from this lesson's run.
+
+======================================================================
+2. PADDING WITH TWO STATES -- both h and c must be carried through padding
+======================================================================
+A 3-step sequence is run alone, then padded to 8 steps inside a batch next to a full 8-step sequence. With the mask, padded steps carry h AND c forward unchanged. Two wrong versions are tried as well: no mask at all, and a mask on h only.
+
+version                     max |h_final - alone|  max |c_final - alone|
+mask on h and c                          5.55e-17               1.11e-16
+no mask                                  1.76e-01               4.07e-01
+mask on h only                           5.55e-17               3.67e-01
+Actual output from this lesson's run.
+
+======================================================================
+3. A FASTER FORWARD PASS? -- the input part of every gate, computed before the loop
+======================================================================
+x_t @ Wx does not depend on the previous step, so it can be done for all T steps at once in one big matrix product; only h @ Wh has to stay inside the loop. Checked for identical results, then timed: best of 7 runs, several layer sizes.
+
+same result? max difference in h 1.9e-16, in c 3.3e-16
+Actual output from this lesson's run.
+
+matrix library: openblas, using 16 threads by default
+
+                       ---- default threads ----   ------ one thread ------
+   D    H batch steps     loop  precomp speed-up     loop  precomp speed-up
+   1   16   200   200   0.0372   0.0392     0.95   0.0363   0.0400     0.91
+  32   32    32   100   0.0071   0.0073     0.98   0.0072   0.0073     0.99
+  64   64    32   100   0.0216   0.0159     1.35   0.0147   0.0164     0.90
+ 128  128    32   100   1.3340   0.1164    11.46   0.1414   0.1029     1.37
+ 300  128    64    50   1.7405   0.2542     6.85   0.0762   0.0575     1.33
+Times in seconds, best of 7 runs. Actual output from this lesson's run; timings vary by machine.
+
+one matrix product per step, at D = H = 128, microseconds per call:
+product                             default threads  one thread
+[x, h] @ W  (32x256 @ 256x512)              35266.3       421.0
+h @ Wh      (32x128 @ 128x512)               1805.1       318.2
+Actual output from this lesson's run.
+
+======================================================================
+4. WHAT THE FORWARD PASS PRODUCES OVER 200 STEPS -- by forget bias
+======================================================================
+16 units, 200 sequences of 200 N(0,1) inputs (Day 59's kind of input), random weights (seed 3, as on Day 63). Only the forget bias changes. Measured at four points in time: the typical and largest size of the cell state, and the fraction of units whose tanh(c) is saturated (|tanh(c)| > 0.99).
+
+ f-bias  step  mean |c|   max |c|  saturated  mean |h|
+    0.0     1     0.084      0.59       0.0%     0.042
+    0.0    10     0.095      0.83       0.0%     0.047
+    0.0    50     0.089      0.88       0.0%     0.044
+    0.0   200     0.100      0.92       0.0%     0.049
+    1.0     1     0.084      0.59       0.0%     0.042
+    1.0    10     0.124      1.00       0.0%     0.060
+    1.0    50     0.124      1.19       0.0%     0.060
+    1.0   200     0.133      1.21       0.0%     0.064
+    2.0     1     0.084      0.59       0.0%     0.042
+    2.0    10     0.182      1.54       0.0%     0.086
+    2.0    50     0.294      1.85       0.0%     0.133
+    2.0   200     0.358      1.78       0.0%     0.155
+    4.0     1     0.084      0.59       0.0%     0.042
+    4.0    10     0.271      2.27       0.0%     0.121
+    4.0    50     1.612     10.12      20.1%     0.354
+    4.0   200     4.858     26.03      55.0%     0.410
+Actual output from this lesson's run.
+
+saved lstm_cell_state_growth.png
+
+======================================================================
+5. WHAT THE CACHE COSTS -- memory kept for the backward pass, LSTM vs. RNN
+======================================================================
+Batch 32, 100 steps, 32 inputs, 128 hidden units, float64. Each array's real size is read with .nbytes.
+
+array    LSTM (MB)  RNN (MB)
+X             0.82      0.82
+H             3.28      3.28
+C             3.28      0.00
+F             3.28      0.00
+I             3.28      0.00
+G             3.28      0.00
+O             3.28      0.00
+total        20.48      4.10    ratio 5.0
+per example per step: LSTM 800 numbers (D + 6H), RNN 160 numbers (D + H)
+Actual output from this lesson's run.
+
+saved lstm_unrolled_diagram.png
+
+======================================================================
+6. WHAT COMES NEXT
+======================================================================
+The forward pass is done and its cache holds every gate value at every step. Day 65 walks backward through that cache -- two gradients flowing back in time, one for h and one for c -- and checks the result numerically. After that the LSTM can finally be trained.

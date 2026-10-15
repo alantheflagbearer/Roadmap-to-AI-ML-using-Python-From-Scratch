@@ -21,5 +21,21 @@ Exercise: [`day63_exercise.py`](day63_exercise.py) isolates `lstm_step_forward` 
 ![Holding one number for 1,000 steps](lstm_store_hold_read.png)
 ![How much of a nudge survives T steps: RNN vs LSTM by forget bias](lstm_memory_survival.png)
 
+## Day 64 — The LSTM forward pass from scratch
+[`day64_lstm_forward_pass.py`](day64_lstm_forward_pass.py) — Day 63's step inside a loop over time, carrying two states (h and c) and caching every gate for tomorrow's backward pass. Nothing is trained today.
+
+- **Checked against steps chained by hand:** identical at every step (difference 0.00e+00). One set of weights runs sequences of 5, 50 and 500 steps.
+- **Padding with two states:** on a padded step both h and c are carried forward. A plausible bug, masking h only, leaves the final h exact (5.55e-17) while c is off by 3.67e-01 — a test that only checks h would pass it.
+- **A faster forward pass?** Precomputing the input part of every gate for all steps in one product gives the same numbers (1.9e-16). The first timing showed it ~8x faster; that was mostly this machine's 16-thread OpenBLAS being very slow on one mid-sized product (35266.3 µs with default threads, 421.0 µs on one thread). With the library on one thread the real gain is none for small layers and about 1.3–1.4x for large ones (1.37 at D = H = 128).
+- **200 steps, by forget bias:** at bias 0–2 the cell state settles; at bias 4 it keeps adding up (mean |c| 4.858, one value 26.03 by step 200) and 55.0% of units have a saturated tanh(c) — part of the price of Day 63's long-lived memory.
+- **Memory:** the cache is 20.48 MB against an RNN's 4.10 MB at the same size (ratio 5.0; D + 6H vs. D + H numbers per example per step).
+
+Study guide: [`day64_lstm_forward_pass_complete_guide.pdf`](day64_lstm_forward_pass_complete_guide.pdf) · Syntax walkthrough: [`day64_syntax_line_by_line.pdf`](day64_syntax_line_by_line.pdf) · [Run output](day64_run_output.txt)
+
+Exercise: [`day64_exercise.py`](day64_exercise.py) loops Day 63's exercise cell over time and checks it against three hand-chained steps ([run output](day64_exercise_run_output.txt)) — Day 65's exercise will differentiate exactly this loop.
+
+![The forward pass unrolled](lstm_unrolled_diagram.png)
+![Cell state growth and saturation by forget bias](lstm_cell_state_growth.png)
+
 ---
 [← Back to main README](../README.md)

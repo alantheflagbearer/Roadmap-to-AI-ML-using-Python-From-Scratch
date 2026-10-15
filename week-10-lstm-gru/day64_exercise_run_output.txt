@@ -1,0 +1,10 @@
+hidden states from the loop (one row per step):
+[[ 0.0593  0.0973  0.2592]
+ [-0.0111  0.128   0.2482]
+ [-0.0639  0.0964  0.1702]]
+cell states from the loop:
+[[ 0.1299  0.244   0.3426]
+ [-0.0244  0.3198  0.4126]
+ [-0.1551  0.2444  0.4532]]
+
+max difference from the hand-unrolled steps: 0.00e+00 (match)
