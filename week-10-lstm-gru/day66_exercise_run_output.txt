@@ -1,0 +1,8 @@
+update gate z: [[0.7121 0.6491]]   (share of the old state kept)
+reset gate r : [[0.6333 0.7961]]
+candidate n  : [[0.5005 0.0573]]
+old state    : [[-0.1512 -0.5243]]
+new state    : [[ 0.0364 -0.3202]]   = z * old + (1 - z) * n
+
+max difference from the gate-by-gate version: 0.00e+00 (match)
+weights: GRU 36, LSTM of the same size 48, RNN 12

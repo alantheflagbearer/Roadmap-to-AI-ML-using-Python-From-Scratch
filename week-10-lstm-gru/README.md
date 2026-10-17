@@ -52,5 +52,20 @@ Exercise: [`day65_exercise.py`](day65_exercise.py) adds the backward pass to Day
 ![One step of the LSTM backward pass](lstm_backward_diagram.png)
 ![Gradient reach and training results by forget bias](lstm_training_by_forget_bias.png)
 
+## Day 66 — The GRU, a simpler gated cell, from scratch
+[`day66_gru_from_scratch.py`](day66_gru_from_scratch.py) — one state, an update gate z (keep), a reset gate r and a candidate n: `h = z * h_prev + (1 - z) * n`. Built and checked the way the LSTM was over Days 63–65, then trained on exactly Day 65's grid.
+
+- **Checks:** the step matches hand arithmetic and the gate-by-gate formulas; forward/backward pass gradient checks on their own and through the classifier. Three quarters of an LSTM's weights.
+- **The direct route:** `dh_prev = dh * z` — with the gates cut off from h, the gradient at h_0 is exactly the product of update gates (6.94e-17). The GRU's other routes add little (3.077409e+00 total vs. 1.203778e+00 direct; the LSTM's added ~47x), so less gradient reaches early inputs at the same bias (2.383e-02 at 40 steps, keep-bias 2, vs. the LSTM's 1.524).
+- **Day 65's grid, like for like:** 0, 3 and 6 of 18 runs learned at keep-bias 0, 1, 2 (LSTM: 0, 10, 16). The GRU learned only at lr 0.2 — every run at 20 steps (bias 1–2) and 40 steps (bias 2) — and nothing at 100 steps.
+- **Slower, or unable?** At 40 steps and lr 0.05, three times the epochs: 2 of 3 learn. Keep-bias 3: 3 of 3; keep-bias 4: 0 of 3 — because one gate both keeps and writes, at bias 4 the GRU keeps 0.982 and can write only 0.018 of the candidate, while an LSTM's separate input gate still writes 0.5. At 100 steps: keep-bias 3 0 of 3, keep-bias 4 0 of 3.
+
+Study guide: [`day66_gru_from_scratch_complete_guide.pdf`](day66_gru_from_scratch_complete_guide.pdf) · Syntax walkthrough: [`day66_syntax_line_by_line.pdf`](day66_syntax_line_by_line.pdf) · [Run output](day66_run_output.txt)
+
+Exercise: [`day66_exercise.py`](day66_exercise.py) isolates the GRU step and checks it against the gate-by-gate formulas ([run output](day66_exercise_run_output.txt)).
+
+![One step of a GRU cell](gru_cell_diagram.png)
+![GRU gradient reach and training by keep-bias](gru_training_by_keep_bias.png)
+
 ---
 [← Back to main README](../README.md)
