@@ -1,0 +1,169 @@
+======================================================================
+0. ONE TAGGER, THREE CELLS -- what is shared and what is swapped
+======================================================================
+Day 62's tagger: words -> embedding (32) -> recurrent cell (hidden 32) -> a tag for every word. Only the cell changes. The embedding table is drawn first from the same seed, so all three start from identical word vectors; the RNN is initialised exactly as on Day 62.
+
+vocabulary 2082 words, 17 tags; training sentences 2001
+
+cell    embedding  cell weights  output layer    total  cell share
+RNN         66624          2080           561    69265        3.0%
+LSTM        66624          8320           561    75505       11.0%
+GRU         66624          6240           561    73425        8.5%
+Actual output from this lesson's run.
+
+======================================================================
+1. GRADIENT CHECK -- all three cells, through the whole tagger
+======================================================================
+Day 62's check: a tiny tagger (12 words, 3 tags, embedding 4, hidden 5), four sentences of lengths 5, 2, 4, 1 with one word repeated, every entry of every parameter nudged by +-1e-5. Pass rule: |numeric - analytic| <= 1e-10 + 1e-6 * |numeric| for every entry.
+
+cell   parameter  entries  max relative error  max |difference|   pass
+RNN            E       48            1.92e-07          2.45e-10   True
+RNN          Wxh       20            5.30e-08          5.75e-11   True
+RNN          Whh       25            3.12e-06          4.01e-11   True
+RNN           bh        5            5.49e-09          1.83e-10   True
+RNN          Why       15            1.37e-08          7.76e-11   True
+RNN           by        3            7.30e-09          1.63e-10   True
+LSTM           E       48            6.71e-08          3.90e-11   True
+LSTM           W      180            3.42e-05          2.13e-11   True
+LSTM           b       20            1.01e-06          1.02e-10   True
+LSTM         Why       15            1.05e-07          2.32e-11   True
+LSTM          by        3            2.86e-09          1.20e-11   True
+GRU            E       48            2.14e-07          3.71e-11   True
+GRU            W      135            1.62e-04          2.30e-11   True
+GRU            b       15            8.86e-07          1.00e-10   True
+GRU          Why       15            8.47e-09          1.71e-11   True
+GRU           by        3            4.52e-09          6.29e-12   True
+every entry passes, and <pad>'s embedding gradient is exactly zero: RNN True, LSTM True, GRU True
+Actual output from this lesson's run.
+
+======================================================================
+2. FAIR SETTINGS -- each cell gets its own learning rate, chosen on validation
+======================================================================
+One learning rate for all three would favour whichever cell it happens to suit. Each cell is trained at four learning rates (and the gated cells at gate bias 0 and 1), seed 0, 25 epochs, Day 62's batch size 32 and clip 1.0. The setting with the best VALIDATION accuracy is kept; test accuracy is not looked at here.
+
+cell     lr  gate bias  best val  at epoch  val at end  train at end
+RNN     0.5          -    0.8170        21      0.8081        0.9122
+RNN     1.0          -    0.8254        21      0.8092        0.9277
+RNN     2.0          -    0.8232         9      0.8156        0.9440
+RNN     4.0          -    0.7478        20      0.7180        0.8139
+LSTM    0.5        0.0    0.8081        24      0.8081        0.8772
+LSTM    1.0        0.0    0.8276        21      0.8197        0.9092
+LSTM    2.0        0.0    0.8331        21      0.8224        0.9339
+LSTM    4.0        0.0    0.8300         9      0.8137        0.9563
+LSTM    0.5        1.0    0.8078        24      0.8078        0.8761
+LSTM    1.0        1.0    0.8276        21      0.8274        0.9101
+LSTM    2.0        1.0    0.8327        18      0.8289        0.9313
+LSTM    4.0        1.0    0.8333        13      0.8143        0.9530
+GRU     0.5        0.0    0.8169        24      0.8169        0.8918
+GRU     1.0        0.0    0.8331        21      0.8248        0.9163
+GRU     2.0        0.0    0.8288        18      0.8230        0.9390
+GRU     4.0        0.0    0.8333         9      0.8018        0.9645
+GRU     0.5        1.0    0.8093        24      0.8093        0.8822
+GRU     1.0        1.0    0.8274        21      0.8236        0.9093
+GRU     2.0        1.0    0.8285        18      0.8218        0.9343
+GRU     4.0        1.0    0.8286         9      0.8129        0.9544
+
+chosen on validation: RNN lr 1.0, LSTM lr 4.0 gate bias 1.0, GRU lr 4.0 gate bias 0.0
+Actual output from this lesson's run.
+
+======================================================================
+3. THE COMPARISON -- three seeds per cell, at its chosen setting
+======================================================================
+Test accuracy at each run's best validation epoch (Day 62's rule). The no-memory baseline is Day 62's most-frequent-tag: every word gets the tag it had most often in training.
+
+cell   seed  best epoch  val there  test there  train at end
+RNN       0          21     0.8254      0.8338        0.9277
+RNN       1          12     0.8253      0.8334        0.9324
+RNN       2          17     0.8274      0.8308        0.9277
+LSTM      0          13     0.8333      0.8395        0.9530
+LSTM      1          10     0.8291      0.8370        0.9596
+LSTM      2          13     0.8289      0.8366        0.9558
+GRU       0           9     0.8333      0.8378        0.9645
+GRU       1           7     0.8292      0.8311        0.9691
+GRU       2          17     0.8280      0.8320        0.9676
+
+cell    mean test     min     max  vs most-frequent-tag
+RNN        0.8327  0.8308  0.8338               +0.0310
+LSTM       0.8377  0.8366  0.8395               +0.0361
+GRU        0.8336  0.8311  0.8378               +0.0320
+most-frequent-tag baseline on test: 0.8016; test words 18460, one standard error about 0.0027
+Actual output from this lesson's run.
+
+consistency check: the RNN at Day 62's setting (lr 1.0, seed 0) reaches test 0.8338 at its best validation epoch (Day 62 reported 0.8338)
+Actual output from this lesson's run.
+
+======================================================================
+4. WHERE THE CELLS DIFFER -- word groups and position in the sentence
+======================================================================
+Day 62's three word groups (UNAMBIGUOUS: known word with one tag in training; AMBIGUOUS: known word with several; UNKNOWN: <unk>), and the word's position in its sentence. Accuracy is the mean of the three seeds.
+
+by word group:
+              all words unambiguous   ambiguous     unknown
+share            100.0%       37.7%       42.2%       20.2%
+most-freq        0.8016      0.9814      0.8474      0.3705
+RNN              0.8327      0.9693      0.8740      0.4914
+LSTM             0.8377      0.9732      0.8749      0.5072
+GRU              0.8336      0.9744      0.8666      0.5018
+
+by position in the sentence:
+               1st word     2nd-3rd    4th-10th   11th-20th     21st on
+share              8.9%       15.8%       38.1%       24.8%       12.4%
+most-freq        0.7656      0.7878      0.7993      0.8219      0.8119
+RNN              0.8231      0.8381      0.8307      0.8365      0.8310
+LSTM             0.8199      0.8364      0.8386      0.8435      0.8379
+GRU              0.8233      0.8389      0.8326      0.8347      0.8354
+Actual output from this lesson's run.
+
+how often two cells (seed 0 each) give a word DIFFERENT tags, and who is right then:
+pair          disagree  first right  second right  neither
+RNN-LSTM         9.93%        35.7%         41.5%    22.8%
+RNN-GRU         10.16%        36.8%         40.7%    22.5%
+LSTM-GRU         8.08%        41.4%         39.2%    19.3%
+Actual output from this lesson's run.
+
+======================================================================
+5. HOW FAR BACK DOES EACH TAGGER LOOK? -- change one earlier word
+======================================================================
+For every test sentence, a target word t is picked at random; the word k positions EARLIER is replaced by a random vocabulary word, and the tagger's prediction at t is compared before and after. Two numbers per distance k: how often the predicted tag changes, and the mean total-variation distance between the two probability distributions (0 = identical, 1 = no overlap). Words after t cannot matter: the taggers read left to right. 5 random draws per sentence, three seeds per cell.
+
+   k   draws   RNN changed  LSTM changed   GRU changed    RNN TV   LSTM TV    GRU TV
+   1    7575        18.55%        18.13%        19.36%    0.1720    0.1721    0.1870
+   2    7010         8.60%         8.23%         9.29%    0.0754    0.0783    0.0857
+   3    6320         4.42%         5.37%         5.45%    0.0463    0.0503    0.0503
+   4    5875         2.92%         3.42%         3.13%    0.0299    0.0323    0.0317
+   6    5005         1.36%         1.44%         1.20%    0.0128    0.0140    0.0117
+   8    4130         0.44%         1.06%         0.59%    0.0058    0.0079    0.0055
+  12    2890         0.09%         0.16%         0.15%    0.0013    0.0023    0.0012
+Actual output from this lesson's run.
+
+======================================================================
+6. A FAIRER SIZE MATCH -- an RNN with as many cell weights as the LSTM
+======================================================================
+At hidden 32 the LSTM's cell has four times the RNN's weights. An RNN with hidden 76 has about as many cell weights as the LSTM at 32 (and the GRU at 38 likewise). Same learning rate as each cell's chosen one, three seeds.
+
+model             cell weights   seed 0   seed 1   seed 2     mean
+RNN hidden 32             2080   0.8338   0.8334   0.8308   0.8327
+RNN hidden 76             8284   0.8242   0.8246   0.8281   0.8256
+GRU hidden 38             8094   0.8360   0.8379   0.8323   0.8354
+LSTM hidden 32            8320   0.8395   0.8370   0.8366   0.8377
+Actual output from this lesson's run.
+
+======================================================================
+7. WHAT EACH CELL COSTS -- seconds per training epoch
+======================================================================
+Measured inside every training run above (training steps only, not evaluation), matrix library on one thread. Median over all 25 epochs of the three seeds at the chosen settings. Timings vary by machine.
+
+cell    seconds / epoch   vs RNN
+RNN                0.13     1.00
+LSTM               0.45     3.40
+GRU                0.36     2.71
+Actual output from this lesson's run.
+
+saved cells_validation_curves.png
+saved cells_where_and_how_far.png
+saved three_cells_tagger_diagram.png
+
+======================================================================
+8. WHAT COMES NEXT
+======================================================================
+Every tagger today reads left to right, so the tag of a word is decided before the words after it are seen. Day 62 measured what that costs: a right-to-left tagger is right on many words the left-to-right one gets wrong. Day 68 builds the two standard extensions: stacking cells in layers, and a bidirectional tagger that reads both ways at once.

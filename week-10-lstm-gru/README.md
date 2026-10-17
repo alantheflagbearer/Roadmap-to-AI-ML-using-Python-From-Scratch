@@ -67,5 +67,22 @@ Exercise: [`day66_exercise.py`](day66_exercise.py) isolates the GRU step and che
 ![One step of a GRU cell](gru_cell_diagram.png)
 ![GRU gradient reach and training by keep-bias](gru_training_by_keep_bias.png)
 
+## Day 67 — RNN vs LSTM vs GRU: a real comparison on Week 9's tagging task
+[`day67_rnn_lstm_gru_compared.py`](day67_rnn_lstm_gru_compared.py) — Day 62's part-of-speech tagger with only the recurrent cell swapped: same data, same starting word vectors, same batches and clipping. Each cell's learning rate (and gate bias) is chosen on validation accuracy only; three seeds per cell; test read once at the best validation epoch.
+
+- **Checks:** all three cells pass Day 62's gradient check through the whole tagger, and the RNN reproduces Day 62's result exactly (0.8338).
+- **The comparison:** test accuracy RNN 0.8327, LSTM 0.8377, GRU 0.8336 (most-frequent-tag baseline 0.8016; one standard error about 0.0027). The LSTM's edge is small but consistent — every LSTM seed beats every RNN seed — and comes mostly from unknown words (0.5072 vs 0.4914) and later positions. The GRU is level with the RNN. The cells disagree on about one word in ten (9.93% for RNN-LSTM), each right about equally often when they do.
+- **Why the gap is small:** a look-back probe (change one word k positions before a target, measure how the target's tag distribution moves) shows every tagger relies on the last few words: the previous word changes the prediction in about 18% of cases (18.55% for the RNN), 12 words back in about 0.1% (0.09%). Part-of-speech tags are short-range; the plain RNN's memory already covers that range.
+- **Not just size:** an RNN with as many cell weights as the LSTM (hidden 76) did worse, 0.8256 — more overfitting. The validation choices themselves were within noise of each other (LSTM 0.8333 vs 0.8331 for the runner-up).
+- **Cost:** an LSTM epoch took 3.40 times an RNN epoch.
+
+Study guide: [`day67_rnn_lstm_gru_compared_complete_guide.pdf`](day67_rnn_lstm_gru_compared_complete_guide.pdf) · Syntax walkthrough: [`day67_syntax_line_by_line.pdf`](day67_syntax_line_by_line.pdf) · [Run output](day67_run_output.txt)
+
+Exercise: [`day67_exercise.py`](day67_exercise.py) gives an LSTM an output and a loss at every step, gradient-checks it, and trains it to output the token seen two steps earlier ([run output](day67_exercise_run_output.txt)) — Day 69's decoder.
+
+![One tagger, three cells](three_cells_tagger_diagram.png)
+![Validation curves for the three cells](cells_validation_curves.png)
+![Where the cells differ, and how far back they look](cells_where_and_how_far.png)
+
 ---
 [← Back to main README](../README.md)

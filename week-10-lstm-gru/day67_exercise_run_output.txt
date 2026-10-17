@@ -1,0 +1,8 @@
+gradient check, every entry of W, b, Why, by: largest |numeric - analytic| = 3.33e-11
+before training: test accuracy at every step 0.322, steps 3-12 only 0.387 (guessing among 4 tokens: 0.250)
+step   300  training loss 0.5909  test accuracy at every step 0.791  (steps 3-12 only: 0.749)
+step   600  training loss 0.0258  test accuracy at every step 1.000  (steps 3-12 only: 1.000)
+step   900  training loss 0.0102  test accuracy at every step 1.000  (steps 3-12 only: 1.000)
+step  1200  training loss 0.0063  test accuracy at every step 1.000  (steps 3-12 only: 1.000)
+step  1500  training loss 0.0040  test accuracy at every step 1.000  (steps 3-12 only: 1.000)
+An untrained LSTM already beats guessing on steps 3-12: its state mixes the last few tokens, and the random output layer happens to line up with some of them.
