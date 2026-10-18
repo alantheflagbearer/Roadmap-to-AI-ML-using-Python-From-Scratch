@@ -1,0 +1,104 @@
+======================================================================
+0. THE PARTS -- what each exercise script contributes today
+======================================================================
+Code is copied from each dayNN_exercise.py. Lines that had to change are marked CHANGED; lines that exist only because of today's topic are marked NEW.
+
+from              what is reused                        changed today?
+Day 63 exercise   sigmoid, lstm_step_forward            no -- verbatim
+Day 64 exercise   lstm_forward (the loop)               no -- verbatim (day65's form)
+Day 65 exercise   lstm_backward                         3 lines: gradient in at c, out at h0, c0
+Day 66 exercise   gru_step_forward                      not used
+Day 67 exercise   a softmax and loss at every step      moved into its own function
+Day 68 exercise   a second LSTM reading backwards       final states only
+
+worked example (REVERSE, 5 digits; EOS = 0, GO = 9):
+  source [5, 8, 6, 1, 4]  decoder reads [9, 4, 1, 6, 8, 5]  decoder must write [4, 1, 6, 8, 5, 0]
+  source [4, 4, 8, 2, 4]  decoder reads [9, 4, 2, 8, 4, 4]  decoder must write [4, 2, 8, 4, 4, 0]
+left-to-right encoder: Wef (42, 128), bef (128,), Wd (42, 128), bd (128,), Why (32, 10), by (10,); total 11338
+bidirectional encoder: Wef (26, 64), bef (64,), Web (26, 64), beb (64,), Wd (42, 128), bd (128,), Why (32, 10), by (10,); total 9290
+Actual output from this lesson's run.
+
+======================================================================
+1. GRADIENT CHECK -- through the decoder AND back into the encoder
+======================================================================
+A tiny model (hidden 4; the bidirectional encoder 2 + 2), 3 sequences of 5 digits, REVERSE. Every entry of every parameter is nudged by +-1e-5. The encoder's weights receive gradient ONLY through the decoder's initial state, so if the new line were wrong, the encoder rows below would fail. Pass rule: |numeric - analytic| <= 1e-10 + 1e-6 * |numeric|.
+
+encoder         parameter  entries  max relative error  max |difference|   pass
+left-to-right         Wef      224            5.76e-06          3.95e-11   True
+left-to-right         bef       16            1.49e-05          3.03e-11   True
+left-to-right          Wd      224            3.77e-06          3.63e-11   True
+left-to-right          bd       16            1.49e-08          2.08e-11   True
+left-to-right         Why       40            1.01e-07          3.63e-11   True
+left-to-right          by       10            1.42e-09          2.23e-11   True
+bidirectional         Wef       96            5.71e-05          3.22e-11   True
+bidirectional         bef        8            4.20e-07          2.09e-11   True
+bidirectional         Web       96            1.78e-04          4.06e-11   True
+bidirectional         beb        8            1.60e-07          2.48e-11   True
+bidirectional          Wd      224            1.46e-06          4.00e-11   True
+bidirectional          bd       16            1.70e-08          3.04e-11   True
+bidirectional         Why       40            6.02e-08          4.20e-11   True
+bidirectional          by       10            3.90e-10          2.27e-11   True
+every entry passes: left-to-right encoder True, bidirectional encoder True
+Actual output from this lesson's run.
+
+======================================================================
+2. TRAINING -- COPY and REVERSE, three seeds each
+======================================================================
+Hidden 32, forget bias 1, plain SGD lr 0.5 with clipping at 1.0, batches of 32 sequences of one random length 3..8, 20000 steps. Test: 300 fixed sequences of every length 3..8, decoded greedily (the decoder feeds itself its own previous output). EXACT MATCH = every digit and the final EOS right.
+
+task     encoder         seed  final loss  exact match  token acc  seconds
+copy     left-to-right      0      0.0093       0.9922     0.9985     64.9
+copy     left-to-right      1      0.0081       0.9894     0.9975     72.6
+copy     left-to-right      2      0.0105       0.9933     0.9983     72.5
+reverse  left-to-right      0      0.0024       0.9994     0.9999     72.9
+reverse  left-to-right      1      0.0045       0.9872     0.9969     74.4
+reverse  left-to-right      2      0.0051       0.9983     0.9996     77.8
+Actual output from this lesson's run.
+
+exact match by length (mean of 3 seeds):
+task           n=3      n=4      n=5      n=6      n=7      n=8
+copy         1.000    1.000    0.999    0.998    0.991    0.962
+reverse      1.000    1.000    1.000    1.000    0.992    0.978
+Actual output from this lesson's run.
+
+======================================================================
+3. TWO CONTROLS -- remove the encoder's state; feed the decoder the truth
+======================================================================
+(a) The trained models with the encoder's final (h, c) replaced by zeros at test time: the decoder alone, knowing nothing about the source. Guessing gives 1/8 per digit. (b) TEACHER FORCING (training-time decoding: every decoder input is the TRUE previous digit) against greedy decoding (each input is the model's own previous output, as in real use). Token accuracy, mean of three seeds.
+
+task         normal  encoder state zeroed  teacher-forced   greedy
+copy         0.9981                0.1872          0.9990   0.9981
+reverse      0.9988                0.1864          0.9994   0.9988
+Actual output from this lesson's run.
+
+======================================================================
+4. WHERE THE ERRORS ARE -- accuracy at each output position, 8-digit sequences
+======================================================================
+Position 1 is the first digit the decoder writes. For COPY that is the FIRST digit the encoder read, 8 steps before its final state; for REVERSE it is the LAST digit it read. Greedy decoding, mean of three seeds, the 300 test sequences of length 8.
+
+output position             1      2      3      4      5      6      7      8
+COPY: read at step          1      2      3      4      5      6      7      8
+  accuracy              1.000  1.000  0.999  0.999  0.992  0.989  0.979  0.971
+REVERSE: read at step       8      7      6      5      4      3      2      1
+  accuracy              1.000  1.000  0.998  0.998  0.996  0.986  0.983  0.991
+Actual output from this lesson's run.
+
+======================================================================
+5. DAY 68'S BIDIRECTIONAL ENCODER -- same tasks, same decoder size
+======================================================================
+Two encoder LSTMs of 16 units (one reads left to right, one right to left); their final states are joined into the decoder's 32. Everything else as in Section 2. The seed columns are the FINAL model; 'best checkpoint' is the best exact match at any of the 20 checkpoints (every 1,000 steps), mean of the three seeds -- it shows whether a low final number is a late dip or a run that never learned.
+
+task     encoder           seed 0   seed 1   seed 2     mean  best checkpoint  seconds
+copy     left-to-right     0.9922   0.9894   0.9933   0.9917           0.9946     70.0
+copy     bidirectional     0.9961   0.9983   0.9933   0.9959           0.9967     77.3
+reverse  left-to-right     0.9994   0.9872   0.9983   0.9950           0.9993     75.1
+reverse  bidirectional     0.9972   0.9906   0.8967   0.9615           0.9957     78.7
+Actual output from this lesson's run.
+
+saved seq2seq_results.png
+saved seq2seq_diagram.png
+
+======================================================================
+6. THE WEEK IN ONE PARAGRAPH
+======================================================================
+Day 63 built the LSTM cell and its cell-state route; Day 64 looped it over time; Day 65 backpropagated through it and found the forget bias decides whether it learns; Day 66 built the GRU and found where its tied gate costs it; Day 67 put all three cells on a real task; Day 68 stacked layers and read in both directions. Today two LSTMs became an encoder and a decoder, joined only by one final state. Day 70 asks what that single state costs as sequences get longer.

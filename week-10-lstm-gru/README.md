@@ -100,5 +100,19 @@ Exercise: [`day68_exercise.py`](day68_exercise.py) isolates a bidirectional LSTM
 ![A 2-layer bidirectional tagger](deep_bidirectional_diagram.png)
 ![Where reading both ways helps, and which words each tagger looks at](deep_bidirectional_results.png)
 
+## Day 69 — The Week 10 build: a sequence-to-sequence encoder-decoder from the exercise parts
+[`day69_seq2seq_encoder_decoder.py`](day69_seq2seq_encoder_decoder.py) — an encoder LSTM reads a sequence of 3 to 8 digits; its final (h, c) is the only thing handed to a decoder LSTM, which writes the output one digit at a time (teacher forcing in training, greedy decoding at test). Assembled from the Day 63–68 exercise scripts, like Day 62 was for Week 9: the LSTM step (63), the loop (64), the backward pass (65, three lines changed so it also returns the gradients at h0 and c0), an output at every step (67) and a backward-reading encoder (68). Day 66's GRU step is not used.
+
+- **The new line, checked:** gradient checks pass on every entry of both encoders, whose weights receive gradient only through the decoder's initial state.
+- **Training (three seeds each):** exact match on 300 test sequences per length — copy 0.9917, reverse 0.9950. Every sequence of 3–4 digits is right; at 8 digits exact match falls to 0.962 (copy) and 0.978 (reverse).
+- **Controls:** with the encoder's state replaced by zeros, token accuracy drops from 0.9981 to 0.1872 (copy) — near guessing: the input really travels through those 64 numbers. Teacher-forced and greedy accuracy are almost equal (0.9990 vs 0.9981).
+- **Where the errors are — an expectation that failed:** for copy, the digits read longest ago (output position 1) are perfect (1.000) and the errors are at the end of the output (0.971 at position 8, the digit read most recently). Reverse has the same shape. Errors follow how far into its output the decoder is, not how long ago the encoder read the digit.
+- **Day 68's bidirectional encoder** (16 + 16 units): copy 0.9959, reverse 0.9615. The low reverse mean is one seed caught in a late SGD dip at the final checkpoint (the learning curves show it level with the other runs until then) — final-step-only evaluation would have misread it as a failure.
+
+Study guide: [`day69_seq2seq_encoder_decoder_complete_guide.pdf`](day69_seq2seq_encoder_decoder_complete_guide.pdf) · Syntax walkthrough: [`day69_syntax_line_by_line.pdf`](day69_syntax_line_by_line.pdf) · [Run output](day69_run_output.txt)
+
+![Encoder-decoder on a REVERSE example](seq2seq_diagram.png)
+![Learning curves and accuracy by output position](seq2seq_results.png)
+
 ---
 [← Back to main README](../README.md)
