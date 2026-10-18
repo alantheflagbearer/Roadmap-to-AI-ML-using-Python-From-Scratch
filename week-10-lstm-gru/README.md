@@ -84,5 +84,21 @@ Exercise: [`day67_exercise.py`](day67_exercise.py) gives an LSTM an output and a
 ![Validation curves for the three cells](cells_validation_curves.png)
 ![Where the cells differ, and how far back they look](cells_where_and_how_far.png)
 
+## Day 68 — Stacked and bidirectional RNNs, from scratch
+[`day68_stacked_bidirectional.py`](day68_stacked_bidirectional.py) — Day 67's LSTM tagger with two new switches: `bidirectional` (a second LSTM reads each sentence right to left; the two states are joined at every word) and `layers` (a second LSTM layer reads the first layer's states). `reverse_padded` flips only each sentence's real words, so padding stays at the end; the backward pass flips the gradient the same way.
+
+- **Checks:** reversing twice restores every sentence; the 2-layer bidirectional tagger passes Day 62's gradient check on all 11 parameter arrays; changing the last word moves the first word's prediction in the bidirectional tagger and not at all (0.00e+00) in the left-to-right one.
+- **Reading both ways is the big step:** test accuracy 0.8377 → 0.8577, about eight standard errors (0.0026), every bidirectional seed above every left-to-right seed. Not size: a left-to-right tagger with as many LSTM weights (hidden 50) reaches 0.8393. The gain is on ambiguous words (0.8749 → 0.9083) and unknown words (0.5072 → 0.5374); verbs gain +0.0865.
+- **A second layer does not help here:** 0.8326 left to right, 0.8557 bidirectional. Not the learning rate: at half of it, validation moved by less than the noise (0.8282 vs 0.8233; 0.8547 vs 0.8563).
+- **The probe, both ways:** the left-to-right tagger is exactly blind to later words (0.0000); the bidirectional one uses the next word (0.1614) about as much as the previous one (0.1247).
+- **Cost:** a second direction 1.97 times the training time, both a second direction and a second layer 4.09 times.
+
+Study guide: [`day68_stacked_bidirectional_complete_guide.pdf`](day68_stacked_bidirectional_complete_guide.pdf) · Syntax walkthrough: [`day68_syntax_line_by_line.pdf`](day68_syntax_line_by_line.pdf) · [Run output](day68_run_output.txt)
+
+Exercise: [`day68_exercise.py`](day68_exercise.py) isolates a bidirectional LSTM layer, gradient-checks it, and trains it to output the NEXT token: bidirectional 1.000, forward only 0.263 (guessing: 0.250) ([run output](day68_exercise_run_output.txt)).
+
+![A 2-layer bidirectional tagger](deep_bidirectional_diagram.png)
+![Where reading both ways helps, and which words each tagger looks at](deep_bidirectional_results.png)
+
 ---
 [← Back to main README](../README.md)

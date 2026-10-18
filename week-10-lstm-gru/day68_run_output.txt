@@ -1,0 +1,120 @@
+======================================================================
+0. FOUR TAGGERS -- one layer or two, one direction or two
+======================================================================
+Day 67's LSTM tagger (embedding 32, hidden 32 per direction, lr 4.0, forget bias 1.0: Day 67's validation choice for the LSTM). A bidirectional layer runs a second LSTM over each sentence backwards and joins the two states at every word, so it hands 64 numbers per word upward. A second layer reads the first layer's states instead of word vectors.
+
+tagger                     LSTMs  LSTM weights  output layer    total
+1 layer, left to right         1          8320           561    75505
+2 layers, left to right        2         16640           561    83825
+1 layer, bidirectional         2         16640          1105    84369
+2 layers, bidirectional        4         41472          1105   109201
+Actual output from this lesson's run.
+
+======================================================================
+1. CHECKS -- reversing with padding, and gradients through two layers and two directions
+======================================================================
+(a) reverse_padded must flip only the real words of each sentence and leave padding in place; done twice it must give back the original. (b) Day 62's gradient check (12 words, 3 tags, embedding 4, hidden 5, four sentences of lengths 5, 2, 4, 1) on the 2-layer bidirectional tagger, every entry of all 11 parameter arrays. Pass rule: |numeric - analytic| <= 1e-10 + 1e-6 * |numeric|.
+
+(a) sentences [[5, 6, 7, 0, 0], [8, 9, 0, 0, 0]] -> reversed [[7, 6, 5, 0, 0], [9, 8, 0, 0, 0]]; reversed twice equals the original: True
+
+(b)  parameter  entries  max relative error  max |difference|   pass
+             E       48            5.89e-08          1.34e-11   True
+           W0f      180            8.36e-04          1.77e-11   True
+           b0f       20            2.67e-06          6.74e-11   True
+           W0b      180            6.60e-05          1.80e-11   True
+           b0b       20            2.70e-06          2.31e-11   True
+           W1f      300            6.52e-05          2.13e-11   True
+           b1f       20            4.96e-08          4.65e-11   True
+           W1b      300            7.46e-04          1.70e-11   True
+           b1b       20            3.67e-07          3.02e-11   True
+           Why       30            7.80e-08          2.35e-11   True
+            by        3            9.36e-09          1.45e-11   True
+every entry passes: True;  <pad>'s embedding gradient exactly zero: True
+Actual output from this lesson's run.
+
+changing the LAST word moves the FIRST word's tag probabilities by: bidirectional 3.91e-04, left to right 0.00e+00
+Actual output from this lesson's run.
+
+======================================================================
+2. TRAINING THE FOUR TAGGERS -- three seeds each
+======================================================================
+Day 67's setup unchanged: 25 epochs, batch 32, clip 1.0, lr 4.0, forget bias 1.0; test accuracy at each run's best validation epoch. Plus a size control: a 1-layer left-to-right tagger with hidden 50, which has about as many LSTM weights as the 1-layer bidirectional one.
+
+tagger                           seed 0   seed 1   seed 2     mean   best epochs  train at end
+1 layer, left to right           0.8395   0.8370   0.8366   0.8377      13/10/13        0.9561
+1 layer, left to right, h 50     0.8392   0.8402   0.8386   0.8393        9/12/9        0.9674
+2 layers, left to right          0.8347   0.8347   0.8282   0.8326      18/12/13        0.9375
+1 layer, bidirectional           0.8600   0.8556   0.8575   0.8577       17/6/20        0.9862
+2 layers, bidirectional          0.8552   0.8540   0.8580   0.8557      18/12/15        0.9828
+most-frequent-tag baseline on test: 0.8016; one standard error about 0.0026
+Actual output from this lesson's run.
+
+======================================================================
+2b. IS DAY 67'S LEARNING RATE STILL RIGHT FOR THE BIGGER TAGGERS?
+======================================================================
+lr 4.0 was chosen on Day 67 for a 1-layer left-to-right tagger. Each bigger tagger is also trained at half that, seed 0, and the two are compared on VALIDATION accuracy only.
+
+tagger                      val at lr 4.0  val at lr 2.0
+2 layers, left to right            0.8282         0.8233
+1 layer, bidirectional             0.8547         0.8563
+2 layers, bidirectional            0.8431         0.8456
+Actual output from this lesson's run.
+
+======================================================================
+3. WHERE READING BOTH WAYS HELPS -- word groups, and the tags that gain most
+======================================================================
+Day 62's word groups, mean of three seeds. Then the tags whose accuracy changes most from the 1-layer left-to-right tagger to the 1-layer bidirectional one (seed 0 each).
+
+                              all words  unambiguous    ambiguous      unknown
+share of test words              100.0%        37.7%        42.2%        20.2%
+most-frequent-tag                0.8016       0.9814       0.8474       0.3705
+1 layer, left to right           0.8377       0.9732       0.8749       0.5072
+2 layers, left to right          0.8326       0.9697       0.8684       0.5017
+1 layer, bidirectional           0.8577       0.9728       0.9083       0.5374
+2 layers, bidirectional          0.8557       0.9714       0.9069       0.5329
+Actual output from this lesson's run.
+
+ true tag  test words  left to right  bidirectional   change
+      NUM         376         0.5346         0.6622  +0.1277
+    SCONJ         250         0.5960         0.6920  +0.0960
+     VERB        1930         0.7762         0.8627  +0.0865
+      ADP        1447         0.8576         0.9337  +0.0760
+     INTJ          96         0.4896         0.5417  +0.0521
+      ADJ        1381         0.6937         0.7415  +0.0478
+Actual output from this lesson's run.
+
+======================================================================
+4. WHICH WORDS DOES EACH TAGGER LOOK AT? -- change one word before OR after the target
+======================================================================
+Day 67's probe, now in both directions: the word k positions before (k < 0) or after (k > 0) a random target word is replaced by a random vocabulary word, and the mean total-variation change of the target's tag distribution is measured. 5 draws per sentence, three seeds, the 1-layer taggers and the 2-layer bidirectional one.
+
+ offset k    1 layer, left to right    1 layer, bidirectional   2 layers, bidirectional
+       -8                    0.0075                    0.0089                    0.0070
+       -4                    0.0329                    0.0278                    0.0273
+       -2                    0.0800                    0.0625                    0.0658
+       -1                    0.1713                    0.1247                    0.1326
+       +1                    0.0000                    0.1614                    0.1712
+       +2                    0.0000                    0.0647                    0.0672
+       +4                    0.0000                    0.0253                    0.0254
+       +8                    0.0000                    0.0082                    0.0071
+Actual output from this lesson's run.
+
+======================================================================
+5. WHAT EACH COSTS -- seconds per training epoch
+======================================================================
+Median over every epoch of the three seeds; training steps only; matrix library on one thread. Timings vary by machine.
+
+tagger                      seconds / epoch  vs 1 layer, left to right
+1 layer, left to right                 0.50                       1.00
+2 layers, left to right                0.90                       1.80
+1 layer, bidirectional                 0.98                       1.97
+2 layers, bidirectional                2.04                       4.09
+Actual output from this lesson's run.
+
+saved deep_bidirectional_results.png
+saved deep_bidirectional_diagram.png
+
+======================================================================
+6. WHAT COMES NEXT
+======================================================================
+A bidirectional layer can only be used when the whole input is available before any output is needed -- true for tagging a finished sentence, not for writing a sentence word by word. Day 69, the week's build, uses both kinds: an ENCODER that reads a whole input sequence (and may read it both ways), and a DECODER that writes an output sequence one token at a time, left to right.

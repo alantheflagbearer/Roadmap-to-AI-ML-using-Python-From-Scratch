@@ -2,7 +2,7 @@
 
 A daily-practice log following a 52-week (365-day) roadmap from Python fundamentals through classical ML, deep learning, and into applied AI. Most lessons don't just call a library function — they build the underlying idea (gradient descent, backprop, convolution, dropout...) from scratch in NumPy first, then show the framework equivalent. Each day is a self-contained script; from Week 1 onward, most days add a paired study guide (a concept walkthrough and a line-by-line syntax breakdown, both PDF).
 
-**Currently on Day 67** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
+**Currently on Day 68** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
 
 ## How this repo is organized
 
@@ -23,7 +23,7 @@ A daily-practice log following a 52-week (365-day) roadmap from Python fundament
 | 7 | 42–48 | CNNs I & II | [→ folder](week-07-cnns-i-and-ii) |
 | 8 | 49–55 | Classic CNN Architectures + Regularization | [→ folder](week-08-classic-cnn-architectures) |
 | 9 | 56–62 | Sequence Data & RNNs I | [→ folder](week-09-sequence-data-rnns-i) |
-| 10 | 63–67 (of 63–69) | LSTM & GRU — in progress | [→ folder](week-10-lstm-gru) |
+| 10 | 63–68 (of 63–69) | LSTM & GRU — in progress | [→ folder](week-10-lstm-gru) |
 
 Weeks 11 onward (attention, Transformers, tokenization, a mini-GPT, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
 
@@ -44,6 +44,7 @@ Starting with Week 6, the same small neural-network library — written entirely
 | ![LSTM cell](week-10-lstm-gru/lstm_cell_diagram.png) One step of an LSTM cell — Day 63 | ![LSTM memory survival](week-10-lstm-gru/lstm_memory_survival.png) Memory survival depends on the forget gate — Day 63 |
 | ![LSTM cell state growth](week-10-lstm-gru/lstm_cell_state_growth.png) With f near 1 the cell state adds up and saturates — Day 64 | ![LSTM training by forget bias](week-10-lstm-gru/lstm_training_by_forget_bias.png) First LSTM training: the forget bias decides — Day 65 |
 | ![GRU cell](week-10-lstm-gru/gru_cell_diagram.png) The GRU: one state, two gates — Day 66 | ![Where the cells differ](week-10-lstm-gru/cells_where_and_how_far.png) RNN vs LSTM vs GRU on real tagging: every cell looks only a few words back — Day 67 |
+| ![Deep bidirectional tagger](week-10-lstm-gru/deep_bidirectional_results.png) Reading both ways: +2 points; a second layer: nothing — Day 68 | |
 
 ## Featured project: Titanic EDA (Day 13)
 

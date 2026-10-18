@@ -1,0 +1,3 @@
+gradient check, every entry of both LSTMs and the output layer: largest |numeric - analytic| = 3.20e-11
+forward only   weights  1493  final training loss 1.2747  test accuracy, steps 1-11: 0.263  (guessing among 4 tokens: 0.250)
+bidirectional  weights  2981  final training loss 0.0034  test accuracy, steps 1-11: 1.000  (guessing among 4 tokens: 0.250)
