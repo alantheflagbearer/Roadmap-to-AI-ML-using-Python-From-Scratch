@@ -1,0 +1,6 @@
+matrix              argmax on target  weight on target  entropy   (log n = 2.079)
+sharp diagonal                 1.000             0.999    0.005
+blurred diagonal               1.000             0.524    1.340
+uniform                        0.125             0.125    2.079
+shifted by one                 0.125             0.125    0.005
+saved day72_exercise_heatmaps.png

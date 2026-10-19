@@ -34,5 +34,19 @@ Exercise: [`day71_exercise.py`](day71_exercise.py) isolates one additive attenti
 ![One decoder step with additive attention](additive_attention_diagram.png)
 ![Exact match during training](attention_training_curves.png)
 
+## Day 72 — Looking inside attention: alignment heatmaps on the toy task
+[`day72_attention_heatmaps.py`](day72_attention_heatmaps.py) — Day 71's models (retrained with the same seeds, so the same models) and the weights they produce at every output step: where the decoder looked.
+
+- **The alignment a person would draw:** a diagonal for COPY, an anti-diagonal for REVERSE. The largest weight is on the input digit being written for 1.000 of COPY outputs and about 0.99 of REVERSE outputs.
+- **Where the leftover weight goes:** for REVERSE mostly to the *next* encoder state (0.201–0.237) rather than the previous one. A probe explains it: the digit at position 8 is read from h_8 at 1.000 and from h_9 at 0.999, but from h_7 only at 0.131 (guessing 0.125). COPY's smaller weight on the previous state is not explained by this probe.
+- **When it forms:** untrained, 0.083 of COPY outputs look at the target (chance for 12 positions); by 1,000 steps 0.442 while exact match is still 0.002; by 5,000 steps 0.998. Learning where to look comes first or together with learning what to write.
+- **Where it breaks:** on 30- and 40-digit inputs the alignment collapses after about position 20, the longest training length; digits written right had 0.675 of their weight on the target, digits written wrong 0.064.
+
+Study guide: [`day72_attention_heatmaps_complete_guide.pdf`](day72_attention_heatmaps_complete_guide.pdf) · Syntax walkthrough: [`day72_syntax_line_by_line.pdf`](day72_syntax_line_by_line.pdf) · [Run output](day72_run_output.txt)
+
+Exercise: [`day72_exercise.py`](day72_exercise.py) computes the three alignment measurements on hand-built weight matrices with known answers ([run output](day72_exercise_run_output.txt)).
+
+![Alignment heatmaps and alignment during training](attention_heatmaps.png)
+
 ---
 [← Back to main README](../README.md)

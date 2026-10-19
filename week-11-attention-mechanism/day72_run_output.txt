@@ -1,0 +1,103 @@
+======================================================================
+1. ONE ALIGNMENT, AS NUMBERS -- a 12-digit COPY and REVERSE
+======================================================================
+Day 71's model (hidden 32, attention 32, COPY or REVERSE, seed 0, 20000 steps, retrained here with the same seeds, so the same weights). Each row is one output step; each column an input position; the numbers are the attention weights (x 100, rounded). The first test sequence of length 12.
+
+COPY: input [3, 6, 4, 3, 1, 2, 3, 4, 7, 7, 5, 2] -> written [3, 6, 4, 3, 1, 2, 3, 4, 7, 7, 5, 2]
+   in:   3   6   4   3   1   2   3   4   7   7   5   2
+out 3  99   1   .   .   .   .   .   .   .   .   .   .
+out 6   .  96   3   .   .   .   .   .   .   .   .   .
+out 4   .   2  90   8   .   .   .   .   .   .   .   .
+out 3   .   .   2  89   8   1   .   .   .   .   .   .
+out 1   .   .   .   3  90   6   1   .   .   .   .   .
+out 2   .   .   .   .   2  85  12   1   .   .   .   .
+out 3   .   .   .   .   .   7  82  11   .   .   .   .
+out 4   .   .   .   .   .   .   9  81  10   .   .   .
+out 7   .   .   .   .   .   .   .   7  84   8   .   .
+out 7   .   .   .   .   .   .   .   .  12  82   6   .
+out 5   .   .   .   .   .   .   .   .   .   3  83  13
+out 2   .   .   .   .   .   .   .   .   .   .   . 100
+
+REVERSE: input [3, 6, 4, 3, 1, 2, 3, 4, 7, 7, 5, 2] -> written [2, 5, 7, 7, 4, 3, 2, 1, 3, 4, 6, 3]
+   in:   3   6   4   3   1   2   3   4   7   7   5   2
+out 2   .   .   .   .   .   .   .   .   .   .   3  97
+out 5   .   .   .   .   .   .   .   .   .   9  70  21
+out 7   .   .   .   .   .   .   .   .   4  68  25   2
+out 7   .   .   .   .   .   .   .   4  71  22   3   .
+out 4   .   .   .   .   .   .   4  77  14   4   1   .
+out 3   .   .   .   .   .  10  68  19   2   1   .   .
+out 2   .   .   .   .   3  68  28   1   .   .   .   .
+out 1   .   .   .   1  78  20   2   .   .   .   .   .
+out 3   .   .   2  81  16   1   .   .   .   .   .   .
+out 4   .   4  83  13   1   .   .   .   .   .   .   .
+out 6   3  77  20   .   .   .   .   .   .   .   .   .
+out 3  90   9   1   .   .   .   .   .   .   .   .   .
+Actual output from this lesson's run.
+
+======================================================================
+2. ALIGNMENT OVER THE WHOLE TEST SET -- where the decoder looks
+======================================================================
+For every output digit: the input position holding it (the TARGET), where the attention weight is largest, and how the weight is spread. 300 fixed test sequences per length, three seeds. 'next' is the encoder state one step AFTER the target (it was computed after reading the digit); 'previous' is the one before. Entropy is in nats; 0 = all weight on one position, log(n) = spread evenly (log 20 = 3.00).
+
+task        n  argmax on target  weight: target    next  previous  entropy   exact
+copy        8             1.000           0.896   0.071     0.044    0.373   1.000
+copy       12             1.000           0.857   0.079     0.071    0.472   1.000
+copy       20             1.000           0.806   0.108     0.088    0.605   1.000
+reverse     8             0.987           0.771   0.201     0.033    0.633   1.000
+reverse    12             0.990           0.734   0.219     0.041    0.728   1.000
+reverse    20             0.983           0.681   0.237     0.050    0.874   1.000
+Actual output from this lesson's run.
+
+======================================================================
+3. WHY THE NEXT STATE? -- which encoder states still hold a digit
+======================================================================
+A linear probe (Day 70's) reads the digit at input position p from ONE encoder state h_q, for q = p - 1 (before the digit was read), p, p + 1, p + 2 and p + 4. Day 71's COPY encoder (seed 0), 20-digit inputs, p = 8; 3,000 training and 1,000 test sequences.
+
+probe reads x_8 from       h_7     h_8     h_9    h_10    h_12
+accuracy                 0.131   1.000   0.999   0.601   0.357
+guessing: 0.125
+Actual output from this lesson's run.
+
+======================================================================
+4. WHEN DOES THE ALIGNMENT APPEAR? -- snapshots during training
+======================================================================
+The COPY and REVERSE models' saved weights at 0 to 20,000 steps: the share of output digits whose largest attention weight is on the target, and exact match, at n = 12. Mean of three seeds.
+
+  steps  copy: argmax on target   exact  reverse: argmax on target   exact
+      0                   0.083   0.000                      0.084   0.000
+    250                   0.083   0.000                      0.087   0.000
+    500                   0.247   0.000                      0.337   0.000
+   1000                   0.442   0.002                      0.459   0.084
+   2000                   0.625   0.186                      0.554   0.766
+   3000                   0.605   0.361                      0.870   0.986
+   5000                   0.998   1.000                      0.953   1.000
+   7500                   1.000   1.000                      0.980   1.000
+  10000                   1.000   1.000                      0.987   1.000
+  15000                   1.000   1.000                      0.971   1.000
+  20000                   1.000   1.000                      0.990   1.000
+Actual output from this lesson's run.
+
+======================================================================
+5. WHERE IT BREAKS -- attention on sequences longer than any in training
+======================================================================
+Day 71 found exact match falls on 30- and 40-digit COPY inputs. Here, for the COPY models (three seeds): by output position, the share of digits written correctly and the share whose largest weight is on the target; then, across all output digits, the weight on the target for digits written right and for digits written wrong.
+
+n = 30
+output position            1     6    11    16    21    26    30
+digit right             1.00  1.00  0.96  0.70  0.26  0.15  0.07
+argmax on target        1.00  0.92  0.96  0.66  0.05  0.00  0.09
+weight on target: digits right 0.675 (16355), digits wrong 0.064 (10645)
+
+n = 40
+output position            1     6    11    16    21    26    31    36    40
+digit right             1.00  0.98  0.75  0.72  0.21  0.14  0.15  0.15  0.03
+argmax on target        1.00  0.85  0.70  0.66  0.04  0.00  0.00  0.00  0.04
+weight on target: digits right 0.607 (16250), digits wrong 0.045 (19750)
+Actual output from this lesson's run.
+
+saved attention_heatmaps.png
+
+======================================================================
+6. WHAT COMES NEXT
+======================================================================
+Today's score was additive: the decoder's state and each encoder state are projected, added, squashed and scored. Day 73 builds the simpler dot-product (Luong) score and compares the two.
