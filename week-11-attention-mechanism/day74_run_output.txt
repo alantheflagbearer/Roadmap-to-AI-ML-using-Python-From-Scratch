@@ -1,0 +1,124 @@
+======================================================================
+1. ONE SELF-ATTENTION LAYER -- by hand, then checked
+======================================================================
+Three positions with 2-number inputs x = (1, 0), (0, 1), (1, 1); Wq = Wk = identity, Wv = [[1, 0], [0, 2]]. Each position's query is compared with every key (its own included), the scores become weights, and the output is the weighted average of the values.
+
+scores by hand (row i = position i's query against every key):
+[[1. 0. 1.]
+ [0. 1. 1.]
+ [1. 1. 2.]]
+weights by hand:
+[[0.4223 0.1554 0.4223]
+ [0.1554 0.4223 0.4223]
+ [0.2119 0.2119 0.5761]]
+output by hand A (X Wv):
+[[0.8446 1.1554]
+ [0.5777 1.6893]
+ [0.7881 1.5761]]
+largest difference from self_attention: 0.00e+00
+Actual output from this lesson's run.
+
+======================================================================
+2. SELF-ATTENTION IGNORES ORDER -- shuffle the positions, the outputs shuffle with them
+======================================================================
+Random inputs (4 sequences, 7 positions, 5 numbers) and random projections. The positions of each sequence are shuffled; if every output simply moves with its input, self-attention cannot tell one order from another.
+
+shuffle [3, 5, 4, 1, 6, 0, 2]: largest |output(shuffled) - shuffled(output)| = 1.33e-15
+for comparison, outputs themselves are of size 1.715 on average
+Actual output from this lesson's run.
+
+======================================================================
+3. GRADIENT CHECK -- the self-attention tagger, with padding
+======================================================================
+Day 62's check: 12 words, 3 tags, embedding 4, attention size 3, hidden 5, four sentences of lengths 5, 2, 4, 1 (so padded keys must be masked out), one word repeated. Pass rule: |numeric - analytic| <= 1e-10 + 1e-6 * |numeric| for every entry.
+
+ parameter  entries  max relative error  max |difference|   pass
+         E       48            1.77e-08          2.19e-10   True
+        Wq       12            4.57e-07          1.01e-11   True
+        Wk       12            5.36e-06          1.68e-11   True
+        Wv       12            3.07e-07          3.43e-11   True
+        W1       35            3.48e-08          8.01e-11   True
+        b1        5            1.02e-07          1.35e-11   True
+       Why       15            6.52e-09          3.91e-11   True
+        by        3            1.10e-08          1.96e-11   True
+every entry passes: True;  <pad>'s embedding gradient exactly zero: True;  largest weight on a padded key: 0.0e+00
+Actual output from this lesson's run.
+
+======================================================================
+4. TRAINING ON WEEK 9'S TAGGING TASK -- learning rate on validation, then three seeds
+======================================================================
+Day 67's setup: Day 62's data, embedding 32, attention size 32, hidden 32, batch 32, clip 1.0, 25 epochs; the learning rate is chosen on VALIDATION (seed 0). Then three seeds at that rate, with and without the attention output (the control sees each word on its own).
+
+   lr  best val  at epoch  train at end
+  0.5    0.7945        21        0.8710
+  1.0    0.7899        21        0.8808
+  2.0    0.7976        18        0.9049
+  4.0    0.7884         6        0.9271
+chosen on validation: lr 2.0
+
+model                        seed 0   seed 1   seed 2     mean
+self-attention               0.8075   0.8080   0.8056   0.8070
+no attention (control)       0.7717   0.7719   0.7743   0.7726
+Actual output from this lesson's run.
+
+======================================================================
+5. THE SHUFFLE TEST -- the same test sentences with their words in random order
+======================================================================
+Day 62's test: the words of every test sentence shuffled (each keeps its own true tag). Day 62's left-to-right RNN dropped from 0.8327 to 0.7487. Seed 0 of each model here.
+
+model                       normal order  shuffled  predictions changed
+self-attention                    0.8075    0.8075               0.0000
+no attention (control)            0.7717    0.7717               0.0000
+Actual output from this lesson's run.
+
+======================================================================
+6. WHAT EACH WORD ATTENDS TO -- itself, its neighbours, which words
+======================================================================
+The trained self-attention tagger (seed 0) on all test sentences: the mean weight a word puts on itself, on words at each distance, and the words that receive the most weight on average (over every occurrence, among words seen at least 50 times in the test set).
+
+ distance  mean weight  if spread evenly
+        0       0.0656            0.0892
+        1       0.0875            0.0762
+        2       0.0708            0.0684
+        3       0.0642            0.0625
+        5       0.0550            0.0548
+       10       0.0415            0.0421
+
+most attended words (weight received from the whole sentence; an even spread gives 1.00):
+  'be'          1.81  (110 occurrences)
+  'there'       1.62  (64 occurrences)
+  'good'        1.54  (76 occurrences)
+  'at'          1.50  (84 occurrences)
+  "n't"         1.46  (60 occurrences)
+  'like'        1.37  (53 occurrences)
+  'great'       1.35  (70 occurrences)
+  ':'           1.27  (62 occurrences)
+median over these 56 common words: 0.96
+Actual output from this lesson's run.
+
+======================================================================
+7. WHERE THE CONTEXT HELPS -- Day 62's word groups
+======================================================================
+Unambiguous, ambiguous and unknown test words (Day 62's definitions), mean of three seeds.
+
+model                         all words  unambiguous    ambiguous      unknown
+self-attention                   0.8070       0.9780       0.8424       0.4140
+no attention (control)           0.7726       0.9814       0.8391       0.2440
+Actual output from this lesson's run.
+
+======================================================================
+8. WHAT IT COSTS -- seconds per training epoch, in this run
+======================================================================
+Median over every epoch of the three seeds; training steps only; matrix library on one thread. Only the ratio within this run is meaningful.
+self-attention                0.71 s per epoch
+no attention (control)        0.16 s per epoch
+ratio 4.38
+Actual output from this lesson's run.
+
+saved self_attention_tagger.png
+saved self_attention_diagram.png
+
+======================================================================
+9. WHAT COMES NEXT
+======================================================================
+Today's scores were plain dot products q . k. Day 75 divides them by the square root of the query size -- scaled dot-product attention -- and measures what that changes numerically.

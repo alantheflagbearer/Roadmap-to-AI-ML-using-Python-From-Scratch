@@ -1,0 +1,4 @@
+gradient check (X, Wq, Wk, Wv): largest |numeric - analytic| = 1.21e-09
+weight on the padded key, largest over all queries: 0.0e+00
+gradient at the padded input position (its value is never read): 0.0e+00
+shuffle the positions: largest |output(shuffled) - shuffled(output)| = 1.33e-15

@@ -64,5 +64,21 @@ Exercise: [`day73_exercise.py`](day73_exercise.py) isolates the dot and general 
 ![Three score functions](score_functions_diagram.png)
 ![Learning speed and attention sharpness](score_functions_compared.png)
 
+## Day 74 — Self-attention: every position attends to every position of the same sequence
+[`day74_self_attention.py`](day74_self_attention.py) — queries, keys and values are three projections of the *same* sequence (`Q = X Wq`, `K = X Wk`, `V = X Wv`); each position's output is a weighted average of every position's value, weights from a masked softmax over `q · k`. Tried as a tagger on Week 9's real POS data (Day 62's split), against a control that sees each word on its own.
+
+- **Checks:** one layer matches hand arithmetic exactly; every entry passes the gradient check with padded sentences, padded keys get weight 0.0e+00 and `<pad>`'s embedding gradient is exactly zero.
+- **Order-blind, proved:** shuffle the positions and the outputs shuffle with them (largest difference 1.33e-15). On the real test set, shuffling every sentence's words leaves accuracy at 0.8075 with 0.0000 of predictions changed — Day 62's RNN dropped from 0.8327 to 0.7487.
+- **Context still helps** (lr chosen on validation, three seeds): 0.8070 test accuracy against 0.7726 for the no-attention control; the gain is mostly on unknown words (0.4140 vs 0.2440). It is below Day 62's RNN, which also knows word order.
+- **What it attends to:** not mainly itself (0.0656 against 0.0892 for an even spread) — certain words such as 'be' (1.81 times an even share) draw weight from the whole sentence.
+- **Cost:** 4.38 times the control's time per epoch in this run (only the ratio is meaningful).
+
+Study guide: [`day74_self_attention_complete_guide.pdf`](day74_self_attention_complete_guide.pdf) · Syntax walkthrough: [`day74_syntax_line_by_line.pdf`](day74_syntax_line_by_line.pdf) · [Run output](day74_run_output.txt)
+
+Exercise: [`day74_exercise.py`](day74_exercise.py) isolates one masked self-attention layer, forward and backward, gradient-checked, with the shuffle test ([run output](day74_exercise_run_output.txt)).
+
+![One self-attention layer](self_attention_diagram.png)
+![The self-attention tagger](self_attention_tagger.png)
+
 ---
 [← Back to main README](../README.md)
