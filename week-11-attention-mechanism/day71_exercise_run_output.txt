@@ -1,0 +1,3 @@
+weights per slot: [[0.285, 0.189, 0.271, 0.255], [0.248, 0.322, 0.199, 0.231]]
+read (first query): [0.6397, 0.3979, 0.3137]
+gradient check (q, M, Wa, Ua, va): largest |numeric - analytic| = 3.76e-10

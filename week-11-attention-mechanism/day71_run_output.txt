@@ -1,0 +1,103 @@
+======================================================================
+1. ONE ATTENTION STEP -- by hand, then checked
+======================================================================
+Three encoder states of 2 numbers, a decoder state of 2 numbers, attention size 2, hand-chosen weights. Scores, weights and the context are computed with plain arithmetic and compared with additive_scores and soft_read.
+
+encoder state   key           tanh(query + key)       score by hand  function   weight
+[1.0, 0.0]      [0.5, 0.0]    [0.9051, -0.7616]              1.6667    1.6667   0.4196
+[0.0, 1.0]      [0.0, 0.5]    [0.7616, -0.4621]              1.2237    1.2237   0.2694
+[1.0, 1.0]      [0.5, 0.5]    [0.9051, -0.4621]              1.3673    1.3673   0.3110
+weights by hand [0.4196, 0.2694, 0.311]; context = sum of weight x state = [0.7306, 0.5804] (by hand [0.7306, 0.5804])
+Actual output from this lesson's run.
+
+======================================================================
+2. GRADIENT CHECK -- through attention, decoder and encoder
+======================================================================
+A tiny model (hidden 4, attention size 3), 3 REVERSE sequences of 5 digits, every entry of every parameter nudged by +-1e-5; Day 62's pass rule. Twice: with the decoder starting from the encoder's final state (Day 69), and starting from zeros.
+
+decoder start   parameter  entries  max relative error  max |difference|   pass
+encoder end            We      224            1.23e-06          3.74e-11   True
+encoder end            be       16            1.62e-08          3.29e-11   True
+encoder end            Wd      288            3.75e-06          3.93e-11   True
+encoder end            bd       16            5.44e-09          2.93e-11   True
+encoder end            Wa       12            1.17e-05          2.53e-11   True
+encoder end            Ua       12            2.54e-05          2.81e-11   True
+encoder end            ba        3            1.40e-06          1.96e-11   True
+encoder end            va        3            1.93e-07          7.40e-12   True
+encoder end           Why       80            8.73e-08          3.56e-11   True
+encoder end            by       10            1.45e-09          2.31e-11   True
+zeros                  We      224            4.09e-06          4.72e-11   True
+zeros                  be       16            1.06e-08          2.98e-11   True
+zeros                  Wd      288            3.80e-06          3.41e-11   True
+zeros                  bd       16            9.87e-09          2.44e-11   True
+zeros                  Wa       12            2.06e-05          2.64e-11   True
+zeros                  Ua       12            1.53e-05          2.49e-11   True
+zeros                  ba        3            6.91e-07          2.27e-11   True
+zeros                  va        3            3.79e-07          1.43e-11   True
+zeros                 Why       80            6.52e-08          3.19e-11   True
+zeros                  by       10            1.22e-09          3.20e-11   True
+every entry passes: decoder starts from the encoder True, from zeros True
+Actual output from this lesson's run.
+
+======================================================================
+3. DAY 70'S HARDEST TEST, WITH ATTENTION -- COPY, 3-20 digits
+======================================================================
+Exactly Day 70's Section 2 setup (lengths 3-20, plain SGD lr 0.5, clip 1.0, batches of 32, seeds 0, 1, 2, the same 300 fixed test sequences per length), hidden 32, attention size 32, 20000 steps; exact match every 2500 steps.
+
+  steps     n=4     n=8    n=12    n=16    n=20   (mean of 3 seeds)
+   2500   1.000   0.731   0.572   0.070   0.000
+   5000   1.000   1.000   1.000   1.000   0.992
+   7500   1.000   1.000   1.000   1.000   1.000
+  10000   1.000   1.000   1.000   1.000   1.000
+  12500   1.000   1.000   1.000   1.000   1.000
+  15000   1.000   1.000   1.000   1.000   1.000
+  17500   1.000   1.000   1.000   1.000   1.000
+  20000   1.000   1.000   1.000   1.000   1.000
+Actual output from this lesson's run.
+
+final exact match per seed:
+  seed 0: n=4 1.000  n=8 1.000  n=12 1.000  n=16 1.000  n=20 1.000
+  seed 1: n=4 1.000  n=8 1.000  n=12 1.000  n=16 1.000  n=20 1.000
+  seed 2: n=4 1.000  n=8 1.000  n=12 1.000  n=16 1.000  n=20 1.000
+Actual output from this lesson's run.
+
+======================================================================
+4. SMALLER STATE, REVERSE, AND NO HAND-OVER -- final exact match, mean of 3 seeds
+======================================================================
+(a) hidden 16 (a quarter of Day 70's largest state); (b) REVERSE; (c) the decoder starts from zeros instead of the encoder's final state, so attention is its ONLY view of the input. Everything else as Section 3.
+
+model                                    n=4     n=8    n=12    n=16    n=20  weights
+copy, hidden 32 (Section 3)            1.000   1.000   1.000   1.000   1.000    17866
+copy, hidden 16                        1.000   1.000   1.000   1.000   1.000     5898
+reverse, hidden 32                     1.000   1.000   1.000   1.000   1.000    17866
+copy, hidden 32, start from zeros      1.000   1.000   1.000   0.999   0.971    17866
+Actual output from this lesson's run.
+
+======================================================================
+5. LONGER THAN ANY TRAINING SEQUENCE -- 25, 30 and 40 digits
+======================================================================
+The Section 3 models (trained on 3-20 digits) on 300 fixed sequences of each new length.
+
+  length  exact match  token acc          per seed (exact)
+      20        1.000      1.000       1.000  1.000  1.000
+      25        0.000      0.742       0.000  0.000  0.000
+      30        0.000      0.618       0.000  0.000  0.000
+      40        0.000      0.465       0.000  0.000  0.000
+Actual output from this lesson's run.
+
+======================================================================
+6. WHAT ATTENTION COSTS -- one training step, measured in this run
+======================================================================
+Hidden 32, a batch of 32 sequences of 20 digits; best of 5 timings of 50 steps each, matrix library on one thread. Only the ratio is meaningful: this machine's speed varies between runs (Day 69).
+
+Day 69 encoder-decoder: 8.3 ms per step, 11338 weights
+with additive attention: 20.3 ms per step, 17866 weights; time ratio 2.45
+Actual output from this lesson's run.
+
+saved attention_training_curves.png
+saved additive_attention_diagram.png
+
+======================================================================
+7. WHAT COMES NEXT
+======================================================================
+Every decoder step produced a set of attention weights: where in the input it looked. Day 72 draws them as alignment heatmaps and checks whether the model looks where a person would.

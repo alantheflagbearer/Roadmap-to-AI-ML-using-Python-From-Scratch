@@ -18,5 +18,21 @@ Exercise: [`day70_exercise.py`](day70_exercise.py) isolates the read that replac
 ![The bottleneck](bottleneck_diagram.png)
 ![Length, amount, probe and longer training](bottleneck_results.png)
 
+## Day 71 — Additive (Bahdanau) attention, from scratch
+[`day71_additive_attention.py`](day71_additive_attention.py) — the decoder keeps every encoder state and, at each output step, scores each one against its previous state (`e_i = va · tanh(s Wa + h_i Ua + ba)`), turns the scores into weights with a softmax and reads their weighted average (Day 70's exercise). Its input is [previous token ; context]; the output layer sees [state ; context]. The decoder is differentiated one step at a time (`lstm_step_backward`) because each step's input depends on its own previous state.
+
+- **Checks:** one attention step matches hand arithmetic; every entry passes the gradient check, with the decoder starting from the encoder's final state and from zeros.
+- **Day 70's hardest test, with attention** (COPY 3–20 digits, hidden 32, the same test sequences, half the steps): 1.000 exact match at every length for every seed from 7,500 steps on — where Day 70's best (hidden 64) reached 0.157 at 20 digits.
+- **Hidden 16 is enough** (1.000 at every length, 5898 weights); REVERSE is solved too; a decoder starting from zeros, with attention as its only view of the input, reaches 0.971 at 20 digits.
+- **An honest limit:** longer than any training sequence, exact match is 0.000 at 25 digits (token accuracy 0.742) — removing the bottleneck is not the same as handling unseen lengths.
+- **Cost:** a training step took 2.45 times as long as Day 69's in this run (only the ratio is meaningful).
+
+Study guide: [`day71_additive_attention_complete_guide.pdf`](day71_additive_attention_complete_guide.pdf) · Syntax walkthrough: [`day71_syntax_line_by_line.pdf`](day71_syntax_line_by_line.pdf) · [Run output](day71_run_output.txt)
+
+Exercise: [`day71_exercise.py`](day71_exercise.py) isolates one additive attention read, forward and backward, gradient-checked ([run output](day71_exercise_run_output.txt)).
+
+![One decoder step with additive attention](additive_attention_diagram.png)
+![Exact match during training](attention_training_curves.png)
+
 ---
 [← Back to main README](../README.md)
