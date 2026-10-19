@@ -1,0 +1,109 @@
+======================================================================
+1. HOW LARGE IS q . k? -- 10,000 random pairs of vectors at each size
+======================================================================
+Every number in q and k drawn with mean 0 and spread (standard deviation) 1, as a Transformer's normalisation layers aim for.
+
+     d  spread of q . k  sqrt(d)  spread of q . k / sqrt(d)
+     4            2.009    2.000                      1.005
+    16            4.004    4.000                      1.001
+    64            7.982    8.000                      0.998
+   256           15.986   16.000                      0.999
+  1024           32.012   32.000                      1.000
+Actual output from this lesson's run.
+
+======================================================================
+2. WHAT LARGE SCORES DO TO THE SOFTMAX -- 16 keys per query
+======================================================================
+For 5,000 random queries, each against 16 random keys (numbers of spread 1): the largest weight and the entropy of the weights (log 16 = 2.773 means spread evenly, 0 means one-hot).
+
+     d  unscaled: max weight  entropy   scaled: max weight  entropy
+     4                 0.421    1.780                0.232    2.387
+    16                 0.682    0.911                0.241    2.369
+    64                 0.843    0.414                0.244    2.364
+   256                 0.922    0.193                0.246    2.359
+  1024                 0.959    0.098                0.246    2.358
+Actual output from this lesson's run.
+
+======================================================================
+3. WHAT IT DOES TO THE GRADIENT -- back through the softmax
+======================================================================
+Same queries and keys as Section 2, and a random gradient arriving at the weights (spread 1). The table gives the size of the gradient that reaches the scores, and the share of queries where it is below 1e-6 (the softmax is effectively frozen). For the scaled version the gradient at the UNSCALED scores is reported, so both columns measure the same thing: what reaches q and k.
+
+     d  unscaled: gradient size   frozen  scaled: gradient size   frozen
+     4                 2.68e-01    0.000               1.31e-01    0.000
+    16                 1.95e-01    0.000               6.71e-02    0.000
+    64                 5.82e-02    0.015               3.33e-02    0.000
+   256                 3.45e-03    0.162               1.69e-02    0.000
+  1024                 1.10e-05    0.438               8.38e-03    0.000
+(median over the 5,000 queries)
+Actual output from this lesson's run.
+
+======================================================================
+4a. GRADIENT CHECK -- the recall model, scaled and unscaled
+======================================================================
+Size 4, 3 examples, every entry of every parameter nudged by +-1e-5; Day 62's pass rule.
+scale none : largest |numeric - analytic| = 1.14e-09; every entry passes: True
+scale sqrt : largest |numeric - analytic| = 4.44e-10; every entry passes: True
+Actual output from this lesson's run.
+
+======================================================================
+4. TRAINING -- associative recall, scaled and unscaled, three seeds
+======================================================================
+Each example: 16 (key, value) pairs with different keys out of 32, and a query key; the answer is the value paired with it (guessing: 1/32 = 0.031). The only way to answer is to attend to the right pair. Embeddings have spread 1; plain SGD lr 0.1, clip 1.0, batches of 64, 2000 steps; test accuracy on 2,000 fixed examples, mean of three seeds.
+
+    d  scaling  attention entropy at start    @100    @250    @500   @1000   @2000
+   16     none                       0.548   0.043   0.114   0.462   0.880   0.995
+   16     sqrt                       1.931   0.037   0.135   0.677   0.973   1.000
+   64     none                       0.235   0.043   0.128   0.758   1.000   1.000
+   64     sqrt                       1.843   0.239   0.999   1.000   1.000   1.000
+  128     none                       0.142   0.051   0.124   0.717   0.960   1.000
+  128     sqrt                       1.741   0.745   1.000   1.000   1.000   1.000
+Actual output from this lesson's run.
+
+per seed, accuracy at 250 steps:
+  d = 16  none: 0.199 0.109 0.035   sqrt: 0.210 0.145 0.051
+  d = 64  none: 0.209 0.103 0.070   sqrt: 1.000 1.000 0.999
+  d = 128 none: 0.140 0.119 0.112   sqrt: 1.000 1.000 1.000
+Actual output from this lesson's run.
+
+======================================================================
+5. WHY sqrt(d)? -- no scaling, 1/sqrt(d) and 1/d, at d = 64
+======================================================================
+The same model and data; only the factor in front of q . k changes. Mean of three seeds.
+
+      factor  entropy at start    @100    @250    @500   @1000   @2000
+           1             0.235   0.043   0.128   0.758   1.000   1.000
+  1/sqrt(64)             1.843   0.239   0.999   1.000   1.000   1.000
+        1/64             2.751   0.076   0.209   0.967   0.999   1.000
+Actual output from this lesson's run.
+
+======================================================================
+6. SCALING, OR JUST A SMALLER START? -- d = 64
+======================================================================
+Unscaled scores, but the query and key weights start 64^(1/4) = 2.83 times smaller. Then q . k at the start is exactly the scaled model's q . k / 8 -- the two begin identically. Do they train identically? Mean of three seeds.
+
+largest difference between the two models' starting attention weights: 1.05e-15
+
+model                                 @100    @250    @500   @1000   @2000
+scaled (1/sqrt(d))                   0.239   0.999   1.000   1.000   1.000
+unscaled, smaller Wq and Wk          0.206   1.000   1.000   1.000   1.000
+unscaled (Section 4)                 0.043   0.128   0.758   1.000   1.000
+Actual output from this lesson's run.
+
+======================================================================
+7. ONE LARGER SIZE -- d = 256, seed 0 only
+======================================================================
+The same comparison at d = 256, for one seed (a run at this size takes several minutes here).
+
+  scaling    @100    @250    @500   @1000   @2000
+     none   0.059   0.079   0.337   1.000   1.000
+     sqrt   0.953   1.000   1.000   1.000   1.000
+Actual output from this lesson's run.
+
+saved scaling_results.png
+saved scaled_attention_diagram.png
+
+======================================================================
+8. WHAT COMES NEXT
+======================================================================
+Day 76, the week's build, runs several scaled dot-product attentions side by side on smaller projections and joins their outputs: multi-head attention, assembled from this week's exercise scripts.

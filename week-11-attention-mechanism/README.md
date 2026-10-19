@@ -80,5 +80,21 @@ Exercise: [`day74_exercise.py`](day74_exercise.py) isolates one masked self-atte
 ![One self-attention layer](self_attention_diagram.png)
 ![The self-attention tagger](self_attention_tagger.png)
 
+## Day 75 — Scaled dot-product attention: why divide by √d
+[`day75_scaled_dot_product_attention.py`](day75_scaled_dot_product_attention.py) — `softmax(Q Kᵀ / √d) V`, the Transformer's attention. The argument measured step by step, then tested in training on an associative-recall task that can only be solved by attending to the right (key, value) pair.
+
+- **The spread of q · k grows as √d:** 2.009, 7.982 and 32.012 at d = 4, 64 and 1024 (√d = 2, 8, 32); divided by √d it stays at about 1.
+- **Unscaled, the softmax saturates:** at d = 1024 the largest weight is 0.959 (entropy 0.098 of a possible 2.773), and the gradient reaching the scores is 1.10e-05, with 0.438 of queries effectively frozen. Scaled: 0.246, and 0.000 frozen at every size.
+- **In training** (three seeds, plain SGD): at d = 64, 250 steps give 0.999 test accuracy scaled against 0.128 unscaled; at d = 128, 1.000 against 0.124. At d = 16 the difference is small (0.135 vs 0.114). Both reach about 1.000 by 2,000 steps.
+- **Why √d and not d:** dividing by d instead flattens the start (entropy 2.751) and learns more slowly (0.209 at 250 steps).
+- **The honest finding:** an unscaled model whose Wq and Wk simply start 64^(1/4) = 2.83 times smaller begins identically (largest difference 1.05e-15) and trains the same (1.000 at 250 steps). Under plain SGD here, the whole benefit of the scaling comes from where training starts.
+
+Study guide: [`day75_scaled_dot_product_attention_complete_guide.pdf`](day75_scaled_dot_product_attention_complete_guide.pdf) · Syntax walkthrough: [`day75_syntax_line_by_line.pdf`](day75_syntax_line_by_line.pdf) · [Run output](day75_run_output.txt)
+
+Exercise: [`day75_exercise.py`](day75_exercise.py) is scaled dot-product attention as one function, `softmax(Q Kᵀ / √d) V` with a mask, forward and backward, gradient-checked — the part Day 76's multi-head build repeats per head ([run output](day75_exercise_run_output.txt)).
+
+![Scaled dot-product attention](scaled_attention_diagram.png)
+![Softmax, gradient and training, scaled and unscaled](scaling_results.png)
+
 ---
 [← Back to main README](../README.md)

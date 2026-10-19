@@ -1,0 +1,3 @@
+gradient check (Q, K, V): largest |numeric - analytic| = 3.83e-10; weight on masked keys: 0.0e+00
+d =  16: spread of q . k =   3.97 (sqrt(d) =  4.00); after dividing by sqrt(d): 0.99
+d = 256: spread of q . k =  16.12 (sqrt(d) = 16.00); after dividing by sqrt(d): 1.01
