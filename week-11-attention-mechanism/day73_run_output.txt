@@ -1,0 +1,114 @@
+======================================================================
+1. THREE SCORES FOR THE SAME STEP -- by hand, then checked
+======================================================================
+Day 71's example: three encoder states h = (1, 0), (0, 1), (1, 1) and the decoder state s = (1, -1). Additive uses Day 71's hand-chosen weights; general uses Wg = identity, which makes it the dot score; then Wg = [[2, 0], [0, 0]], which ignores the second number.
+
+encoder state     dot by hand     dot  general, I  general, Wg  additive
+[1.0, 0.0]             1.0000  1.0000      1.0000       2.0000    1.6667
+[0.0, 1.0]            -1.0000 -1.0000     -1.0000       0.0000    1.2237
+[1.0, 1.0]             0.0000  0.0000      0.0000       2.0000    1.3673
+
+weights                            dot           general, Wg              additive
+[1.0, 0.0]                      0.6652                0.4683                0.4196
+[0.0, 1.0]                      0.0900                0.0634                0.2694
+[1.0, 1.0]                      0.2447                0.4683                0.3110
+Actual output from this lesson's run.
+
+======================================================================
+2. GRADIENT CHECK -- the dot and general scores, through the whole model
+======================================================================
+Day 71's check (hidden 4, 3 REVERSE sequences of 5 digits, every entry nudged by +-1e-5, Day 62's pass rule). The additive model is Day 71's own code, checked there.
+
+score     parameter  entries  max relative error  max |difference|   pass
+dot              We      224            5.90e-06          5.11e-11   True
+dot              be       16            1.05e-07          2.36e-11   True
+dot              Wd      288            3.93e-06          3.90e-11   True
+dot              bd       16            1.39e-07          2.15e-11   True
+dot             Why       80            2.65e-08          3.90e-11   True
+dot              by       10            1.14e-08          3.14e-11   True
+general          We      224            4.80e-05          3.41e-11   True
+general          be       16            1.81e-07          2.78e-11   True
+general          Wd      288            1.09e-05          4.04e-11   True
+general          bd       16            2.14e-07          3.04e-11   True
+general          Wg       16            1.43e-06          2.73e-11   True
+general         Why       80            4.94e-08          3.26e-11   True
+general          by       10            2.04e-08          2.83e-11   True
+every entry passes: dot True, general True
+Actual output from this lesson's run.
+
+======================================================================
+3. THE COMPARISON -- COPY, 3-20 digits, three scores, three seeds
+======================================================================
+Day 71's Section 3 setup exactly (hidden 32, 20000 steps, plain SGD lr 0.5, clip 1.0, the same data stream and test sequences); only the score differs. Exact match every 2500 steps, mean of three seeds, at 12 and 20 digits.
+
+  steps  additive n=12  additive n=20       dot n=12       dot n=20   general n=12   general n=20
+   2500          0.572          0.000          0.338          0.018          0.994          0.806
+   5000          1.000          0.992          0.824          0.356          0.997          0.998
+   7500          1.000          1.000          0.998          0.950          1.000          0.997
+  10000          1.000          1.000          1.000          0.987          1.000          0.997
+  12500          1.000          1.000          0.998          0.976          1.000          0.999
+  15000          1.000          1.000          1.000          0.993          0.996          0.990
+  17500          1.000          1.000          1.000          1.000          1.000          1.000
+  20000          1.000          1.000          1.000          0.998          1.000          1.000
+Actual output from this lesson's run.
+
+final exact match at 20 digits per seed, and the first checkpoint where every seed is at 1.000 on all lengths:
+  additive seed 0 1.000  seed 1 1.000  seed 2 1.000   all perfect from: 7500 steps
+  dot      seed 0 0.997  seed 1 1.000  seed 2 0.997   all perfect from: not within the budget
+  general  seed 0 1.000  seed 1 1.000  seed 2 1.000   all perfect from: 17500 steps
+Actual output from this lesson's run.
+
+======================================================================
+4. REVERSE, AND A SMALLER STATE -- final exact match, mean of three seeds
+======================================================================
+The same three scores on REVERSE at hidden 32, and on COPY at hidden 16 (the dot score's query and keys then have 16 numbers).
+
+model                          n=4     n=8    n=12    n=16    n=20  weights
+reverse, h 32, additive      1.000   1.000   1.000   1.000   1.000    17866
+reverse, h 32, dot           1.000   1.000   1.000   0.999   0.984    15754
+reverse, h 32, general       1.000   1.000   1.000   1.000   1.000    16778
+copy, h 16, additive         1.000   1.000   1.000   1.000   1.000     5898
+copy, h 16, dot              0.959   0.536   0.026   0.000   0.000     4810
+copy, h 16, general          1.000   1.000   1.000   1.000   0.997     5066
+Actual output from this lesson's run.
+
+======================================================================
+5. WHERE EACH SCORE LOOKS -- Day 72's measurements, COPY, 20 digits
+======================================================================
+The trained COPY models of Section 3: the share of output digits whose largest weight is on the target, the mean weight on the target, and the row entropy (log 20 = 3.00). Mean of three seeds.
+
+score       argmax on target  weight on target  entropy
+additive               1.000             0.806    0.605
+dot                    0.840             0.444    1.417
+general                1.000             0.889    0.388
+Actual output from this lesson's run.
+
+======================================================================
+6. HOW LARGE ARE THE SCORES? -- before and after training
+======================================================================
+For the first decoder step of the 300 fixed 20-digit COPY test sequences: the spread (standard deviation over the 20 encoder positions) of the raw scores, and the largest attention weight. Untrained (seed 0) and trained (Section 3, seed 0). A large spread makes the softmax nearly one-hot: Day 75 is about this.
+
+score       spread, untrained  max weight, untrained  spread, trained  max weight, trained
+additive                0.041                  0.054            6.172                0.977
+dot                     0.059                  0.055            2.463                0.638
+general                 0.029                  0.053            9.451                0.983
+Actual output from this lesson's run.
+
+======================================================================
+7. WHAT EACH SCORE COSTS -- one training step, measured in this run
+======================================================================
+Hidden 32, a batch of 32 sequences of 20 digits, forward and backward; best of 5 timings of 50 steps each, matrix library on one thread. Only ratios within this run are meaningful.
+
+score       ms per step  vs additive  score weights
+additive           11.5         1.00           2112
+dot                 6.1         0.53              0
+general             7.5         0.65           1024
+Actual output from this lesson's run.
+
+saved score_functions_compared.png
+saved score_functions_diagram.png
+
+======================================================================
+8. WHAT COMES NEXT
+======================================================================
+So far the decoder attends to the ENCODER. Day 74 lets every position of one sequence attend to every other position of the same sequence: self-attention, the building block of the Transformer.

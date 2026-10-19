@@ -2,7 +2,7 @@
 
 A daily-practice log following a 52-week (365-day) roadmap from Python fundamentals through classical ML, deep learning, and into applied AI. Most lessons don't just call a library function — they build the underlying idea (gradient descent, backprop, convolution, dropout...) from scratch in NumPy first, then show the framework equivalent. Each day is a self-contained script; from Week 1 onward, most days add a paired study guide (a concept walkthrough and a line-by-line syntax breakdown, both PDF).
 
-**Currently on Day 72** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
+**Currently on Day 73** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
 
 ## How this repo is organized
 
@@ -24,7 +24,7 @@ A daily-practice log following a 52-week (365-day) roadmap from Python fundament
 | 8 | 49–55 | Classic CNN Architectures + Regularization | [→ folder](week-08-classic-cnn-architectures) |
 | 9 | 56–62 | Sequence Data & RNNs I | [→ folder](week-09-sequence-data-rnns-i) |
 | 10 | 63–69 | LSTM & GRU | [→ folder](week-10-lstm-gru) |
-| 11 | 70–72 (of 70–76) | Attention Mechanism — in progress | [→ folder](week-11-attention-mechanism) |
+| 11 | 70–73 (of 70–76) | Attention Mechanism — in progress | [→ folder](week-11-attention-mechanism) |
 
 Weeks 11 onward (attention, Transformers, tokenization, a mini-GPT, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
 
@@ -47,7 +47,7 @@ Starting with Week 6, the same small neural-network library — written entirely
 | ![GRU cell](week-10-lstm-gru/gru_cell_diagram.png) The GRU: one state, two gates — Day 66 | ![Where the cells differ](week-10-lstm-gru/cells_where_and_how_far.png) RNN vs LSTM vs GRU on real tagging: every cell looks only a few words back — Day 67 |
 | ![Deep bidirectional tagger](week-10-lstm-gru/deep_bidirectional_results.png) Reading both ways: +2 points; a second layer: nothing — Day 68 | ![Seq2seq results](week-10-lstm-gru/seq2seq_results.png) Week 10 build: an encoder-decoder from the exercise parts copies and reverses digits — Day 69 |
 | ![Bottleneck results](week-11-attention-mechanism/bottleneck_results.png) One fixed-size state: 4 digits held perfectly, 20 not — Day 70 | ![Attention curves](week-11-attention-mechanism/attention_training_curves.png) Additive attention: Day 70's failing test, now 1.000 at every length — Day 71 |
-| ![Attention heatmaps](week-11-attention-mechanism/attention_heatmaps.png) Attention heatmaps: the diagonal, and where it breaks — Day 72 | |
+| ![Attention heatmaps](week-11-attention-mechanism/attention_heatmaps.png) Attention heatmaps: the diagonal, and where it breaks — Day 72 | ![Score functions compared](week-11-attention-mechanism/score_functions_compared.png) Dot, general and additive scores, like for like — Day 73 |
 
 ## Featured project: Titanic EDA (Day 13)
 

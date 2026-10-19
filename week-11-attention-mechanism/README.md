@@ -48,5 +48,21 @@ Exercise: [`day72_exercise.py`](day72_exercise.py) computes the three alignment 
 
 ![Alignment heatmaps and alignment during training](attention_heatmaps.png)
 
+## Day 73 — Dot-product (Luong) attention, compared like for like with additive
+[`day73_dot_product_attention.py`](day73_dot_product_attention.py) — Day 71's model with the score as a setting: additive (`va · tanh(s Wa + h Ua + ba)`, Day 71's code unchanged), **dot** (`s · h`, no weights) and **general** (`(s Wg) · h`, one matrix). Same data stream, seeds, learning rate and test sequences; only the score differs.
+
+- **Checks:** the hand example matches; with `Wg` = identity the general score equals the dot score; every entry of both new models passes the gradient check. The additive rows reproduce Day 71 exactly (0.572 at 12 digits after 2,500 steps).
+- **COPY 3–20 digits, hidden 32:** all three learn it, at different speeds. At 20 digits after 2,500 steps: general 0.806, dot 0.018, additive 0.000. Every seed perfect on every length from 7,500 steps (additive), 17,500 (general), not within 20,000 (dot: 0.997 / 1.000 / 0.997).
+- **A smaller state separates them:** at hidden 16, COPY exact match at 20 digits is 1.000 (additive), 0.997 (general) — and 0.000 for the dot score (0.026 at 12 digits). The general score's only extra is a 16 × 16 matrix (5066 vs 4810 weights). REVERSE at hidden 32 works for all three (dot 0.984).
+- **How sharply each looks:** argmax on the right input digit 1.000 (additive, general) but 0.840 (dot); trained score spread 9.451 (general), 6.172 (additive), only 2.463 (dot). The weightless score can only sharpen as far as the LSTM states allow — a likely reason for the hidden-16 failure, not tested here.
+- **Cost:** a training step took 0.53 (dot) and 0.65 (general) times the additive step in this run.
+
+Study guide: [`day73_dot_product_attention_complete_guide.pdf`](day73_dot_product_attention_complete_guide.pdf) · Syntax walkthrough: [`day73_syntax_line_by_line.pdf`](day73_syntax_line_by_line.pdf) · [Run output](day73_run_output.txt)
+
+Exercise: [`day73_exercise.py`](day73_exercise.py) isolates the dot and general attention reads, forward and backward, gradient-checked ([run output](day73_exercise_run_output.txt)).
+
+![Three score functions](score_functions_diagram.png)
+![Learning speed and attention sharpness](score_functions_compared.png)
+
 ---
 [← Back to main README](../README.md)
