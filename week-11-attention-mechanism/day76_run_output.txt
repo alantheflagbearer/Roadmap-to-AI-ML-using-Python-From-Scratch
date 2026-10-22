@@ -1,0 +1,107 @@
+======================================================================
+1. THE PARTS FIT -- one call on all heads, or Day 75's function head by head
+======================================================================
+The heads are folded into the batch axis, so Day 75's function runs all of them in one call. Check it against the plain way: cut the projected Q, K and V into column slices and call Day 75's function on each slice separately, then put the outputs side by side.
+
+ heads  head size   largest |one call - head by head|
+     1          8                            0.00e+00
+     2          4                            0.00e+00
+     4          2                            0.00e+00
+Actual output from this lesson's run.
+
+weights of the recall model (d = 64) for each head count:
+  1 head  of size 64: 28736 weights
+  2 heads of size 32: 28736 weights
+  4 heads of size 16: 28736 weights
+  8 heads of size  8: 28736 weights
+Actual output from this lesson's run.
+
+======================================================================
+2. GRADIENT CHECK -- the whole recall model, one and two heads
+======================================================================
+Size 4, 6 possible keys, 4 pairs per example, 3 examples; every entry of every parameter nudged by +-1e-5; Day 62's pass rule |numeric - analytic| <= 1e-10 + 1e-6 |numeric|. The last row has the attention FORCED (Section 5), so the query and key weights get no gradient.
+1 head           : largest |numeric - analytic| = 5.10e-11; every entry passes: True
+2 heads          : largest |numeric - analytic| = 7.34e-11; every entry passes: True
+2 heads, forced  : largest |numeric - analytic| = 4.08e-11; every entry passes: True
+Actual output from this lesson's run.
+
+======================================================================
+3. TWO-KEY RECALL -- 1, 2, 4 and 8 heads, the same d = 64, three seeds
+======================================================================
+Each example: 16 (key, value) pairs, two asked keys (always different pairs); the model must give both values. Guessing gets one right 1/32 = 0.031 of the time. Plain SGD lr 0.1, clip 1.0, batches of 64, 2000 steps (Day 75's settings); 2,000 fixed test examples.
+
+share with BOTH answers right, mean of three seeds:
+ heads  size    @100    @250    @500   @1000   @2000   first  second
+     1    64   0.003   0.031   0.029   0.028   0.027   0.349   0.677
+     2    32   0.002   0.039   0.612   0.998   1.000   1.000   1.000
+     4    16   0.001   0.011   0.342   0.996   0.999   1.000   0.999
+     8     8   0.002   0.005   0.054   0.942   1.000   1.000   1.000
+('first' and 'second': each answer on its own, at the end)
+Actual output from this lesson's run.
+
+per seed, both right at the end:
+  1 head : 0.033  0.026  0.022
+  2 heads: 1.000  1.000  1.000
+  4 heads: 1.000  1.000  0.999
+  8 heads: 1.000  1.000  1.000
+Actual output from this lesson's run.
+
+======================================================================
+4. THE CONTROL -- one-key recall, where one head should be enough
+======================================================================
+The same models and settings, but both asked keys are the same key: one pair to fetch. Share right (both answers are then the same value), mean of three seeds.
+
+ heads  size    @100    @250    @500   @1000   @2000
+     1    64   0.131   0.999   1.000   1.000   1.000
+     2    32   0.024   0.983   1.000   1.000   1.000
+     4    16   0.007   0.767   0.999   1.000   1.000
+     8     8   0.005   0.321   0.997   1.000   1.000
+Actual output from this lesson's run.
+
+======================================================================
+5. WHY ONE HEAD FAILS -- size, time, or the average?
+======================================================================
+Three follow-ups on two-key recall, three seeds each: (a) one head twice as large (d = 128, more weights than any model above); (b) one head trained four times as long (8,000 steps); (c) attention FORCED onto the two right pairs: one head puts half its weight on each, two heads put all of one head on each. The queries and keys then get no gradient; everything else is trained. The question is whether the model can answer from what it reads.
+
+model                          first  second    both   both, per seed
+one head, d = 128              0.405   0.631   0.082   0.086 0.080 0.081
+one head, 8000 steps           0.433   0.601   0.054   0.046 0.041 0.074
+one head, forced 1/2 + 1/2     0.518   0.512   0.328   0.331 0.340 0.314
+two heads, forced              1.000   1.000   1.000   1.000 1.000 1.000
+Actual output from this lesson's run.
+
+======================================================================
+6. WHAT EACH HEAD LOOKS AT -- Day 72's measurements, query token, seed 0
+======================================================================
+For the trained two-key models of Section 3 (seed 0): each head's weights from the query token over the 17 tokens, on the 2,000 test examples, measured against pair a (the first asked key) and pair b (the second). Weight on target: the mean weight on that pair.
+
+model      head  argmax on a  weight on a  argmax on b  weight on b  entropy
+1 head        1        1.000        0.937        0.000        0.005    0.328
+2 heads       1        0.000        0.002        1.000        0.971    0.154
+2 heads       2        1.000        0.971        0.000        0.001    0.156
+4 heads       1        0.000        0.003        1.000        0.949    0.244
+4 heads       2        0.068        0.064        0.629        0.500    1.351
+4 heads       3        1.000        0.967        0.000        0.002    0.170
+4 heads       4        0.440        0.296        0.312        0.206    1.755
+(entropy over 17 tokens: log 17 = 2.83 means spread evenly)
+Actual output from this lesson's run.
+
+======================================================================
+7. WHAT MORE HEADS COST -- one training step, measured in this run
+======================================================================
+d = 64, a batch of 64 examples, forward and backward; best of 5 timings of 20 steps each, matrix library on one thread. The weight count is the same for every head count (Section 1); only ratios within this run are meaningful.
+
+ heads  ms per step  vs one head
+     1         7.28         1.00
+     2         7.69         1.06
+     4        10.01         1.37
+     8        16.17         2.22
+Actual output from this lesson's run.
+
+saved multi_head_results.png
+saved multi_head_diagram.png
+
+======================================================================
+8. THE WEEK, AND WHAT COMES NEXT
+======================================================================
+Week 11 went from a decoder that sees one summary of its input (Day 70) to attention over every encoder state (Days 71-73), attention within one sequence (Day 74), its scaling (Day 75) and several attentions side by side (today). Day 74 showed what is still missing: self-attention cannot tell one order of the words from another. Week 12 builds the Transformer, starting on Day 77 with positional encoding.

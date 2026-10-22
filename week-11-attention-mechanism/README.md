@@ -96,5 +96,21 @@ Exercise: [`day75_exercise.py`](day75_exercise.py) is scaled dot-product attenti
 ![Scaled dot-product attention](scaled_attention_diagram.png)
 ![Softmax, gradient and training, scaled and unscaled](scaling_results.png)
 
+## Day 76 — The Week 11 build: multi-head attention from the exercise parts
+[`day76_multi_head_attention.py`](day76_multi_head_attention.py) — Day 74's Q, K, V projections cut into h heads, Day 75's `scaled_dot_product_attention` run on every head at once (heads folded into the batch axis), the heads joined and mixed by `Wo`. Tested on two-key recall: 16 (key, value) pairs and one query token that asks for two values at once. Every model has d = 64, so the same 28736 weights whatever the head count.
+
+- **The parts fit:** one call on all heads equals Day 75's function head by head (0.00e+00); the whole model passes the gradient check with one head, two heads and forced attention.
+- **One head cannot fetch two things:** both answers right 0.027 of the time (no seed above 0.033); 2, 4 and 8 heads reach 1.000, 0.999 and 1.000. More, smaller heads start later (0.612 / 0.342 / 0.054 at 500 steps for 2 / 4 / 8 heads).
+- **The control:** on one-key recall every head count reaches 1.000, and one head is the fastest (0.999 at 250 steps against 0.321 for 8 heads).
+- **Why:** a head twice as large (0.082) or four times the training (0.054) does not fix it. Even with its attention forced onto the right two pairs, one head gets each answer right only about half the time (0.518, 0.512): one softmax reads the average of the two pairs, which no longer says which value belongs to which key. Two forced heads: 1.000.
+- **What the heads do:** with two heads, each takes one pair (0.971 each); with four, two heads do the work and two are more spread out. Eight heads cost 2.22 times one head per step in this run.
+
+Study guide: [`day76_multi_head_attention_complete_guide.pdf`](day76_multi_head_attention_complete_guide.pdf) · Syntax walkthrough: [`day76_syntax_line_by_line.pdf`](day76_syntax_line_by_line.pdf) · [Run output](day76_run_output.txt)
+
+Day 76 is the week's build, so it has no exercise script of its own.
+
+![Multi-head attention from the week's parts](multi_head_diagram.png)
+![Two-key recall, the control, and what each head looks at](multi_head_results.png)
+
 ---
 [← Back to main README](../README.md)
