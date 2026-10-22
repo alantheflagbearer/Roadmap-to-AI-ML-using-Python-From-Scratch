@@ -1,0 +1,3 @@
+gradient check (x, g, b): largest |numeric - analytic| = 1.60e-09
+each position before g and b: largest |mean| = 2.2e-16, spreads 1.0000 .. 1.0000
+sequence 0's output when the rest of the batch changes: LayerNorm 0.00e+00, BatchNorm 1.98e+00

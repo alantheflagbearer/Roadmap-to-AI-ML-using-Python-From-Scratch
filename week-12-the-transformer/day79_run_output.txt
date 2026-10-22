@@ -1,0 +1,88 @@
+======================================================================
+1. TWO WAYS TO NORMALISE THE SAME NUMBERS
+======================================================================
+A batch of 2 sentences x 3 positions x 4 features. LayerNorm makes every POSITION's 4 numbers mean 0 and spread 1; BatchNorm makes every FEATURE's 6 numbers (all positions of the batch) mean 0 and spread 1. g = 1, b = 0.
+
+LayerNorm: mean and spread of each position's 4 numbers
+  means    0.000   0.000  -0.000  -0.000   0.000   0.000   spreads 1.000 1.000 1.000 1.000 1.000 1.000
+BatchNorm: mean and spread of each feature's 6 numbers
+  means   -0.000   0.000  -0.000   0.000   spreads 1.000 1.000 1.000 1.000
+BatchNorm's positions are NOT normalised one by one: position means -1.246 -0.929 -0.448 0.150 0.846 1.627
+Actual output from this lesson's run.
+
+======================================================================
+2. DOES A SENTENCE'S OUTPUT DEPEND ON THE OTHER SENTENCES IN ITS BATCH?
+======================================================================
+One untrained block (seed 0, the same weights for every norm). The first test sentence is put in a batch with 7 other test sentences, then with 7 different ones. Reported: the largest change in its tag log-probabilities.
+
+norm                            train mode     eval mode
+LayerNorm                         0.00e+00      0.00e+00
+BatchNorm (padding left out)      1.39e+00      0.00e+00
+BatchNorm (padding counted)       1.23e+00      0.00e+00
+Actual output from this lesson's run.
+
+======================================================================
+3. DOES PADDING CHANGE THE OUTPUT?
+======================================================================
+The same 8 test sentences, padded to their own longest (as in training) and then with 20 more padding positions. Train mode, one untrained block. Reported: the largest change in any real word's tag log-probabilities.
+
+norm                          largest change
+LayerNorm                           1.78e-15
+BatchNorm (padding left out)        1.78e-15
+BatchNorm (padding counted)         1.38e+00
+Actual output from this lesson's run.
+
+======================================================================
+4. GRADIENT CHECK -- BatchNorm inside the block, train mode
+======================================================================
+Day 78's tiny tagger (size 8, 2 heads, FFN 12, positions x 1), three padded sentences; every entry nudged by +-1e-5 (running averages not updated during the check); Day 62's pass rule.
+layer                     : largest |numeric - analytic| = 1.44e-09; every entry passes: True
+batch                     : largest |numeric - analytic| = 2.27e-09; every entry passes: True
+batch_all                 : largest |numeric - analytic| = 2.36e-09; every entry passes: True
+batch, 2 pre-LN blocks    : largest |numeric - analytic| = 2.75e-07; every entry passes: True
+Actual output from this lesson's run.
+
+======================================================================
+5. TRAINING -- one block, batches of 32, three seeds
+======================================================================
+Day 78's tagger and settings (lr 2.0, Day 78's choice on validation; 25 epochs, best epoch on validation). BatchNorm keeps running averages (momentum 0.9) and uses them at test time. Test accuracy; training accuracy at the best epoch.
+
+norm                             seed 0   seed 1   seed 2     mean    train
+LayerNorm                        0.8535   0.8502   0.8492   0.8510   0.9542
+BatchNorm (padding left out)     0.8496   0.8503   0.8560   0.8520   0.9380
+BatchNorm (padding counted)      0.8446   0.8540   0.8525   0.8504   0.9429
+Actual output from this lesson's run.
+
+======================================================================
+6. SMALL BATCHES -- 4 sentences per batch, seed 0
+======================================================================
+The same tagger with batches of 4: BatchNorm's statistics now come from about 50 words. Same number of epochs (so 8 times as many steps). First at the same learning rate (2.0); then at 0.25, eight times smaller, so that an epoch moves the weights about as far as with batches of 32.
+
+norm                            batch 32, lr 2.0  batch 4, lr 2.0  batch 4, lr 0.25
+LayerNorm                                 0.8535           0.7746            0.8520
+BatchNorm (padding left out)              0.8496           0.7785            0.8503
+Actual output from this lesson's run.
+
+======================================================================
+7. TRAINING STATISTICS OR RUNNING AVERAGES? -- the trained BatchNorm tagger, seed 0
+======================================================================
+The same trained weights, three ways of normalising at test time: the running averages (what Section 5 reports), or each test batch's own statistics with batches of 256 or of 4 sentences. LayerNorm has no such choice.
+
+running averages: 0.8496   test batches of 256: 0.8466   test batches of 4: 0.8361
+Actual output from this lesson's run.
+
+======================================================================
+8. WHAT EACH NORM COSTS -- one training step, measured in this run
+======================================================================
+One block, a batch of 32 training sentences, forward and backward; best of 5 timings of 10 steps. Only the ratio within this run is meaningful.
+
+LayerNorm 39.8 ms, BatchNorm 40.8 ms per step; ratio 1.03
+Actual output from this lesson's run.
+
+saved layernorm_vs_batchnorm.png
+saved norms_diagram.png
+
+======================================================================
+9. WHAT COMES NEXT
+======================================================================
+Day 80 builds the Transformer's DECODER block: self-attention that may only look at earlier positions (a causal mask), attention to the encoder's output, and the same add & norm.

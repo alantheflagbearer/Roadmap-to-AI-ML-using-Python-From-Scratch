@@ -32,5 +32,20 @@ Exercise: [`day78_exercise.py`](day78_exercise.py) is one post-LN encoder block 
 ![The encoder block](encoder_block_diagram.png)
 ![Gradient by depth, each part removed, deeper stacks](encoder_block_results.png)
 
+## Day 79 — LayerNorm vs BatchNorm, a real comparison
+[`day79_layernorm_vs_batchnorm.py`](day79_layernorm_vs_batchnorm.py) — Day 78's encoder block with the norm as a setting: LayerNorm (each position's features), BatchNorm with padding left out of its statistics, and BatchNorm with padding counted. Same starting weights for all three, on Week 9's padded sentences.
+
+- **Accuracy is not the difference:** with batches of 32, LayerNorm 0.8510, BatchNorm 0.8520, BatchNorm counting padding 0.8504 (three seeds). With batches of 4 both drop at the same learning rate (0.7746 / 0.7785) and both recover when it is scaled down 8 times (0.8520 / 0.8503): the learning rate, not the norm.
+- **Independence is:** with BatchNorm (train mode) a sentence's output changes by up to 1.39e+00 when the other sentences in its batch change, LayerNorm's not at all (0.00e+00); counting padding in BatchNorm's statistics changes outputs by 1.38e+00.
+- **Test time:** the trained BatchNorm tagger scores 0.8496 with its running averages, 0.8466 with each test batch's statistics (256 sentences) and 0.8361 with batches of 4. LayerNorm has no such choice.
+- BatchNorm's backward pass with masked statistics passes the gradient check inside the block.
+
+Study guide: [`day79_layernorm_vs_batchnorm_complete_guide.pdf`](day79_layernorm_vs_batchnorm_complete_guide.pdf) · Syntax walkthrough: [`day79_syntax_line_by_line.pdf`](day79_syntax_line_by_line.pdf) · [Run output](day79_run_output.txt)
+
+Exercise: [`day79_exercise.py`](day79_exercise.py) is LayerNorm as one function, forward and backward, gradient-checked, beside BatchNorm — the third part of Day 83's Transformer ([run output](day79_exercise_run_output.txt)).
+
+![Which numbers each norm averages](norms_diagram.png)
+![Batches of 32, small batches, BatchNorm at test time](layernorm_vs_batchnorm.png)
+
 ---
 [← Back to main README](../README.md)
