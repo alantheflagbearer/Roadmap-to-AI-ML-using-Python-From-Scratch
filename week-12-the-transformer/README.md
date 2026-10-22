@@ -17,5 +17,20 @@ Exercise: [`day77_exercise.py`](day77_exercise.py) is the encoding table as one 
 ![Where the encoding enters](positional_encoding_diagram.png)
 ![The encoding, the toy task by position, and the tagger's heads](positional_encoding_results.png)
 
+## Day 78 — The Transformer encoder block, from scratch
+[`day78_encoder_block.py`](day78_encoder_block.py) — multi-head attention (Day 76) and a position-wise feed-forward network, each wrapped in "add & norm": a residual connection and layer normalisation. Post-LN (the paper's order) and pre-LN, forward and backward from scratch, stacked and tested on Week 9's tagging task with Day 77's encoding.
+
+- **Checks:** LayerNorm by hand; the FFN works on every position on its own (shuffled positions give shuffled outputs exactly, 0.00e+00); post-LN and pre-LN stacks and every ablation pass the gradient check. The loss is now a log-softmax: Day 62's `log(p + 1e-9)` made one entry fail the check although the analytic gradient was right.
+- **What keeps the gradient alive** (8 untrained blocks): with neither residuals nor LayerNorm the gradient at the bottom fades to 1.472e-02; residuals alone make it grow to 3.022e+01; with LayerNorm it stays the same size with or without residuals (1.237e+01 and 8.498e+00).
+- **One block on real tagging:** 0.8510 over three seeds (lr 2.0, chosen on validation), a little above Day 77's single layer (0.8487). Without the FFN 0.8378; without LayerNorm 0.8485 and without residuals 0.8475, within the seeds' spread.
+- **Deeper did not help:** 2 and 4 blocks, post-LN or pre-LN, all tested below one block (best 0.8478 for 4 post-LN blocks against 0.8535, seed 0) and reached lower training accuracy too (0.9082 to 0.9501 against 0.9652): under plain SGD they train less well, rather than overfit.
+
+Study guide: [`day78_encoder_block_complete_guide.pdf`](day78_encoder_block_complete_guide.pdf) · Syntax walkthrough: [`day78_syntax_line_by_line.pdf`](day78_syntax_line_by_line.pdf) · [Run output](day78_run_output.txt)
+
+Exercise: [`day78_exercise.py`](day78_exercise.py) is one post-LN encoder block on its own, forward and backward, gradient-checked, ignoring padded positions — the second part of Day 83's Transformer ([run output](day78_exercise_run_output.txt)).
+
+![The encoder block](encoder_block_diagram.png)
+![Gradient by depth, each part removed, deeper stacks](encoder_block_results.png)
+
 ---
 [← Back to main README](../README.md)

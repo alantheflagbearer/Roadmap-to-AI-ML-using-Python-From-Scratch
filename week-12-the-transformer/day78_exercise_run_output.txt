@@ -1,0 +1,2 @@
+gradient check (x and all 12 weight arrays): largest |numeric - analytic| = 4.44e-09
+padded inputs changed: largest change at a real position = 0.00e+00

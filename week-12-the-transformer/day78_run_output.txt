@@ -1,0 +1,88 @@
+======================================================================
+1. LAYER NORMALISATION BY HAND -- each position's vector on its own
+======================================================================
+Two positions with 4 numbers each, g = 1 and b = 0 (where training starts). Each row is shifted to mean 0 and divided by its spread; the other row plays no part.
+
+ row                     input   mean  spread                            output
+   0      [1.0, 2.0, 3.0, 6.0]   3.00  1.8708   -1.0690 -0.5345  0.0000  1.6036
+   1  [10.0, 10.0, 10.0, 14.0]  11.00  1.7321   -0.5773 -0.5773 -0.5773  1.7320
+largest difference from the formula: 2.22e-16; output means [-0.0, 0.0], spreads [1.0, 1.0]
+Actual output from this lesson's run.
+
+======================================================================
+2. THE FEED-FORWARD NETWORK WORKS ON EVERY POSITION ON ITS OWN
+======================================================================
+Random input (3 sentences, 6 positions, size 32) and random weights. Shuffle the positions: if the FFN mixes nothing between positions, its outputs shuffle with them exactly. And one position fed alone gives the same output as inside the sentence.
+
+shuffled: largest |output(shuffled) - shuffled(output)| = 0.00e+00
+position 2 alone vs inside the sentence: largest difference = 7.77e-16
+weights: W1 32 x 128, W2 128 x 32 -- the same 8352 numbers at every position
+Actual output from this lesson's run.
+
+======================================================================
+3. GRADIENT CHECK -- post-LN and pre-LN stacks, and each part removed
+======================================================================
+A tiny tagger (8 words, 3 tags, size 8, 2 heads, FFN size 12, positions x 1), three padded sentences; every entry of every parameter nudged by +-1e-5; Day 62's pass rule |numeric - analytic| <= 1e-10 + 1e-6 |numeric|. The loss is a log-softmax: no '+ 1e-9'.
+2 blocks, post-LN     : largest |numeric - analytic| = 5.79e-09; every entry passes: True
+2 blocks, pre-LN      : largest |numeric - analytic| = 2.57e-09; every entry passes: True
+1 block, no residual  : largest |numeric - analytic| = 4.35e-10; every entry passes: True
+1 block, no norm      : largest |numeric - analytic| = 2.30e-11; every entry passes: True
+1 block, no FFN       : largest |numeric - analytic| = 2.44e-09; every entry passes: True
+Actual output from this lesson's run.
+
+======================================================================
+4. WHAT KEEPS THE GRADIENT ALIVE -- residuals and LayerNorm, untrained blocks
+======================================================================
+A stack of 1 to 8 untrained blocks (seed 0) on 32 real training sentences; a random gradient of size 1 per real word arrives at the top. Reported: the mean size of the gradient that reaches the word vectors at the bottom. Five versions of the block: post-LN and pre-LN with residuals, post-LN without them, and the block with no LayerNorm, with and without residuals.
+
+ blocks  post-LN, residual      post-LN, none   pre-LN, residual    no LN, residual        no LN, none
+      1          1.031e+01          9.631e+00          1.389e+01          1.335e+00          2.607e-01
+      2          1.182e+01          1.014e+01          2.193e+01          1.809e+00          1.339e-01
+      4          1.343e+01          7.997e+00          3.164e+01          3.746e+00          4.752e-02
+      8          1.237e+01          8.498e+00          4.529e+01          3.022e+01          1.472e-02
+Actual output from this lesson's run.
+
+======================================================================
+5. ONE BLOCK ON REAL TAGGING -- learning rate on validation, then three seeds
+======================================================================
+Day 62's data. Embedding 32, 4 heads, FFN 128, Day 77's encoding (x 3.0, queries and keys only), post-LN; plain SGD, clip 1.0, batches of 32, 25 epochs, best epoch on validation. The tagger is the block plus one output layer: the FFN takes the place of Day 77's hidden layer.
+
+validation accuracy, seed 0: lr 0.5: 0.8428  lr 1.0: 0.8444  lr 2.0: 0.8475  -> lr 2.0
+test accuracy: 0.8535  0.8502  0.8492   mean 0.8510   (training accuracy 0.9542)
+Day 77's single attention layer + hidden layer (same encoding): 0.8487
+Actual output from this lesson's run.
+
+======================================================================
+6. EACH PART REMOVED -- one block, three seeds
+======================================================================
+The same tagger with one part taken out at a time. Test accuracy (best epoch on validation), and training accuracy at that epoch.
+
+model                seed 0   seed 1   seed 2     mean    train
+full block           0.8535   0.8502   0.8492   0.8510   0.9542
+no feed-forward      0.8433   0.8334   0.8365   0.8378   0.9239
+no LayerNorm         0.8449   0.8464   0.8542   0.8485   0.9491
+no residual          0.8499   0.8508   0.8419   0.8475   0.9454
+Actual output from this lesson's run.
+
+======================================================================
+7. DEEPER -- 2 and 4 blocks, post-LN and pre-LN, seed 0
+======================================================================
+The same settings and learning rate. Training accuracy is at the best validation epoch, to tell a model that cannot fit (low training accuracy) from one that fits but does not generalise. 'positions' says whether Day 77's encoding is added in every block or only the first.
+
+model                       positions      val     test    train  best epoch
+1 block                         every   0.8475   0.8535   0.9652          19
+2 blocks, post-LN               every   0.8307   0.8410   0.9501          22
+2 blocks, pre-LN                every   0.8254   0.8349   0.9168          25
+4 blocks, post-LN               every   0.8488   0.8478   0.9363          21
+4 blocks, pre-LN                every   0.8218   0.8353   0.9082          22
+2 blocks, post-LN               first   0.8327   0.8405   0.9438          17
+4 blocks, post-LN               first   0.8309   0.8402   0.9204          21
+Actual output from this lesson's run.
+
+saved encoder_block_results.png
+saved encoder_block_diagram.png
+
+======================================================================
+8. WHAT COMES NEXT
+======================================================================
+Today's block normalises each position's vector on its own: LayerNorm. CNNs (Day 54) used BatchNorm, which normalises each feature across the batch. Day 79 puts the two side by side inside this block, on padded sentences of different lengths.
