@@ -2,11 +2,11 @@
 
 A daily-practice log following a 52-week (365-day) roadmap from Python fundamentals through classical ML, deep learning, and into applied AI. Most lessons don't just call a library function — they build the underlying idea (gradient descent, backprop, convolution, dropout...) from scratch in NumPy first, then show the framework equivalent. Each day is a self-contained script; from Week 1 onward, most days add a paired study guide (a concept walkthrough and a line-by-line syntax breakdown, both PDF).
 
-**Currently on Day 76** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
+**Currently on Day 77** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
 
 ## How this repo is organized
 
-- **One folder per week** (`week-01-python-foundations/` … `week-11-attention-mechanism/`) — each holds that week's scripts, study-guide PDFs, diagrams, and run outputs, plus its own `README.md` with a day-by-day index. Open a week's `README.md` first; it links to everything inside.
+- **One folder per week** (`week-01-python-foundations/` … `week-12-the-transformer/`) — each holds that week's scripts, study-guide PDFs, diagrams, and run outputs, plus its own `README.md` with a day-by-day index. Open a week's `README.md` first; it links to everything inside.
 - **`practice-drills/`** — short standalone Python-fundamentals exercises (`pfdsNN.py`), numbered independently of the daily roadmap.
 - Root-level `titanic.csv`, `titanic.db`, and `students.csv` are the shared datasets several early weeks use; each is also copied into every week folder whose scripts need it, so any single week folder runs standalone without reaching outside itself.
 
@@ -25,8 +25,9 @@ A daily-practice log following a 52-week (365-day) roadmap from Python fundament
 | 9 | 56–62 | Sequence Data & RNNs I | [→ folder](week-09-sequence-data-rnns-i) |
 | 10 | 63–69 | LSTM & GRU | [→ folder](week-10-lstm-gru) |
 | 11 | 70–76 | Attention Mechanism | [→ folder](week-11-attention-mechanism) |
+| 12 | 77 (of 77–83) | The Transformer — in progress | [→ folder](week-12-the-transformer) |
 
-Weeks 12 onward (Transformers, tokenization, a mini-GPT, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
+Weeks 13 onward (tokenization, a mini-GPT, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
 
 Starting with Week 6, the same small neural-network library — written entirely in NumPy, no framework — is extended week over week: the `net.forward()` / `net.backward()` core built on Day 36 is still what every later script, all the way through Day 62, trains against; Week 10 starts a new cell, the LSTM.
 
@@ -49,7 +50,7 @@ Starting with Week 6, the same small neural-network library — written entirely
 | ![Bottleneck results](week-11-attention-mechanism/bottleneck_results.png) One fixed-size state: 4 digits held perfectly, 20 not — Day 70 | ![Attention curves](week-11-attention-mechanism/attention_training_curves.png) Additive attention: Day 70's failing test, now 1.000 at every length — Day 71 |
 | ![Attention heatmaps](week-11-attention-mechanism/attention_heatmaps.png) Attention heatmaps: the diagonal, and where it breaks — Day 72 | ![Score functions compared](week-11-attention-mechanism/score_functions_compared.png) Dot, general and additive scores, like for like — Day 73 |
 | ![Self-attention tagger](week-11-attention-mechanism/self_attention_tagger.png) Self-attention: order-blind, proved on real data — Day 74 | ![Scaling results](week-11-attention-mechanism/scaling_results.png) Scaled dot-product attention: the benefit is the starting point — Day 75 |
-| ![Multi-head results](week-11-attention-mechanism/multi_head_results.png) Week 11 build: one head cannot fetch two things; two heads can — Day 76 | |
+| ![Multi-head results](week-11-attention-mechanism/multi_head_results.png) Week 11 build: one head cannot fetch two things; two heads can — Day 76 | ![Positional encoding results](week-12-the-transformer/positional_encoding_results.png) Positional encoding: strong in the scores, kept out of the word — Day 77 |
 
 ## Featured project: Titanic EDA (Day 13)
 

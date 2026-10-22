@@ -1,0 +1,5 @@
+range of the numbers: -1.000 .. 1.000
+largest |PE[p + 3] - PE[p] R_3| over p = 0..46: 1.12e-15
+PE[p] . PE[p + 3] over every p: from 5.543101 to 5.543101
+without the encoding: largest |output(shuffled) - shuffled(output)| = 6.66e-16
+with    the encoding: largest |output(shuffled) - shuffled(output)| = 1.60e+00

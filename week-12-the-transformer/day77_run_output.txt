@@ -1,0 +1,134 @@
+======================================================================
+1. THE ENCODING -- a vector per position, d = 32
+======================================================================
+The first six numbers of the encoding at positions 0-4 (pairs: (sin, cos) of one angle), and how many positions each pair takes to turn once around its circle (2 pi 10000^(2i/d)).
+
+ position    col 0    col 1    col 2    col 3    col 4    col 5
+        0   0.0000   1.0000   0.0000   1.0000   0.0000   1.0000
+        1   0.8415   0.5403   0.5332   0.8460   0.3110   0.9504
+        2   0.9093  -0.4161   0.9021   0.4315   0.5911   0.8066
+        3   0.1411  -0.9900   0.9933  -0.1160   0.8126   0.5828
+        4  -0.7568  -0.6536   0.7785  -0.6277   0.9536   0.3011
+Actual output from this lesson's run.
+
+positions per full turn, pair by pair (pair 0 is columns 0-1):
+  0: 6.3  1: 11.2  2: 19.9  3: 35.3  4: 62.8  5: 111.7  ...  15: 35333
+Actual output from this lesson's run.
+
+======================================================================
+2. MOVING ALONG IS A ROTATION -- the same one for every starting position
+======================================================================
+For each shift k, one matrix R_k (a 2 x 2 rotation per pair, built from k alone) is applied to the encoding at EVERY position p = 0..99. If PE[p + k] = PE[p] R_k exactly, then PE[p] . PE[p + k] cannot depend on p -- only on k.
+
+   k   largest |PE[p+k] - PE[p] R_k|   PE[p] . PE[p+k]: smallest   largest
+   1                        3.71e-15                     15.3136   15.3136
+   2                        6.27e-15                     13.7301   13.7301
+   5                        4.39e-15                     11.7774   11.7774
+  20                        3.57e-15                     10.4709   10.4709
+Actual output from this lesson's run.
+
+PE[0] . PE[k] for k = 0..8 (k = 0 gives d / 2 = 16; nearby positions score highest, but not in a smooth line):
+  16.00  15.31  13.73  12.27  11.66  11.78  11.89  11.43  10.52
+Actual output from this lesson's run.
+
+======================================================================
+3. ORDER BECOMES VISIBLE -- Day 74's shuffle test, without and with the encoding
+======================================================================
+Random word vectors (4 sentences, 7 words, size 8), Day 76's layer with 2 heads. Shuffle the words; compare each word's output after the shuffle with its output before.
+
+shuffle [4, 5, 3, 1, 2, 6, 0]
+no encoding        : largest |output(shuffled) - shuffled(output)| = 8.88e-15
+with the encoding  : largest |output(shuffled) - shuffled(output)| = 3.18e+01
+Actual output from this lesson's run.
+
+======================================================================
+4a. GRADIENT CHECK -- the toy network and the tagger, every encoding
+======================================================================
+Tiny sizes (d = 4 for the toy, 8 with 2 heads for the tagger; 3 sequences, the tagger's padded to different lengths); every entry of every parameter nudged by +-1e-5; Day 62's pass rule |numeric - analytic| <= 1e-10 + 1e-6 |numeric|.
+toy, none       : largest |numeric - analytic| = 4.93e-11; every entry passes: True
+toy, sin        : largest |numeric - analytic| = 5.41e-11; every entry passes: True
+toy, learned    : largest |numeric - analytic| = 5.10e-11; every entry passes: True
+tagger, none    : largest |numeric - analytic| = 7.42e-10; every entry passes: True
+tagger, all     : largest |numeric - analytic| = 7.90e-10; every entry passes: True
+tagger, qk      : largest |numeric - analytic| = 7.54e-10; every entry passes: True
+Actual output from this lesson's run.
+
+======================================================================
+4. A TASK THAT NEEDS POSITION -- write the token one position back
+======================================================================
+Sequences of 8-16 random tokens (1-9); the answer at every position is the token just before it. One attention head, size 32, plain SGD lr 0.1, clip 1.0, batches of 32, 3000 steps, three seeds. Guessing: 1/9 = 0.111. Test: 500 fixed sequences of each length; 24, 32 and 48 are longer than any training sequence.
+
+encoding       n=16    n=24    n=32    n=48   n=16 per seed
+none          0.253   0.227   0.206   0.182   0.251 0.254 0.254
+sin           1.000   0.775   0.585   0.374   1.000 1.000 0.999
+learned       1.000   0.695   0.542   0.383   1.000 1.000 1.000
+Actual output from this lesson's run.
+
+at n = 32, by position (mean of seeds): positions 1-15 were seen in training, 16-31 never
+  sin      positions 1-15: 0.914   positions 16-31: 0.278
+  learned  positions 1-15: 0.981   positions 16-31: 0.130
+Actual output from this lesson's run.
+
+======================================================================
+5. REAL TAGGING -- where to add the encoding, and how strongly, chosen on validation
+======================================================================
+Day 62's data and Day 74's tagger, with Day 76's layer (4 heads of 8, size 32), lr 2.0, 25 epochs, best epoch on validation. 'all': the encoding is added to the word vectors (queries, keys, values and the word's own vector, as in the Transformer paper); 'qk': added only where the layer decides WHERE to look (queries and keys). Seed 0, validation accuracy:
+
+place      x 0.3    x 1.0    x 3.0   x 10.0
+all       0.7980   0.7989   0.1400   0.1400
+qk        0.8009   0.8265   0.8381   0.7876
+no encoding: 0.8001
+chosen on validation: all x 1.0, qk x 3.0
+Actual output from this lesson's run.
+
+three seeds, TEST accuracy (each run's best epoch chosen on validation):
+
+model                        seed 0   seed 1   seed 2     mean
+no encoding                  0.8042   0.8049   0.8018   0.8036
+all, x 1.0                   0.8105   0.8023   0.8062   0.8063
+qk, x 3.0                    0.8485   0.8480   0.8496   0.8487
+for comparison: Day 74's single-head tagger 0.8070, Day 62's RNN 0.8327, Day 68's LSTM 0.8377, bidirectional LSTM 0.8577
+Actual output from this lesson's run.
+
+======================================================================
+6. WHAT THE HEADS LOOK AT -- mean weight on the word k positions away, seed 0
+======================================================================
+Over 500 test sentences, real words only. With 10 words a uniform head gives about 0.1 everywhere; a head that tracks position puts a large weight on one offset.
+
+no encoding:       k=-3    k=-2    k=-1     k=0     k=1     k=2     k=3
+  head 1           0.056   0.061   0.072   0.086   0.074   0.062   0.056
+  head 2           0.056   0.062   0.074   0.079   0.074   0.063   0.056
+  head 3           0.057   0.062   0.074   0.078   0.074   0.064   0.056
+  head 4           0.055   0.061   0.072   0.088   0.073   0.062   0.056
+
+all, x 1.0:       k=-3    k=-2    k=-1     k=0     k=1     k=2     k=3
+  head 1           0.050   0.065   0.092   0.114   0.113   0.089   0.069
+  head 2           0.039   0.050   0.063   0.076   0.077   0.072   0.069
+  head 3           0.053   0.059   0.072   0.067   0.079   0.067   0.062
+  head 4           0.072   0.105   0.134   0.146   0.091   0.059   0.046
+
+qk, x 3.0:       k=-3    k=-2    k=-1     k=0     k=1     k=2     k=3
+  head 1           0.000   0.000   0.000   0.136   0.918   0.018   0.000
+  head 2           0.049   0.056   0.062   0.091   0.072   0.071   0.072
+  head 3           0.084   0.073   0.069   0.103   0.109   0.107   0.089
+  head 4           0.006   0.136   0.569   0.294   0.015   0.000   0.000
+Actual output from this lesson's run.
+
+======================================================================
+7. DAY 62'S SHUFFLE TEST -- the real test sentences with their words in random order
+======================================================================
+Each word keeps its own true tag. Day 74's tagger did not change a single prediction; Day 62's RNN dropped from 0.8327 to 0.7487. Seed 0 of each model.
+
+model                       normal order  shuffled
+no encoding                       0.8042    0.8042
+all, x 1.0                        0.8105    0.8000
+qk, x 3.0                         0.8485    0.7376
+Actual output from this lesson's run.
+
+saved positional_encoding_results.png
+saved positional_encoding_diagram.png
+
+======================================================================
+8. WHAT COMES NEXT
+======================================================================
+Today's tagger is one attention layer and a small classifier. Day 78 builds the Transformer's encoder block around the attention: a residual connection, layer normalisation and a position-wise feed-forward network, and stacks it.
