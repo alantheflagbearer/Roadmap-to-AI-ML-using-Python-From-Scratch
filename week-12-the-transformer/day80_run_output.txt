@@ -1,0 +1,88 @@
+======================================================================
+1. THE CAUSAL MASK -- each position may read itself and earlier positions only
+======================================================================
+Five positions, random scores (seed 0), one head. Masked keys get minus infinity, so weight 0; every row still sums to 1.
+
+mask (1 = may read):
+  1 0 0 0 0
+  1 1 0 0 0
+  1 1 1 0 0
+  1 1 1 1 0
+  1 1 1 1 1
+weights:
+  1.000 0.000 0.000 0.000 0.000   sum 1.000
+  0.006 0.994 0.000 0.000 0.000   sum 1.000
+  0.265 0.189 0.545 0.000 0.000   sum 1.000
+  0.079 0.400 0.407 0.113 0.000   sum 1.000
+  0.018 0.556 0.190 0.045 0.191   sum 1.000
+largest weight on a future position: 0.0e+00
+Actual output from this lesson's run.
+
+======================================================================
+2. THE FUTURE CANNOT LEAK IN -- change a later word, watch the earlier outputs
+======================================================================
+One untrained decoder block (seed 0) on 4 random 12-word sequences. Word 8 of each is replaced by another word; the largest change in the outputs at positions 0-7 (which come before it) and at positions 8-11 is reported, with and without the causal mask.
+
+model              positions 0-7  positions 8-11
+causal mask             0.00e+00        5.69e+00
+no mask                 1.61e+00        5.72e+00
+Actual output from this lesson's run.
+
+======================================================================
+3. GRADIENT CHECK -- the decoder block with cross-attention, and the next-word model
+======================================================================
+Tiny sizes (d = 8, 2 heads, FFN 12). The decoder block: 2 sequences of 4 decoder positions reading 6 encoder positions (one sequence padded on both sides); L = sum(U * output), and the gradient for the ENCODER output is checked too. The next-word model: 3 padded sentences, both masks. Every entry nudged by +-1e-5; Day 62's pass rule.
+decoder block (self + cross + FFN): largest |numeric - analytic| = 4.79e-10; every entry passes: True
+next-word model, causal mask : largest |numeric - analytic| = 8.94e-08; every entry passes: True
+next-word model, no mask     : largest |numeric - analytic| = 4.75e-08; every entry passes: True
+Actual output from this lesson's run.
+
+======================================================================
+4a. WHAT IS A GOOD SCORE? -- two counting baselines
+======================================================================
+Predict the next word with no model at all: always the most common training word, or the word that most often followed the previous word in training (a bigram table).
+
+most common target in training: '<unk>' (words outside the vocabulary); share of test targets that are '<unk>': 0.1853
+always predicting it: 0.1853      bigram table: 0.2519
+Actual output from this lesson's run.
+
+======================================================================
+4. WHY THE MASK -- a next-word model trained with and without it
+======================================================================
+Week 9's sentences as a language-modelling task: input [BOS] w1 .. wn, target w1 .. wn [EOS]. One decoder block, no encoder, size 32, 4 heads, Day 77's encoding; SGD lr 2.0, clip 1.0, batches of 32, 20 epochs, best epoch by validation cross-entropy measured from the past only. Two test scores: 'whole sentence' gives the model the full input in one pass, as in training; 'past only' predicts each word from the words before it, as when generating text.
+
+model          seed  whole sentence: acc     CE  past only: acc     CE  best epoch
+causal mask       0               0.2254  4.542          0.2254  4.542           7
+causal mask       1               0.2442  4.481          0.2442  4.481           6
+causal mask       2               0.2326  4.472          0.2326  4.472           6
+no mask           0               0.5133  3.283          0.0877  6.680           1
+no mask           1               0.5167  3.409          0.1222  6.508           1
+no mask           2               0.5007  3.338          0.1102  6.908           1
+(CE: mean cross-entropy in nats per word; lower is better)
+Actual output from this lesson's run.
+
+======================================================================
+5. WITH THE MASK, ONE PASS = ONE PASS PER WORD
+======================================================================
+For the trained causal model (seed 0): the log-probabilities from one pass over the whole sentence, against those from feeding each prefix separately, on 200 test sentences.
+
+largest difference over every predicted position: 7.11e-15
+Actual output from this lesson's run.
+
+======================================================================
+6. WHERE THE UNMASKED MODEL LOOKS -- seed 0, 300 test sentences
+======================================================================
+The mean attention weight from each position to the position one ahead (whose input IS the word to predict), to itself, and to the position one behind, averaged over the heads.
+
+model           one ahead   itself  one behind
+causal mask         0.000    0.349       0.197
+no mask             0.536    0.071       0.013
+Actual output from this lesson's run.
+
+saved causal_mask_results.png
+saved decoder_block_diagram.png
+
+======================================================================
+7. WHAT COMES NEXT
+======================================================================
+Day 81 joins the two halves: encoder blocks (Day 78) read the input, decoder blocks (today) write the output while reading the encoder through cross-attention -- a full Transformer forward pass on a toy copy task.

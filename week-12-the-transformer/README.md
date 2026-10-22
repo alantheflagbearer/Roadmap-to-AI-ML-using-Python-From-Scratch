@@ -47,5 +47,20 @@ Exercise: [`day79_exercise.py`](day79_exercise.py) is LayerNorm as one function,
 ![Which numbers each norm averages](norms_diagram.png)
 ![Batches of 32, small batches, BatchNorm at test time](layernorm_vs_batchnorm.png)
 
+## Day 80 — The Transformer decoder block, and masked self-attention
+[`day80_decoder_block.py`](day80_decoder_block.py) — masked (causal) self-attention, cross-attention to an encoder's output (queries from the decoder, keys and values from the encoder) and Day 78's FFN, each with add & norm. Then a decoder-only next-word model on Week 9's sentences, trained with and without the causal mask.
+
+- **Checks:** the mask leaves exactly zero weight on later positions; changing a later word leaves the earlier outputs unchanged (0.00e+00, against 1.61e+00 without the mask); the full decoder block, including the gradient for the encoder's output, passes the gradient check.
+- **Why the mask:** without it the next-word model scores 0.5133 / 0.5167 / 0.5007 on whole sentences, as in training, because it reads the next word (0.536 of its attention is one position ahead). Predicting from the past only, as when writing text, it falls to 0.0877 / 0.1222 / 0.1102, below always guessing '<unk>' (0.1853). With the mask both scores are the same: 0.2254 / 0.2442 / 0.2326.
+- **An honest limit:** one small block trained with SGD on 2,000 sentences stays below a bigram table (0.2519) on accuracy.
+- **One pass = one pass per word:** with the mask, a whole-sentence pass equals feeding each prefix separately (7.11e-15), which is why decoders train on whole sentences.
+
+Study guide: [`day80_decoder_block_complete_guide.pdf`](day80_decoder_block_complete_guide.pdf) · Syntax walkthrough: [`day80_syntax_line_by_line.pdf`](day80_syntax_line_by_line.pdf) · [Run output](day80_run_output.txt)
+
+Exercise: [`day80_exercise.py`](day80_exercise.py) is causal self-attention and cross-attention on their own, gradient-checked — the fourth part of Day 83's Transformer ([run output](day80_exercise_run_output.txt)).
+
+![The decoder block](decoder_block_diagram.png)
+![Trained with and without the causal mask](causal_mask_results.png)
+
 ---
 [← Back to main README](../README.md)

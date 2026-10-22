@@ -1,0 +1,3 @@
+causal self-attention: largest weight on a later position = 0.0e+00; change position 4 -> outputs 0-3 move by 0.0e+00, outputs 4-5 by 4.43
+cross-attention: weights are 3 decoder x 5 encoder positions; weight on padded encoder positions 0.0e+00; gradient at them 0.0e+00
+cross-attention gradient check (Y, E, Wq, Wk, Wv, Wo): largest |numeric - analytic| = 4.85e-10
