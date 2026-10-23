@@ -1,0 +1,6 @@
+   0 merges: vocabulary   56, test text 12437 characters -> 12437 tokens (1.00 characters per token), decodes back exactly: True
+  50 merges: vocabulary  106, test text 12437 characters -> 8001 tokens (1.55 characters per token), decodes back exactly: True
+ 200 merges: vocabulary  256, test text 12437 characters -> 5784 tokens (2.15 characters per token), decodes back exactly: True
+ 800 merges: vocabulary  856, test text 12437 characters -> 3899 tokens (3.19 characters per token), decodes back exactly: True
+first 8 merges: 'e ' | 'th' | 's ' | 'd ' | 't ' | 'er' | '.\n' | 'an'
+'the food was amazing' -> ['the food was ', 'amazing']

@@ -1,0 +1,107 @@
+======================================================================
+1. BPE BY HAND -- Sennrich et al. (2016)'s example corpus
+======================================================================
+Four words with their counts: low x5, lower x2, newest x6, widest x3. Every word starts as characters plus </w>. Each round merges the most frequent adjacent pair everywhere.
+
+ round  merge            count   words afterwards
+     1  t + </w>             9   l o w </w>  l o w e r </w>  n e w e s t</w>  w i d e s t</w>
+     2  s + t</w>            9   l o w </w>  l o w e r </w>  n e w e st</w>  w i d e st</w>
+     3  e + st</w>           9   l o w </w>  l o w e r </w>  n e w est</w>  w i d est</w>
+     4  o + w                7   l ow </w>  l ow e r </w>  n e w est</w>  w i d est</w>
+     5  l + ow               7   low </w>  low e r </w>  n e w est</w>  w i d est</w>
+     6  w + est</w>          6   low </w>  low e r </w>  n e west</w>  w i d est</w>
+     7  n + e                6   low </w>  low e r </w>  ne west</w>  w i d est</w>
+     8  ne + west</w>        6   low </w>  low e r </w>  newest</w>  w i d est</w>
+     9  low + </w>           5   low</w>  low e r </w>  newest</w>  w i d est</w>
+    10  w + i                3   low</w>  low e r </w>  newest</w>  wi d est</w>
+
+encoding words never seen in this corpus with the 10 merges:
+  lowest   -> low est</w>
+  newer    -> ne w e r </w>
+  wider    -> wi d e r </w>
+Actual output from this lesson's run.
+
+======================================================================
+2. TRAINING ON REAL TEXT -- 4000 merges on Week 9's training sentences
+======================================================================
+25148 words (4812 distinct) in the 2,001 training sentences, lowercased; 70 different characters, so 71 starting symbols with </w>.
+
+the first 15 merges (pair, and how often it occurred when merged):
+  e+</w> (4057)   s+</w> (2415)   t+</w> (2387)   t+h (2277)   d+</w> (1890)
+  i+n (1714)   a+n (1540)   e+r (1450)   y+</w> (1337)   .+</w> (1282)
+  o+n (1097)   o+</w> (1031)   o+u (1007)   th+e</w> (983)   o+r (901)
+merges 1000, 2000, 4000: de+partment</w> (11), ap+pe (5), la+unched</w> (2)
+4000 merges took 42.8 s here (every pair recounted every round)
+Actual output from this lesson's run.
+
+======================================================================
+3. ENCODING IS LOSSLESS -- every test sentence back from its subwords
+======================================================================
+Each of the 1,647 test sentences (lowercased words joined by spaces) is encoded with all the merges, then decoded. A tokenizer must give back exactly what it was given.
+
+sentences that do not decode back exactly: 0 of 1647
+tokens: 26842 for 18460 words (1.454 per word)
+
+example: i was wondering if it would be ok for me to sit in with you one day to get a general feel of your end of the process .
+encoded: i</w> | was</w> | wondering</w> | if</w> | it</w> | would</w> | be</w> | ok</w> | for</w> | me</w> | to</w> | s it</w> | in</w> | with</w> | you</w> | one</w> | day</w> | to</w> | get</w> | a</w> | general</w> | feel</w> | of</w> | your</w> | end</w> | of</w> | the</w> | process</w> | .</w>
+Actual output from this lesson's run.
+
+======================================================================
+4. VOCABULARY SIZE AGAINST SEQUENCE LENGTH
+======================================================================
+The first k merges, for several k. Vocabulary = the starting symbols plus k merged symbols. Measured on the test words: tokens per word, and the share of test words that are a single token. Day 62's word vocabulary for comparison: 2,082 entries, one token per word, but 20.2% of test words are <unk>.
+
+ merges  vocabulary  tokens per word  one-token words
+      0          71            5.096            0.000
+    100         171            2.979            0.327
+    250         321            2.437            0.466
+    500         571            2.092            0.558
+   1000        1071            1.837            0.637
+   2000        2071            1.609            0.722
+   4000        4071            1.454            0.788
+(with 0 merges every character is a token, and </w> is its own token: a 3-letter word is 4 tokens)
+Actual output from this lesson's run.
+
+======================================================================
+5. NO MORE <unk> -- the test words Day 62 could not read
+======================================================================
+Day 62 kept only words seen at least twice in training. The test words outside that vocabulary, and how BPE (all merges) handles them.
+
+test words outside Day 62's vocabulary: 3725 of 18460 (20.2%)
+characters in the test text never seen in training: 4
+  U+005E: 1 byte(s) in UTF-8; in 2 test word(s)
+  U+00B4: 2 byte(s) in UTF-8; in 1 test word(s)
+  U+03C5: 2 byte(s) in UTF-8; in 1 test word(s)
+  U+2014: 3 byte(s) in UTF-8; in 2 test word(s)
+test words with such a character: 6 -- BPE keeps the character as a symbol of its own, which a model trained on this vocabulary has never seen. A byte-level BPE (as in GPT-2) starts from the 256 possible byte values instead, so no input can ever fall outside it.
+BPE pieces per Day-62-unknown word: mean 3.16; one piece 0.031
+examples:
+  !!!!!!!!!!!!!!!!!!! -> !!!!!!!! !!!!!!!! !!!</w>
+  backdrop         -> back dro p</w>
+  concern          -> concer n</w>
+  equistar         -> e qu i star</w>
+  http://www.bbc.co.uk/dna/actionnetwork/c55153 -> http://www. bbc.co.uk/ d na / ac tion ne t wor k/ c 5 5 15 3</w>
+  messages         -> mess ages</w>
+  ragnarok         -> ra gn ar ok</w>
+  starting         -> star ting</w>
+Actual output from this lesson's run.
+
+======================================================================
+6. FREQUENT WORDS ARE ONE PIECE, RARE WORDS SEVERAL
+======================================================================
+Test words grouped by how often they occurred in the training sentences; pieces per word with 1000 and with all merges.
+
+seen in training   test words  pieces, 1000 merges  pieces, 4000 merges
+10 or more              11770                 1.02                 1.00
+2-9                      2965                 2.54                 1.11
+once                      955                 3.00                 2.30
+never                    2770                 4.16                 3.46
+Actual output from this lesson's run.
+
+saved bpe_results.png
+saved bpe_diagram.png
+
+======================================================================
+7. WHAT COMES NEXT
+======================================================================
+A tokenizer turns text into ids. Day 85 turns ids into vectors: one-hot vectors against dense embeddings, on a real vocabulary.
