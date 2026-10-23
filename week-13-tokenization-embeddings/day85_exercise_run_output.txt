@@ -1,0 +1,5 @@
+lookup against one-hot @ E: largest difference 0.0e+00; shapes (2, 4, 4) and (2, 4, 4)
+gradient check, every entry of the table: largest |numeric - analytic| = 8.85e-10
+token 5 appears 3 times: its gradient equals the sum of its three positions' gradients: True
+tokens not in the batch [1, 2, 4, 6, 8, 10, 11]: largest gradient 0.0e+00
+with dE[ids] = dX instead of np.add.at, token 5's gradient is off by 0.90

@@ -1,0 +1,66 @@
+======================================================================
+1. A ONE-HOT ROW TIMES A MATRIX IS A LOOKUP
+======================================================================
+Day 62's vocabulary has V = 2082 entries. A word's one-hot vector is V numbers, all 0 but one 1. Multiplying it by a (V x d) matrix picks out one row of that matrix: an embedding lookup.
+
+largest |one_hot @ E - E[ids]| over 1,000 words: 0.0e+00
+time for the 1,000 words: matrix product 2.860 ms, lookup 0.011 ms (the product is 266 times slower here; only the ratio is meaningful)
+memory for the inputs: one-hot 16.7 MB, ids 4.0 kB
+Actual output from this lesson's run.
+
+======================================================================
+2. ONE-HOT VECTORS KNOW NOTHING ABOUT WORDS
+======================================================================
+Distances and similarities between one-hot vectors, for any two different words.
+
+distance(word 5, word 6) = 1.4142; distance(word 5, word 700) = 1.4142 (sqrt 2 = 1.4142); dot products 0 and 0
+Every pair of different words is equally far apart and has similarity 0: 'good' is no closer to 'great' than to 'the'.
+Actual output from this lesson's run.
+
+======================================================================
+3. ONE-HOT, DENSE AND FROZEN INPUTS -- the same window tagger
+======================================================================
+Week 9's tagging task (Day 62's data and vocabulary), the word and its two neighbours, hidden layer 64, plain SGD, batches of 64 words, 30 epochs, best epoch on validation. 'one-hot': three one-hot rows into the hidden layer; 'dense': one learned table of d numbers per word, shared by the three positions; 'frozen': the same table, random and never trained. Each kind of input gets its own learning rate, chosen on validation (seed 0, d = 32 for the tables).
+
+validation accuracy, seed 0:    lr 0.25    lr 0.5    lr 1.0    lr 2.0
+  onehot                        0.7804    0.8077    0.8185    0.8169   -> lr 1.0
+  frozen                        0.6212    0.6717    0.6907    0.6907   -> lr 1.0
+  dense                         0.8533    0.8496    0.8503    0.8428   -> lr 0.25
+Actual output from this lesson's run.
+
+three seeds at the chosen rates (the dense tables all use the d = 32 rate), TEST accuracy:
+
+input             weights   seed 0   seed 1   seed 2     mean  best epoch  s / epoch
+one-hot            400913   0.8190   0.8241   0.8140   0.8190        24.3       4.70
+frozen, d = 32       7313   0.6940   0.6975   0.7000   0.6972        28.0       0.15
+dense, d = 2         5717   0.8345   0.8355   0.8386   0.8362        29.0       0.13
+dense, d = 8        19361   0.8564   0.8497   0.8522   0.8528        18.3       0.16
+dense, d = 32       73937   0.8517   0.8527   0.8543   0.8529        22.3       0.27
+dense, d = 128     292241   0.8541   0.8470   0.8517   0.8509        17.3       1.30
+(weights: the ones training changes; the frozen table is not counted. best epoch: mean of the seeds)
+Actual output from this lesson's run.
+
+======================================================================
+4. WHAT THE LEARNED TABLE KNOWS -- nearest neighbours, dense d = 32, seed 0
+======================================================================
+Cosine similarity between table rows. For a few words, the five nearest. Then, for the 500 most frequent training words: how often a word's nearest neighbour has the same most-common tag, for the learned table, for the frozen random table, and what a random pair of these words gives.
+
+  the      -> an, all, some, these, this
+  is       -> was, are, 'm, does, could
+  good     -> illegal, dead, great, nice, public
+  said     -> reports, using, wants, moving, sounds
+  you      -> we, it, they, i, something
+  very     -> too, pretty, how, overall, always
+  3        -> two, 2000, 2005, 2003, 8
+  january  -> $, july, charge, india, president
+
+nearest neighbour has the same most-common tag (500 most frequent words): learned 0.854, frozen random 0.136; two random words 0.138
+Actual output from this lesson's run.
+
+saved embeddings_results.png
+saved embeddings_diagram.png
+
+======================================================================
+5. WHAT COMES NEXT
+======================================================================
+Today's table learned from tags. Day 86 learns word vectors from raw text alone, by predicting a word's neighbours: Word2Vec's skip-gram, from scratch.

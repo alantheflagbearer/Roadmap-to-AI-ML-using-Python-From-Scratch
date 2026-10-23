@@ -18,5 +18,21 @@ Exercise: [`day84_exercise.py`](day84_exercise.py) is a whole-text BPE tokenizer
 ![BPE merges, step by step](bpe_diagram.png)
 ![Vocabulary size against sequence length, and pieces by word frequency](bpe_results.png)
 
+## Day 85 — Word embeddings: one-hot vs dense, on a real vocabulary
+[`day85_word_embeddings.py`](day85_word_embeddings.py) — a one-hot vector times a matrix picks out one row, so an embedding table is the same thing as a one-hot input layer, stored as a lookup. Tested on Week 9's tagging task with Day 62's 2082-word vocabulary: the same window tagger (a word and its two neighbours, 64 hidden units) fed one-hot vectors, a learned dense table, or a random table that is never trained. Learning rate chosen on validation for each kind of input; three seeds.
+
+- **The same rows, two ways:** one-hot times the table equals the lookup exactly (0.0e+00); the product was 266 times slower in this run, and one-hot inputs for 1,000 words take 16.7 MB against 4.0 kB of ids.
+- **Dense beats one-hot:** test accuracy 0.8529 with d = 32 against 0.8190 for one-hot, which has 400913 weights and took 4.70 s per epoch. Even d = 2 (0.8362) beats one-hot; d = 8, 32 and 128 are level (0.8528, 0.8529, 0.8509).
+- **Learning the table matters:** a random table that is never trained reaches 0.6972.
+- **What the table learned:** for the 500 most frequent words, a word's nearest neighbour has the same most common tag 0.854 of the time, against 0.136 for the random table (two random words: 0.138).
+- **Not shown:** why dense wins. The likely reason, one table shared by all three window positions, was not tested. The best dense learning rate (0.25) is the smallest one tried.
+
+Study guide: [`day85_word_embeddings_complete_guide.pdf`](day85_word_embeddings_complete_guide.pdf) · Syntax walkthrough: [`day85_syntax_line_by_line.pdf`](day85_syntax_line_by_line.pdf) · [Run output](day85_run_output.txt)
+
+Exercise: [`day85_exercise.py`](day85_exercise.py) is an embedding layer, forward (`E[ids]`) and backward (`np.add.at`), gradient-checked with repeated tokens; the plain-assignment mistake is off by 0.90 — the second part of Day 90's model ([run output](day85_exercise_run_output.txt)).
+
+![A one-hot vector times a table is a lookup](embeddings_diagram.png)
+![Accuracy by input, and the learned table in two dimensions](embeddings_results.png)
+
 ---
 [← Back to main README](../README.md)
