@@ -2,7 +2,7 @@
 
 A daily-practice log following a 52-week (365-day) roadmap from Python fundamentals through classical ML, deep learning, and into applied AI. Most lessons don't just call a library function — they build the underlying idea (gradient descent, backprop, convolution, dropout...) from scratch in NumPy first, then show the framework equivalent. Each day is a self-contained script; from Week 1 onward, most days add a paired study guide (a concept walkthrough and a line-by-line syntax breakdown, both PDF).
 
-**Currently on Day 82** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
+**Currently on Day 83** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
 
 ## How this repo is organized
 
@@ -25,7 +25,7 @@ A daily-practice log following a 52-week (365-day) roadmap from Python fundament
 | 9 | 56–62 | Sequence Data & RNNs I | [→ folder](week-09-sequence-data-rnns-i) |
 | 10 | 63–69 | LSTM & GRU | [→ folder](week-10-lstm-gru) |
 | 11 | 70–76 | Attention Mechanism | [→ folder](week-11-attention-mechanism) |
-| 12 | 77–82 (of 77–83) | The Transformer — in progress | [→ folder](week-12-the-transformer) |
+| 12 | 77–83 | The Transformer | [→ folder](week-12-the-transformer) |
 
 Weeks 13 onward (tokenization, a mini-GPT, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
 
@@ -53,7 +53,7 @@ Starting with Week 6, the same small neural-network library — written entirely
 | ![Multi-head results](week-11-attention-mechanism/multi_head_results.png) Week 11 build: one head cannot fetch two things; two heads can — Day 76 | ![Positional encoding results](week-12-the-transformer/positional_encoding_results.png) Positional encoding: strong in the scores, kept out of the word — Day 77 |
 | ![Encoder block results](week-12-the-transformer/encoder_block_results.png) Encoder block: the FFN matters; depth did not help under plain SGD — Day 78 | ![LayerNorm vs BatchNorm](week-12-the-transformer/layernorm_vs_batchnorm.png) LayerNorm vs BatchNorm: same accuracy, different independence — Day 79 |
 | ![Causal mask results](week-12-the-transformer/causal_mask_results.png) Decoder block: without the causal mask, a model that reads the answer — Day 80 | ![Transformer forward results](week-12-the-transformer/transformer_forward_results.png) The whole Transformer, untrained: every mask holds end to end — Day 81 |
-| ![Transformer backward results](week-12-the-transformer/transformer_backward_results.png) The backward pass: every gradient checked, and the check catches a planted bug — Day 82 | |
+| ![Transformer backward results](week-12-the-transformer/transformer_backward_results.png) The backward pass: every gradient checked, and the check catches a planted bug — Day 82 | ![Tiny Transformer results](week-12-the-transformer/tiny_transformer_results.png) Week 12 build: the Transformer learns COPY fast; REVERSE, not as well as the LSTM — Day 83 |
 
 ## Featured project: Titanic EDA (Day 13)
 

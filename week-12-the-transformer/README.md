@@ -92,5 +92,22 @@ Exercise: [`day82_exercise.py`](day82_exercise.py) is the backward pass of the e
 ![The backward pass](transformer_backward_diagram.png)
 ![Gradient size by part, and fitting one batch](transformer_backward_results.png)
 
+## Day 83 — The Week 12 build: a tiny Transformer from the exercise parts, trained
+[`day83_tiny_transformer.py`](day83_tiny_transformer.py) — Days 77–82's exercise functions copied in unchanged (a banner above each group names its script), plus greedy decoding and a training loop. One encoder block and one decoder block, d = 32, 4 heads, FFN 64. Trained exactly as Day 71 trained its attention LSTM (plain SGD lr 0.5, clip 1.0, batches of 32, 20,000 steps, three seeds, the same data and test sets), so the two can be compared directly.
+
+- **The parts fit:** the assembled model passes a gradient check on all 1442 entries (largest difference 6.60e-11). It has 21642 weights, against the LSTM's 17866.
+- **COPY is learned much faster:** 0.956 exact match at 20 digits after 1000 steps, and every length perfect from 1500 steps (seed 1: 1000). Day 71's LSTM was at 0.000 after 2500 steps.
+- **REVERSE is not:** slower to learn, and it ends at 0.986 at 20 digits; only one seed of three gets every length perfect (at 15000 steps). Day 71's LSTM ended at 1.000 at every length. On this task, at this size and with plain SGD, the Transformer is not better.
+- **Longer than training:** no exact matches at 25, 30 or 40 digits. COPY keeps positions 1–20 almost right (token accuracy 0.897 at 25 digits, against the LSTM's 0.742). REVERSE falls to about chance everywhere (0.134; chance is 0.125), probably because it cannot find where an unseen length ends. That reason was not tested.
+- **Cross-attention found the alignment:** its largest weight is on the right source digit 1.000 (COPY) and 0.998 (REVERSE) of the time, with 0.933 and 0.968 of the weight there.
+- **Learning rate and cost:** lr 0.1 to 1.0 all solve COPY within 5000 steps; lr 2.0 fails (0.000). One step took 25.7 ms against the LSTM's 24.2 ms in the same run: about the same cost per step, but far fewer steps on COPY.
+
+Study guide: [`day83_tiny_transformer_complete_guide.pdf`](day83_tiny_transformer_complete_guide.pdf) · Syntax walkthrough: [`day83_syntax_line_by_line.pdf`](day83_syntax_line_by_line.pdf) · [Run output](day83_run_output.txt)
+
+Day 83 is the week's build, so it has no exercise script of its own.
+
+![A tiny Transformer from the week's parts](tiny_transformer_diagram.png)
+![Learning speed, longer sequences, and the two cross-attention maps](tiny_transformer_results.png)
+
 ---
 [← Back to main README](../README.md)
