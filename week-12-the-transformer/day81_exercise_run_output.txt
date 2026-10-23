@@ -1,0 +1,3 @@
+scores: (3, 7, 10); untrained loss 2.331 (log 10 = 2.303); probabilities sum to 1.000000..1.000000
+change decoder input 4: positions 0-3 move by 0.0e+00, positions 4-6 by up to 0.30
+change padded source positions: largest change in any score = 0.0e+00

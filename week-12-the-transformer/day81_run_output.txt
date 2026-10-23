@@ -1,0 +1,77 @@
+======================================================================
+1. ONE EXAMPLE THROUGH THE WHOLE MODEL -- shapes at every stage
+======================================================================
+One untrained Transformer (seed 0): 32 numbers per token, 4 heads, FFN 64, one encoder block and one decoder block. One REVERSE example of 5 digits; the decoder is given GO plus the right answer, shifted (teacher forcing).
+
+source ids [6, 4, 5, 1, 8]   decoder input [9, 8, 1, 5, 4, 6]   target [8, 1, 5, 4, 6, 0]
+source embeddings + positions   (1, 5, 32)
+encoder output                  (1, 5, 32)
+decoder embeddings + positions  (1, 6, 32)
+decoder output                  (1, 6, 32)
+cross-attention weights, per head (decoder positions x source positions): (6, 5)
+scores for the next token       (6, 10)  (6 positions x 10 tokens)
+untrained prediction at each position: [9, 9, 9, 9, 7, 3]
+Actual output from this lesson's run.
+
+======================================================================
+2. WHERE THE WEIGHTS ARE
+======================================================================
+Weight counts by part, for one block on each side and for two.
+
+1 + 1 blocks: embeddings 320, encoder 8416, decoder 12576, output layer 330; total 21642
+  one decoder block: self-attention 4096, cross-attention 4096, FFN 4192, LayerNorms 192
+
+2 + 2 blocks: embeddings 320, encoder 16832, decoder 25152, output layer 330; total 42634
+Actual output from this lesson's run.
+
+======================================================================
+3. THE MASKS, END TO END
+======================================================================
+Untrained model (seed 0), 4 COPY examples of 8 digits. Three changes, and the largest change in the scores they cause where nothing should (or something should) change.
+
+(a) change the PADDED source positions:          every score changes by at most 0.00e+00
+(b) change decoder input 5: scores at positions 0-4 change by 0.00e+00, at 5-8 by up to 2.59e+00
+(c) change a REAL source digit: scores change at every decoder position, smallest change 1.92e-01
+Actual output from this lesson's run.
+
+======================================================================
+4. BEFORE ANY TRAINING -- the loss against log V
+======================================================================
+A model that knows nothing should spread its bets evenly over the 10 tokens: loss log 10 = 2.303. The untrained loss on the 300 fixed 8-digit COPY test sequences, three seeds, for three spreads of the embedding table, and then with the output layer's starting weights 10 times smaller.
+
+model                        seed 0   seed 1   seed 2   largest probability (mean)
+embedding spread 0.1          2.895    2.527    2.756                        0.305
+embedding spread 1            2.849    2.541    2.813                        0.299
+embedding spread 3            2.796    2.641    2.775                        0.308
+output layer x 0.1            2.322    2.302    2.310                        0.115
+Actual output from this lesson's run.
+
+======================================================================
+5. GREEDY DECODING, AND WHY ONE PASS IS ENOUGH IN TRAINING
+======================================================================
+The untrained model writes 9 tokens for each of the 300 fixed 8-digit COPY sequences, one at a time, feeding each token back in. Then the tokens it wrote are given to the decoder all at once (GO plus the first 8), in ONE pass, as in training. The causal mask (Day 80) says the two must agree.
+
+largest difference between the two: 2.66e-15; same tokens chosen: True
+untrained model: exact match 0.000, token accuracy 0.040; its most written token is 9 (0.573 of all tokens)
+Actual output from this lesson's run.
+
+======================================================================
+6. WHAT A FORWARD PASS COSTS AS SEQUENCES GROW
+======================================================================
+One forward pass (teacher forcing), batch of 32, source and target of n digits; best of 5 timings of 10 passes, matrix library on one thread. Attention compares every position with every position, so part of the work grows like n squared. Only ratios within this run are meaningful.
+
+   n  ms per pass  vs n = 8
+   8         1.84      1.00
+  16         4.42      2.41
+  32        11.76      6.40
+  64        44.85     24.41
+(doubling n would double the cost if everything grew like n, and quadruple it if everything grew like n squared)
+Actual output from this lesson's run.
+
+saved transformer_forward_results.png
+saved transformer_forward_diagram.png
+
+======================================================================
+7. WHAT COMES NEXT
+======================================================================
+Every block's backward pass already exists (Days 78 and 80). Day 82 chains them into one backward pass for the whole model and checks every gradient numerically; Day 83 trains it.

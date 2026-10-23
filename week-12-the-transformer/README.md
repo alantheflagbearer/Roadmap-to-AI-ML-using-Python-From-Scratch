@@ -62,5 +62,20 @@ Exercise: [`day80_exercise.py`](day80_exercise.py) is causal self-attention and 
 ![The decoder block](decoder_block_diagram.png)
 ![Trained with and without the causal mask](causal_mask_results.png)
 
+## Day 81 — The whole Transformer: one forward pass on a toy copy task
+[`day81_transformer_forward.py`](day81_transformer_forward.py) — Days 77–80's parts joined into the encoder-decoder model of Vaswani et al.: one shared embedding table plus Day 77's encoding, Day 78's encoder blocks, Day 80's decoder blocks (causal self-attention, cross-attention, FFN), a linear layer and a softmax. Run forward only, untrained, on Day 69's COPY/REVERSE digits.
+
+- **Shapes and size:** one block per side has 21642 weights; a decoder block (12576) is about one and a half encoder blocks (8416) because of its cross-attention.
+- **The masks, end to end:** digits under source padding change nothing (0.00e+00); a later decoder input never moves an earlier score; a real source digit reaches every decoder position (smallest change 1.92e-01).
+- **Before training:** the untrained loss is 2.5–2.9, above log 10 = 2.303, whatever the embedding spread (the decoder ends in LayerNorm); with the output layer's starting weights 10 times smaller it is 2.302–2.322.
+- **Decoding:** writing one token at a time gives the same scores as one teacher-forced pass (2.66e-15). Eight times the length cost 24.41 times as much in this run: part of the work grows like n, part like n squared.
+
+Study guide: [`day81_transformer_forward_complete_guide.pdf`](day81_transformer_forward_complete_guide.pdf) · Syntax walkthrough: [`day81_syntax_line_by_line.pdf`](day81_syntax_line_by_line.pdf) · [Run output](day81_run_output.txt)
+
+Exercise: [`day81_exercise.py`](day81_exercise.py) builds the forward pass only from Days 77–80's exercise functions plus a new `decoder_block` — the fifth part of Day 83's Transformer ([run output](day81_exercise_run_output.txt)).
+
+![The whole Transformer](transformer_forward_diagram.png)
+![Untrained loss, cost, untrained cross-attention](transformer_forward_results.png)
+
 ---
 [← Back to main README](../README.md)
