@@ -77,5 +77,20 @@ Exercise: [`day81_exercise.py`](day81_exercise.py) builds the forward pass only 
 ![The whole Transformer](transformer_forward_diagram.png)
 ![Untrained loss, cost, untrained cross-attention](transformer_forward_results.png)
 
+## Day 82 — The backward pass through the whole Transformer, and a gradient check
+[`day82_transformer_backward.py`](day82_transformer_backward.py) — Day 81's model with its backward pass: each block's own backward pass (Days 78 and 80) chained in reverse, from the loss to the output layer, down the decoder, into the encoder through cross-attention, and back to the one embedding table. Two sums matter: every decoder block's share of the encoder's gradient, and the source and target sides of the shared embedding table.
+
+- **Gradient check of the whole model:** two blocks per side, padded source and target, LayerNorm weights moved off 1 and 0 — all 2714 entries pass (largest difference 6.88e-11).
+- **Would it catch a bug?** Overwriting the encoder's gradient instead of adding each decoder block's share fails exactly the parts behind the mistake — both encoder blocks (up to 1.05e-02) and the embedding table (4.69e-03) — while the output layer and both decoder blocks still pass.
+- **Where the gradient goes, untrained:** the output layer about 0.6, the blocks about 0.04–0.1, the embedding table about 0.008; with two blocks per side the lower blocks get about as much as the upper ones.
+- **Does it teach?** Plain SGD fits one fixed batch of 32 REVERSE examples to token accuracy 1.000 at lr 0.1, 0.5 and 2.0.
+
+Study guide: [`day82_transformer_backward_complete_guide.pdf`](day82_transformer_backward_complete_guide.pdf) · Syntax walkthrough: [`day82_syntax_line_by_line.pdf`](day82_syntax_line_by_line.pdf) · [Run output](day82_run_output.txt)
+
+Exercise: [`day82_exercise.py`](day82_exercise.py) is the backward pass of the exercise model (`decoder_block_backward`, `transformer_backward`), checked entry by entry — the sixth and last part of Day 83's Transformer ([run output](day82_exercise_run_output.txt)).
+
+![The backward pass](transformer_backward_diagram.png)
+![Gradient size by part, and fitting one batch](transformer_backward_results.png)
+
 ---
 [← Back to main README](../README.md)

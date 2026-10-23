@@ -1,0 +1,88 @@
+======================================================================
+1. THE ORDER OF THE BACKWARD PASS -- one untrained model, one batch
+======================================================================
+The gradient at each hand-over point, for 32 COPY examples of 8 digits, and its size (the square root of the sum of squares). The forward pass goes source -> encoder -> decoder -> scores; the backward pass goes the other way, and the encoder's gradient arrives only through the cross-attention.
+
+stage                                                shape       size
+output layer Wout                                 (32, 10)   5.88e-01
+d0.W2                                             (64, 32)   4.37e-02
+d0.cq                                             (32, 32)   7.46e-03
+d0.ck                                             (32, 32)   6.79e-03
+d0.sq                                             (32, 32)   1.10e-02
+e0.W2                                             (64, 32)   3.30e-02
+e0.Wq                                             (32, 32)   6.11e-03
+E                                                 (10, 32)   7.97e-03
+(d0 = the decoder block, e0 = the encoder block; cq, ck: cross-attention's query and key weights; sq: self-attention's)
+Actual output from this lesson's run.
+
+======================================================================
+2. GRADIENT CHECK -- the whole model, every entry of every parameter
+======================================================================
+Tiny sizes (d = 8, 2 heads, FFN 12), TWO encoder blocks and TWO decoder blocks, 3 examples with padded source and target positions; every entry nudged by +-1e-5; Day 62's pass rule |numeric - analytic| <= 1e-10 + 1e-6 |numeric|. Reported by part.
+
+2714 entries checked
+part                        largest |numeric - analytic|  every entry passes
+embedding table (shared)                        3.79e-11                True
+output layer W                                  6.73e-11                True
+output layer b                                  6.31e-11                True
+encoder block 1                                 5.98e-11                True
+encoder block 2                                 6.88e-11                True
+decoder block 1                                 6.02e-11                True
+decoder block 2                                 6.22e-11                True
+Actual output from this lesson's run.
+
+======================================================================
+3. WOULD THE CHECK CATCH A BUG? -- one deliberate mistake
+======================================================================
+Both decoder blocks read the same encoder output, so the encoder's gradient is the SUM of what each decoder block sends back. The bug keeps only the share of the last block visited (block 1) and drops block 2's. Same tiny model, same batch.
+
+part                        largest |numeric - analytic|  every entry passes
+embedding table (shared)                        4.69e-03               False
+output layer W                                  6.73e-11                True
+output layer b                                  6.31e-11                True
+encoder block 1                                 9.85e-03               False
+encoder block 2                                 1.05e-02               False
+decoder block 1                                 6.02e-11                True
+decoder block 2                                 6.22e-11                True
+Actual output from this lesson's run.
+
+======================================================================
+4. WHERE THE GRADIENT GOES -- sizes by part, untrained, three seeds
+======================================================================
+The size of each part's gradient (square root of the sum of squares over all its weights) for 32 COPY examples of 8 digits, with one block per side and with two.
+
+ blocks seed   embedding       enc 1       enc 2       dec 1       dec 2      output
+      1    0    7.97e-03    5.46e-02           -    8.84e-02           -    6.01e-01
+      1    1    8.14e-03    6.57e-02           -    9.28e-02           -    5.72e-01
+      1    2    6.60e-03    4.14e-02           -    8.60e-02           -    5.88e-01
+      2    0    9.36e-03    7.83e-02    8.27e-02    7.30e-02    1.01e-01    6.17e-01
+      2    1    8.02e-03    7.94e-02    7.17e-02    8.22e-02    9.79e-02    6.23e-01
+      2    2    9.74e-03    1.01e-01    8.38e-02    7.00e-02    8.18e-02    5.72e-01
+Actual output from this lesson's run.
+
+======================================================================
+5. DOES THE GRADIENT TEACH? -- fit one fixed batch
+======================================================================
+A gradient that passes the check should drive the loss on a FIXED batch towards 0. 32 REVERSE examples of 6 digits, one block per side, plain SGD with Day 60's clipping, 600 steps, at three learning rates. Loss and token accuracy on the same 32 examples (memorising them is the point here, not generalising).
+
+    lr       @0      @50     @100     @200     @400     @600  token acc
+   0.1    2.327    1.532    1.001    0.287    0.018    0.006      1.000
+   0.5    2.327    0.693    0.099    0.003    0.001    0.001      1.000
+   2.0    2.327    1.635    0.733    0.027    0.000    0.000      1.000
+Actual output from this lesson's run.
+
+======================================================================
+6. WHAT THE BACKWARD PASS COSTS -- against the forward pass, this run
+======================================================================
+One block per side, batch of 32, 12 digits; best of 5 timings of 10 passes, matrix library on one thread. Only ratios within this run are meaningful.
+
+forward 3.45 ms; forward + backward 7.98 ms; the backward pass alone is 1.31 times the forward pass
+Actual output from this lesson's run.
+
+saved transformer_backward_results.png
+saved transformer_backward_diagram.png
+
+======================================================================
+7. WHAT COMES NEXT
+======================================================================
+Day 83 is the week's build: a tiny Transformer assembled from Week 12's exercise scripts, trained on COPY and REVERSE and compared with Week 11's attention LSTM.

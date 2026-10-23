@@ -1,0 +1,2 @@
+gradient check, whole model (1442 entries, padded source and target): largest |numeric - analytic| = 6.60e-11
+gradient on the embedding rows of tokens never used: 0.0e+00
