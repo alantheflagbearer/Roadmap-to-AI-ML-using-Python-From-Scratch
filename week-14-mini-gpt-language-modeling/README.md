@@ -61,5 +61,19 @@ Exercise: [`day94_exercise.py`](day94_exercise.py) is the set of text measures (
 ![Four sources, four tests](quality_diagram.png)
 ![Classifier accuracy, and copying by piece length](quality_results.png)
 
+## Day 95 — Scaling-laws intuition: a real experiment varying model size and data
+[`day95_scaling_laws.py`](day95_scaling_laws.py) — seven runs of Day 90's GPT with one fixed budget (3,000 steps, Day 92's schedule), trained at the same time: four widths (16 to 128) on all the training text, and four amounts of text (1/32 to all) at width 64. A power law L = c + a x^-alpha is fitted from scratch, and each fit is repeated with one point left out to show how firm it is. Days 90 and 92 are imported from their scripts.
+
+- **Weights, by formula:** 9601 to 420417, matching the models exactly.
+- **Model size follows a power law closely:** 3.072, 2.777, 2.534 and 2.361 bits; alpha 0.251, every point within 0.004 bits, and 0.21 to 0.30 leaving one point out. The fitted floor (1.910) lies far below every point and is not a real limit.
+- **Data does not, under a fixed budget:** on 1/32 of the text each character is seen 195.9 times, training text falls to 1.158 bits while held-out text rises to 4.888 (best at step 500). With final losses the fit misses by 0.152 bits and alpha moves from 0.12 to 1.04; with each run's best checkpoint it still misses by 0.094 and its floor sits at the edge of the allowed range.
+
+Study guide: [`day95_scaling_laws_complete_guide.pdf`](day95_scaling_laws_complete_guide.pdf) · Syntax walkthrough: [`day95_syntax_line_by_line.pdf`](day95_syntax_line_by_line.pdf) · [Run output](day95_run_output.txt)
+
+Exercise: [`day95_exercise.py`](day95_exercise.py) is the weight count and the power-law fit, checked on made-up losses with a known law, with and without noise — the fifth part of Day 97's build ([run output](day95_exercise_run_output.txt)).
+
+![Seven runs, one budget](scaling_diagram.png)
+![Learning curves by size, and loss against size and against data](scaling_results.png)
+
 ---
 [← Back to main README](../README.md)

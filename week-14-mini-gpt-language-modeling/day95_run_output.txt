@@ -1,0 +1,67 @@
+======================================================================
+1. HOW MANY WEIGHTS -- counted by formula, checked against the model
+======================================================================
+Two blocks, context 64, 65 characters; feed-forward width 4d.
+
+ width d  by formula  in the model  in the blocks
+      16        9601          9601           6432
+      32       31425         31425          25152
+      64      111937        111937          99456
+     128      420417        420417         395520
+Actual output from this lesson's run.
+
+======================================================================
+2. SEVEN RUNS -- four model sizes on all the data, four data sizes at width 64
+======================================================================
+Every run: 3000 steps, batches of 32 windows of 64 characters, Day 92's schedule with peak 0.003, seed 0; held-out bits per character with full context (Day 92's measurement). All seven train at the same time.
+(wall time 27 minutes for all seven)
+
+run                             weights    chars    250    500   1000   1500   2000   2500   3000  train text   min
+width 16                           9601  1003854  3.758  3.461  3.285  3.180  3.120  3.085  3.072       3.002     8
+width 32                          31425  1003854  3.593  3.238  2.988  2.882  2.834  2.795  2.777       2.592     9
+width 64                         111937  1003854  3.384  3.026  2.801  2.653  2.603  2.552  2.534       2.279    14
+width 128                        420417  1003854  3.208  2.897  2.675  2.543  2.451  2.388  2.361       2.088    27
+width 64, 0.03125 of the text    111937    31370  3.627  3.548  3.683  3.971  4.314  4.642  4.888       1.158    14
+width 64, 0.125 of the text      111937   125481  3.611  3.373  3.314  3.263  3.281  3.284  3.277       1.983    14
+width 64, 0.5 of the text        111937   501927  3.477  3.131  3.039  2.950  2.928  2.908  2.895       2.234    15
+(columns: held-out bits per character after that many steps; train text: the same measured on training text at the end)
+Actual output from this lesson's run.
+
+======================================================================
+3. FITTING POWER LAWS -- and how much four points can say
+======================================================================
+L = c + a x^-alpha fitted to the held-out losses, x = weights (model size) or training characters (data). For data, twice: with the final losses, and with each run's best checkpoint (its lowest held-out loss at any check), because the small-data runs overfit within the fixed budget (section 4). Then the same fits with each point left out in turn: how much does alpha move?
+
+model size: x = 9601, 31425, 111937, 420417; held-out bits = 3.072, 2.777, 2.534, 2.361
+  fit: c = 1.910, alpha = 0.251; leaving one point out, alpha = 0.30, 0.27, 0.24, 0.21
+  largest gap between the fit and a point: 0.004 bits
+
+data: x = 31370, 125481, 501927, 1003854; held-out bits = 4.888, 3.277, 2.895, 2.534
+  fit: c = 2.303, alpha = 0.640; leaving one point out, alpha = 0.12, 0.19, 0.70, 1.04
+  largest gap between the fit and a point: 0.152 bits
+
+data, best checkpoint: x = 31370, 125481, 501927, 1003854; held-out bits = 3.548, 3.263, 2.895, 2.534
+  fit: c = 0.000, alpha = 0.093; leaving one point out, alpha = 0.12, 0.09, 0.10, 0.07
+  largest gap between the fit and a point: 0.094 bits
+Actual output from this lesson's run.
+
+======================================================================
+4. WHERE DATA RUNS OUT -- training text against held-out text
+======================================================================
+The same width-64 model on less and less text, all for 3000 steps. Gap = held-out minus training-text bits.
+
+training text    characters passes over it  train text  held-out    gap
+0.03125               31370          195.9       1.158     4.888  3.730
+0.125                125481           49.0       1.983     3.277  1.294
+0.5                  501927           12.2       2.234     2.895  0.661
+1                   1003854            6.1       2.279     2.534  0.255
+step with the lowest held-out loss: 0.03125: 500, 0.125: 1500, 0.5: 3000, 1: 3000
+Actual output from this lesson's run.
+
+saved scaling_results.png
+saved scaling_diagram.png
+
+======================================================================
+5. WHAT COMES NEXT
+======================================================================
+Day 96 takes a trained mini-GPT and fine-tunes it on a narrower real task: one kind of text, little data.

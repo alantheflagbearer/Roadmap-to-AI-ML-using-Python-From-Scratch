@@ -1,0 +1,6 @@
+width 16: formula 9601, counted array by array 9601
+width 64: formula 111937, counted array by array 111937
+exact losses: fitted c = 1.502, a = 30.2, alpha = 0.351  (true 1.5, 30, 0.35)
+with noise of 0.01 bits, try 1: fitted c = 1.585, alpha = 0.391
+with noise of 0.01 bits, try 2: fitted c = 1.532, alpha = 0.373
+with noise of 0.01 bits, try 3: fitted c = 1.541, alpha = 0.364
