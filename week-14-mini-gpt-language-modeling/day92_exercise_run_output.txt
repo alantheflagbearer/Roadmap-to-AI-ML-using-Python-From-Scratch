@@ -1,0 +1,4 @@
+schedule, peak 1: 0: 0.005, 99: 0.500, 199: 1.000, 200: 1.000, 2000: 0.722, 4999: 0.100
+largest value 1.000 at step 199; never rises after the warm-up: True
+uniform model: 3.3219 bits per token (log2 10 = 3.3219); 984 positions scored, each once: True, all after the first 8: True
+a model that always knows the next token: 0.0000 bits per token

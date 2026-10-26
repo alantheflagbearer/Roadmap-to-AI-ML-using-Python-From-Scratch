@@ -17,5 +17,20 @@ Exercise: [`day91_exercise.py`](day91_exercise.py) is the Kneser-Ney character m
 ![p(text) as next-token predictions](causal_lm_diagram.png)
 ![Bits per character against context, three ways](causal_lm_results.png)
 
+## Day 92 — Training the mini-GPT on real text, with honest perplexity numbers
+[`day92_training_mini_gpt.py`](day92_training_mini_gpt.py) — Day 90's GPT trained properly: a warm-up and cosine learning-rate schedule (new), the peak rate chosen by a real 300-step sweep, a bigger model (4 blocks of 128, context 128) beside Day 90's, held-out loss measured with full context (sliding windows) every 500 steps next to the same measure on training text, and perplexity reported per character and per word. The three 5,000-step runs train at the same time in separate processes. The big model is saved to `day92_mini_gpt.npz` for Days 93 and 94.
+
+- **The sweep:** a peak of 0.006 stalls (4.639 bits); 0.003 is chosen narrowly over 0.001 (3.374 against 3.425 at step 300).
+- **The schedule helps the same model:** 2.443 against 2.492 bits per character at Day 90's constant rate.
+- **The big model (824129 weights) reaches 2.188** — level with Day 91's Kneser-Ney counter (2.197, scored on slightly different positions), not clearly better; its training-text loss is 1.829, a gap of 0.358 bits that is still growing.
+- **Perplexity needs its unit:** 4.56 per character, 4190 per word (5.50 characters per word), for the same model.
+
+Study guide: [`day92_training_mini_gpt_complete_guide.pdf`](day92_training_mini_gpt_complete_guide.pdf) · Syntax walkthrough: [`day92_syntax_line_by_line.pdf`](day92_syntax_line_by_line.pdf) · [Run output](day92_run_output.txt)
+
+Exercise: [`day92_exercise.py`](day92_exercise.py) is the schedule and a full-context evaluator that takes any model as a function (a uniform model scores log2 V, an all-knowing one 0) — the second part of Day 97's build ([run output](day92_exercise_run_output.txt)).
+
+![Measuring with full context](training_diagram.png)
+![The schedule, the sweep, held-out against training text](training_results.png)
+
 ---
 [← Back to main README](../README.md)
