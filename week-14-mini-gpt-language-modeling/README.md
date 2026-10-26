@@ -32,5 +32,20 @@ Exercise: [`day92_exercise.py`](day92_exercise.py) is the schedule and a full-co
 ![Measuring with full context](training_diagram.png)
 ![The schedule, the sweep, held-out against training text](training_results.png)
 
+## Day 93 — Sampling strategies from scratch: greedy, temperature, top-k, top-p
+[`day93_sampling_strategies.py`](day93_sampling_strategies.py) — one sampler for all four strategies (inverse-CDF draws), checked against exact distributions, then Day 92's saved mini-GPT continuing 20 held-out prompts by 400 characters with seven strategies, each measured: distinct word pairs (repetition), real words, the model's own bits (how safe) and Day 91's Kneser-Ney as an outside judge (how odd). Days 90 and 91 are imported from their scripts.
+
+- **The sampler is right:** every strategy matches its exact distribution within 0.0019 over 200,000 draws.
+- **Greedy loops:** only 0.059 of its word pairs are distinct (real text: 0.909), at 1.160 bits for the model.
+- **Temperature trades safety for variety:** from 0.5 to 1.2, distinct pairs rise from 0.744 to 0.980 while real words fall from 0.974 to 0.806 and the judge's bits rise from 1.673 to 2.755.
+- **Top-k 5 and top-p 0.9** land near temperature 0.8 (0.881 and 0.921 distinct pairs; 0.936 and 0.940 real words). Every cooled or truncated strategy is less surprising to the judge than the real text (2.208): safer than Shakespeare.
+
+Study guide: [`day93_sampling_strategies_complete_guide.pdf`](day93_sampling_strategies_complete_guide.pdf) · Syntax walkthrough: [`day93_syntax_line_by_line.pdf`](day93_syntax_line_by_line.pdf) · [Run output](day93_run_output.txt)
+
+Exercise: [`day93_exercise.py`](day93_exercise.py) is the sampler on its own, checked against exact distributions and at its two limits — the third part of Day 97's build ([run output](day93_exercise_run_output.txt)).
+
+![One distribution, four cuts](sampling_diagram.png)
+![Repetition, real words, and the two kinds of bits](sampling_results.png)
+
 ---
 [← Back to main README](../README.md)

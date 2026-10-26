@@ -1,0 +1,104 @@
+======================================================================
+1. DO THE SAMPLERS DRAW WHAT THEY CLAIM? -- a toy distribution, 200,000 draws each
+======================================================================
+probabilities: [0.5, 0.2, 0.15, 0.1, 0.05]
+
+sampler          expected                                  drawn                                     largest gap
+temperature 1.0  [0.5, 0.2, 0.15, 0.1, 0.05]               [0.498, 0.2, 0.151, 0.1, 0.05]                 0.0019
+temperature 0.5  [0.769, 0.123, 0.069, 0.031, 0.008]       [0.771, 0.123, 0.068, 0.03, 0.008]             0.0016
+top-k 2          [0.714, 0.286, 0.0, 0.0, 0.0]             [0.714, 0.286, 0.0, 0.0, 0.0]                  0.0007
+top-p 0.8        [0.588, 0.235, 0.176, 0.0, 0.0]           [0.587, 0.235, 0.178, 0.0, 0.0]                0.0016
+greedy: [0, 0, 0] (always token 0)
+(with 200,000 draws, random gaps of a few thousandths are expected)
+Actual output from this lesson's run.
+
+======================================================================
+2. SEVEN STRATEGIES, 20 PROMPTS -- measured
+======================================================================
+Day 92's model (824129 weights) continues 20 prompts of 32 held-out characters by 400 characters with each strategy (seed 0 for every strategy). Distinct pairs: distinct word pairs / all word pairs. Real words: share in the training text. Model bits: how surprising the model finds its own text. Judge bits: Day 91's Kneser-Ney (6 characters of context) on the same text. The first row is the real held-out continuation.
+
+strategy          distinct pairs  real words  model bits  judge bits
+(real text)                0.909       0.933       2.226       2.208
+greedy                     0.059       0.993       1.160       1.368
+temperature 0.5            0.744       0.974       1.385       1.673
+temperature 0.8            0.912       0.940       1.644       2.015
+temperature 1.0            0.959       0.864       1.921       2.415
+temperature 1.2            0.980       0.806       2.227       2.755
+top-k 5                    0.881       0.936       1.651       2.038
+top-p 0.9                  0.921       0.940       1.666       2.059
+Actual output from this lesson's run.
+
+======================================================================
+3. ONE PROMPT, EVERY STRATEGY -- the first 160 characters of prompt 1's continuations
+======================================================================
+prompt: 'her, so it is.\n\nPETRUCHIO:\nCome,'
+
+--- (real text) ---
+ go along, and see the truth hereof;
+For our first merriment hath made thee jealous.
+
+HORTENSIO:
+Well, Petruchio, this has put me in heart.
+Have to my widow! an
+
+--- greedy ---
+ the prince of the prince of the seat,
+And the seal of the season of the seat of the sea
+That the seal of the seal of the season of the country,
+And the seal of
+
+--- temperature 0.5 ---
+ you shall be excused, and I cannot say
+And the duke of the friends of a wars,
+To be the sounder of your father with a crown
+That I should be in all this shore 
+
+--- temperature 0.8 ---
+ you should seem of rule in
+That he scond it to crown! I am grace:
+For I was my temptress spite, my name for your house!
+
+BIANCA:
+Bastard he that you his short 
+
+--- temperature 1.0 ---
+ you sister, already! What 'sagged it
+seal with cross'd never: but but I was love
+Doth night. What womb thou wast much but
+O'er. I am see hence say forget him,
+
+
+--- temperature 1.2 ---
+ you rise is't up, thy fake
+That he say God, that made himselves, marry long.
+If I mistress, with aspared to templess
+Have have placed and blood, when you,
+Weak
+
+--- top-k 5 ---
+ that to her, as he, what i' the people
+And to bed.
+
+POLIXENES:
+In my father's succession.
+
+PRINA:
+What is thy love, I am a breath and heard thee
+Whereof thy ha
+
+--- top-p 0.9 ---
+ you should seem me, you have counter we
+into the name of winted to speaks it out blow:
+For thou mays of his tent one have have point.
+
+KING RICHARD III:
+Thou a
+Actual output from this lesson's run.
+
+saved sampling_results.png
+saved sampling_diagram.png
+
+======================================================================
+4. WHAT COMES NEXT
+======================================================================
+Day 94 takes a lot more generated text and asks harder questions: can a simple classifier tell it from real Shakespeare, and how much of it is copied from the training text?

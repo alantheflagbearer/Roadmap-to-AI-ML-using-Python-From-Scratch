@@ -1,0 +1,5 @@
+temperature 1  : [0.4 0.3 0.2 0.1] expected [0.4 0.3 0.2 0.1]
+top-k 2        : [0.568 0.432 0.    0.   ] expected [0.571 0.429 0.    0.   ]
+top-p 0.65     : [0.573 0.427 0.    0.   ] expected [0.571 0.429 0.    0.   ] (0.4 < 0.65, 0.4 + 0.3 >= 0.65: two tokens)
+temperature 0.05: [0.997 0.003 0.    0.   ] -> almost always the top token, like greedy [0 0 0 0 0]
+temperature 50 : [0.251 0.252 0.25  0.247] -> close to uniform (0.25 each)
