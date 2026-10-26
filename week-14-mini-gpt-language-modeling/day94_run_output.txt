@@ -1,0 +1,91 @@
+======================================================================
+1. FOUR KINDS OF PASSAGE, FROM THE SAME 120 PROMPTS
+======================================================================
+120 prompts of 32 characters from random places in the held-out text; 300 characters after each: the real continuation, Day 92's GPT at temperature 1.0 and at top-p 0.9 (Day 93's sampler, seed 0), and Day 91's Kneser-Ney model (6 characters of context) at top-p 0.9.
+
+the first 200 characters after prompt 1 ('ely gait?\nO, be thou Dian, and l'):
+
+--- real ---
+et her be Kate;
+And then let Kate be chaste and Dian sportful!
+
+KATHARINA:
+Where did you study all this goodly speech?
+
+PETRUCHIO:
+It is extempore, from my mother-wit.
+
+KATHARINA:
+A witty mother! witl
+
+--- GPT, temperature 1.0 ---
+et he shall go.
+
+KING RICHARD II:
+O, pardon this: good moyates as I have a palace?
+Why, fair now, I may now it, let he day at like,
+Thou art York anoral, as i' the next from him,
+As I had doing thee p
+
+--- GPT, top-p 0.9 ---
+et he shall her be it sends
+no desperate harmours here thy way,
+When at name fair truth, and some about now
+Is think had that hath conveit a band,
+Such do you send some doth consenting hate.
+More spea
+
+--- Kneser-Ney, top-p 0.9 ---
+ived of your valiant, lies
+With mine is little behold
+Dish;
+And child were I am going them off my hands;
+Which we will prove me this finger, do your way service.
+
+Provost:
+A partial set my fair, he di
+Actual output from this lesson's run.
+
+======================================================================
+2. CAN A SIMPLE CLASSIFIER TELL IT FROM REAL SHAKESPEARE?
+======================================================================
+Each passage becomes 4096 hashed counts of its 1-, 2- and 3-character pieces. A logistic regression (L2 0.001, 500 gradient steps) learns real against generated; accuracy on held-out folds, 5-fold cross-validation. 0.5 = cannot tell. The real passages are split in two as a control.
+
+real against                accuracy  spread over folds
+real (other half)              0.442              0.073
+GPT, temperature 1.0           0.725              0.053
+GPT, top-p 0.9                 0.825              0.101
+Kneser-Ney, top-p 0.9          0.754              0.050
+Actual output from this lesson's run.
+
+======================================================================
+3. HOW MUCH IS COPIED? -- pieces that occur word for word in the training text
+======================================================================
+For each piece length k: the share of all k-character pieces of the passages found somewhere in the training text. Real held-out text is the reference: it shares common phrases with training by chance.
+
+source                          k=8     k=12     k=16     k=24     k=32
+real                          0.495    0.102    0.015    0.001    0.000
+GPT, temperature 1.0          0.434    0.067    0.014    0.000    0.000
+GPT, top-p 0.9                0.557    0.095    0.017    0.001    0.000
+Kneser-Ney, top-p 0.9         0.775    0.198    0.042    0.004    0.000
+Actual output from this lesson's run.
+
+======================================================================
+4. THE PLAY'S SHAPE, AND THE WORDS
+======================================================================
+Speaker lines: complete lines that are a name in capitals followed by a colon. Distinct pairs, real words and judge bits are Day 93's measures.
+
+source                     speaker lines  line length  distinct pairs  real words  judge bits
+real                               0.260         30.3           0.758       0.926       2.214
+GPT, temperature 1.0               0.144         34.9           0.890       0.876       2.382
+GPT, top-p 0.9                     0.142         36.6           0.819       0.941       2.040
+Kneser-Ney, top-p 0.9              0.240         33.6           0.805       0.969       1.453
+Actual output from this lesson's run.
+
+saved quality_results.png
+saved quality_diagram.png
+
+======================================================================
+5. WHAT COMES NEXT
+======================================================================
+Day 95 asks how the held-out loss itself moves with model size and with the amount of training text: scaling laws, at the smallest possible scale.

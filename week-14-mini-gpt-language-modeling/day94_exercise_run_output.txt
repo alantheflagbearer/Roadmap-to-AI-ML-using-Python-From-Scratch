@@ -1,0 +1,5 @@
+a piece of the training text itself, k = 10: copy share 1.000 (all copied)
+new text, k = 10: copy share 0.000 (none copied)
+'the cat the cat the cat': distinct pairs 0.400 (2 different pairs of 5)
+'but soft blorp light': real words 0.750 (3 of 4)
+speaker lines in the training text: 0.333 ('JULIET:' is 1 of the 3 complete lines; the first line, 'ROMEO:', could be cut off in a passage, so first lines are never counted)

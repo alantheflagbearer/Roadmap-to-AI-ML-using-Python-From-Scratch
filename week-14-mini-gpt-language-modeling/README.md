@@ -47,5 +47,19 @@ Exercise: [`day93_exercise.py`](day93_exercise.py) is the sampler on its own, ch
 ![One distribution, four cuts](sampling_diagram.png)
 ![Repetition, real words, and the two kinds of bits](sampling_results.png)
 
+## Day 94 — Real generated text from the mini-GPT: an honest quality assessment
+[`day94_generated_text_quality.py`](day94_generated_text_quality.py) — 120 passages of 300 characters from Day 92's mini-GPT (temperature 1.0 and top-p 0.9) and from Day 91's Kneser-Ney model, all continuing the same 120 held-out prompts, judged by measurement against the real continuations, with a control. Day 93's generation code is imported from its script.
+
+- **A simple classifier can tell:** a logistic regression on character 1-3-gram counts (from scratch, 5-fold cross-validated) separates the GPT's text from real Shakespeare 0.725 of the time at temperature 1.0 and 0.825 with top-p 0.9; Kneser-Ney's 0.754. The control, two halves of the real text, gives 0.442: chance.
+- **No copying:** the share of 16-character pieces found verbatim in the training text is 0.014-0.017 for the GPT against 0.015 for real unseen text; Kneser-Ney copies more (0.042).
+- **The play's shape is off:** 0.144 of the GPT's lines are speaker lines against 0.260 in the real text, and its lines run longer (34.9 characters against 30.3).
+
+Study guide: [`day94_generated_text_quality_complete_guide.pdf`](day94_generated_text_quality_complete_guide.pdf) · Syntax walkthrough: [`day94_syntax_line_by_line.pdf`](day94_syntax_line_by_line.pdf) · [Run output](day94_run_output.txt)
+
+Exercise: [`day94_exercise.py`](day94_exercise.py) is the set of text measures (copying, distinct pairs, real words, speaker lines), each checked on texts with known answers — the fourth part of Day 97's build ([run output](day94_exercise_run_output.txt)).
+
+![Four sources, four tests](quality_diagram.png)
+![Classifier accuracy, and copying by piece length](quality_results.png)
+
 ---
 [← Back to main README](../README.md)
