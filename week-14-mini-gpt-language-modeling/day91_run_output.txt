@@ -1,0 +1,58 @@
+======================================================================
+1. THE CHAIN RULE, CHECKED -- does a model define a probability for every string?
+======================================================================
+A tiny untrained GPT (Day 90's, 3 real tokens plus a beginning-of-sequence token, d = 8, 2 blocks). For every one of the 3^4 = 81 strings of length 4, log p(string) = sum of log p(next token | tokens before). If the model is a real probability model, the 81 probabilities add up to 1.
+
+causal (Day 90)               : sum over 81 strings = 1.000000; largest 0.8381, smallest 2.52e-10
+
+no causal mask (Day 78 block) : sum over 81 strings = 1.051473; largest 0.8528, smallest 2.94e-10
+Actual output from this lesson's run.
+
+======================================================================
+2. COUNTING MODELS -- add-k (Day 90) against Kneser-Ney
+======================================================================
+Both count what followed each context in the training text. Add-k adds k to every count. Kneser-Ney subtracts a discount D from every seen count, gives the saved probability to the next shorter context, and below the top order counts how many DIFFERENT characters came before a string instead of how often it occurred. D is chosen on the last 10% of the training text (order 5), k as on Day 90. Held-out bits per character; every model scores the same characters (from the 17th on), each with its real preceding context.
+
+discount chosen on held-back training text: D = 0.9 (tried 0.5, 0.75, 0.9, 0.95, 0.99)
+
+  context    add-k  Kneser-Ney  contexts seen
+        0    4.829       4.829              1
+        1    3.583       3.583             65
+        2    2.952       2.944          1,403
+        3    2.574       2.485         11,556
+        4    2.554       2.257         50,712
+        5    2.895       2.205        141,021
+        6        -       2.197        283,312
+        7        -       2.201        447,349
+        8        -       2.209        609,653
+(43 s for all the counting models)
+Actual output from this lesson's run.
+
+======================================================================
+3. A FIXED-WINDOW NEURAL MODEL -- Bengio et al. (2003)
+======================================================================
+The last k characters, each as a 24-number vector (one shared table), side by side into 256 tanh units, then a softmax over the 65 characters. Adam (Day 37, with Day 60's clipping), learning rate 0.003, 4000 steps of 512 random positions, seed 0. Held-out: the same characters as section 2.
+
+   k  weights  bits/char  seconds
+   2    30809      3.043       49
+   4    43097      2.653       51
+   8    67673      2.633       71
+  16   116825      2.685      100
+Actual output from this lesson's run.
+
+======================================================================
+4. SIDE BY SIDE -- the best of each, and Day 90's GPT
+======================================================================
+Kneser-Ney, best (6 characters of context): 2.197 bits per character
+window model, best (k = 8):                2.633
+Day 90's GPT, at least 32 characters of context: 2.525 (Day 90's run output; scored on Day 90's windows)
+Day 90's add-k, 4 characters of context:         2.554 (Day 90's run output)
+Actual output from this lesson's run.
+
+saved causal_lm_results.png
+saved causal_lm_diagram.png
+
+======================================================================
+5. WHAT COMES NEXT
+======================================================================
+The GPT is only one way to make the conditional. Day 92 trains it properly -- a schedule, a bigger model, full-context measurement -- to see whether it beats the best counting model.

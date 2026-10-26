@@ -2,11 +2,11 @@
 
 A daily-practice log following a 52-week (365-day) roadmap from Python fundamentals through classical ML, deep learning, and into applied AI. Most lessons don't just call a library function — they build the underlying idea (gradient descent, backprop, convolution, dropout...) from scratch in NumPy first, then show the framework equivalent. Each day is a self-contained script; from Week 1 onward, most days add a paired study guide (a concept walkthrough and a line-by-line syntax breakdown, both PDF).
 
-**Currently on Day 90** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
+**Currently on Day 91** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
 
 ## How this repo is organized
 
-- **One folder per week** (`week-01-python-foundations/` … `week-13-tokenization-embeddings/`) — each holds that week's scripts, study-guide PDFs, diagrams, and run outputs, plus its own `README.md` with a day-by-day index. Open a week's `README.md` first; it links to everything inside.
+- **One folder per week** (`week-01-python-foundations/` … `week-14-mini-gpt-language-modeling/`) — each holds that week's scripts, study-guide PDFs, diagrams, and run outputs, plus its own `README.md` with a day-by-day index. Open a week's `README.md` first; it links to everything inside.
 - **`practice-drills/`** — short standalone Python-fundamentals exercises (`pfdsNN.py`), numbered independently of the daily roadmap.
 - Root-level `titanic.csv`, `titanic.db`, and `students.csv` are the shared datasets several early weeks use; each is also copied into every week folder whose scripts need it, so any single week folder runs standalone without reaching outside itself.
 
@@ -27,8 +27,9 @@ A daily-practice log following a 52-week (365-day) roadmap from Python fundament
 | 11 | 70–76 | Attention Mechanism | [→ folder](week-11-attention-mechanism) |
 | 12 | 77–83 | The Transformer | [→ folder](week-12-the-transformer) |
 | 13 | 84–90 | Tokenization & Embeddings | [→ folder](week-13-tokenization-embeddings) |
+| 14 | 91 (of 91–97) | Mini-GPT & Language Modeling — in progress | [→ folder](week-14-mini-gpt-language-modeling) |
 
-Weeks 14 onward (a mini-GPT, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
+Weeks 15 onward (practical NLP with pretrained models, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
 
 Starting with Week 6, the same small neural-network library — written entirely in NumPy, no framework — is extended week over week: the `net.forward()` / `net.backward()` core built on Day 36 is still what every later script, all the way through Day 62, trains against; Week 10 starts a new cell, the LSTM.
 
@@ -58,7 +59,7 @@ Starting with Week 6, the same small neural-network library — written entirely
 | ![BPE results](week-13-tokenization-embeddings/bpe_results.png) Byte-pair encoding: lossless, and no more unknown words — Day 84 | ![Embeddings results](week-13-tokenization-embeddings/embeddings_results.png) Word embeddings: a learned table beats one-hot inputs — Day 85 |
 | ![Word2Vec results](week-13-tokenization-embeddings/word2vec_results.png) Word2Vec from raw text: word groups right, analogies mostly not — Day 86 | ![Visualization results](week-13-tokenization-embeddings/visualization_results.png) PCA and t-SNE: t-SNE keeps the word groups, not the sizes or gaps — Day 87 |
 | ![Subword results](week-13-tokenization-embeddings/subword_results.png) fastText: vectors for unseen words, but shared endings dominate them — Day 88 | ![GloVe results](week-13-tokenization-embeddings/glove_results.png) Pretrained vectors: a clear help with 200 labelled sentences, little with 2,001 — Day 89 |
-| ![Tiny GPT results](week-13-tokenization-embeddings/tiny_gpt_results.png) Week 13 build: a tiny GPT writes Shakespeare-shaped text, and ties a 4-character counter — Day 90 | |
+| ![Tiny GPT results](week-13-tokenization-embeddings/tiny_gpt_results.png) Week 13 build: a tiny GPT writes Shakespeare-shaped text, and ties a 4-character counter — Day 90 | ![Causal LM results](week-14-mini-gpt-language-modeling/causal_lm_results.png) Next-token prediction: a Kneser-Ney counter beats Day 90's GPT — Day 91 |
 
 ## Featured project: Titanic EDA (Day 13)
 

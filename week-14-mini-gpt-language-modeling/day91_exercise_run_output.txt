@@ -1,0 +1,8 @@
+context 'to '  : probabilities over all 23 characters sum to 1.000000000000
+context 'the'  : probabilities over all 23 characters sum to 1.000000000000
+context 'xyz'  : probabilities over all 23 characters sum to 1.000000000000
+context ''     : probabilities over all 23 characters sum to 1.000000000000
+after 'to ' the text has only ['b', 's', 't']; p('b') = 0.367, p('q') (never seen there) = 0.0051
+order 1 (0 characters of context): 3.931 bits per character on its own training text
+order 2 (1 characters of context): 2.750 bits per character on its own training text
+order 4 (3 characters of context): 1.103 bits per character on its own training text
