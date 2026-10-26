@@ -65,5 +65,21 @@ Exercise: [`day87_exercise.py`](day87_exercise.py) is `pca` in one function, che
 ![PCA and t-SNE](visualization_diagram.png)
 ![PCA's spread, PCA and t-SNE of 500 words, t-SNE of the untrained table](visualization_results.png)
 
+## Day 88 — Subword embeddings and out-of-vocabulary words (fastText from scratch)
+[`day88_subword_embeddings.py`](day88_subword_embeddings.py) — fastText: a word's vector is the mean of rows for its character n-grams (3 to 6 letters, hashed into 200,000 rows) and for the word itself, so any word gets a vector, including one never seen. Tested honestly: 31 words (every second word of six of Day 86's groups) are removed from the corpus before training, then fastText's vectors for them are compared with a spelling-only baseline and chance. Day 86's code is imported from its script.
+
+- **Checked:** the subword input passes a gradient check through the training step itself (7.37e-10).
+- **Known words:** fastText matches Word2Vec on word groups (0.932 both) but its analogies are much weaker (capitals 0.011 against 0.151).
+- **Words never seen:** Word2Vec has no vector; fastText finds a same-group word 0.290 of the time, far above chance (0.082) but below plain spelling similarity (0.355). Its neighbours share endings: 'four' -> 'honour', 'odour'.
+- **Rare real words:** the stem is among the 10 nearest words 0.182 of the time for fastText, 0.993 for spelling (a test that favours spelling by design).
+- **Why, measured:** n-gram rows shared by 100+ words grow to length 3.930, rows used by one word stay at 0.242, so common pieces decide every mean; a known word's n-gram-only vector and full vector have cosine 0.9996. On two million words, fastText mostly learns endings.
+
+Study guide: [`day88_subword_embeddings_complete_guide.pdf`](day88_subword_embeddings_complete_guide.pdf) · Syntax walkthrough: [`day88_syntax_line_by_line.pdf`](day88_syntax_line_by_line.pdf) · [Run output](day88_run_output.txt)
+
+Exercise: [`day88_exercise.py`](day88_exercise.py) is the subword part on its own (n-grams, a fixed FNV-1a hash, the mean of rows and its gradient, 6.73e-11) — the fifth part of Day 90's model, which uses `char_ngrams` to check its invented words ([run output](day88_exercise_run_output.txt)).
+
+![A word's vector from its pieces](subword_diagram.png)
+![Known words, words never seen, rare words, row lengths](subword_results.png)
+
 ---
 [← Back to main README](../README.md)

@@ -1,0 +1,5 @@
+'banana': <ba ban ana nan ana na> <ban bana anan nana ana> <bana banan anana nana> <banan banana anana>
+18 pieces, 17 different; rows [126, 270, 141, 850, 141, 562] ...
+gradient check, every entry of the table: largest |numeric - analytic| = 6.73e-11
+the same rows on every run (fixed hash): bucket('<ba') = 126; Python's own hash() changes from run to run
+'bananas' was never seen, but shares 13 of its 22 pieces with 'banana'. Random 50-number table: cosine with 'banana' 0.659, with 'xylophone' -0.110 (before any training, similarity comes only from shared pieces)

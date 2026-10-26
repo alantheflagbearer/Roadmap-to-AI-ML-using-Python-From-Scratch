@@ -1,0 +1,111 @@
+======================================================================
+1. A WORD AS ITS PIECES -- character n-grams and hashing
+======================================================================
+Each word is wrapped in < and >, then cut into every piece of 3 to 6 characters. Each piece is hashed (32-bit FNV-1a, as in fastText) into one of 200,000 rows.
+
+'where': 14 n-grams: <wh whe her ere re> <whe wher here ere> <wher where here> <where where>
+the piece '<her>' (the whole word 'her') is among the n-grams of 'her': True; of 'where': False ('where' has 'her' but not '<her>')
+the 21650 known words have 125,097 distinct n-grams; they fill 93,157 of the 200,000 rows (31,940 n-grams share a row with another); a word has 23.1 n-grams on average
+Actual output from this lesson's run.
+
+======================================================================
+2. THE SUBWORD INPUT -- checking its gradient
+======================================================================
+A tiny model (3 words, 20 buckets, 4 numbers per row); 3 pairs, 2 noise words each. The loss is Day 86's; the centre vector is the mean of the word's rows. Every input row entry nudged by +-1e-6.
+
+gradient check: 92 entries (3 word rows + 20 buckets, 4 numbers each), largest |numeric - analytic| = 7.37e-10, all pass: True
+Actual output from this lesson's run.
+
+======================================================================
+3. TWO MODELS, ONE CORPUS -- the known words
+======================================================================
+The 31 held-out words are removed from Day 86's corpus first: number: two four six eight ten; month: january march june august october december; colour: red green black brown purple; element: hydrogen carbon iron silver helium; instrument: piano violin flute accordion synthesizer; science: physics biology astronomy economics philosophy. Then Day 86's settings for both (d = 50, window 5, 5 noise words, 5 epochs, seed 0), each model at its own default learning rate (Word2Vec 0.025, fastText 0.05). Category: Day 86's check on the 59 category words both models know.
+
+1838528 tokens, vocabulary 21650
+model      epoch  category  capitals  gender  s/epoch
+Word2Vec       1     0.797     0.029   0.056       67
+Word2Vec       2     0.847     0.048   0.144       64
+Word2Vec       3     0.881     0.096   0.178       61
+Word2Vec       4     0.915     0.129   0.233       71
+Word2Vec       5     0.932     0.151   0.267       71
+fastText       1     0.559     0.004   0.056      280
+fastText       2     0.847     0.007   0.078      276
+fastText       3     0.932     0.004   0.156      281
+fastText       4     0.932     0.011   0.156      279
+fastText       5     0.932     0.011   0.167      278
+Actual output from this lesson's run.
+
+======================================================================
+4. WORDS NEVER SEEN -- the held-out words
+======================================================================
+For each held-out word: which known category word is most similar? Right if it is in the same group (e.g. 'january' -> 'february'). Candidates: the category words both models know.
+
+method                   right
+Word2Vec                   no vector: never saw the words
+fastText, n-grams        0.290
+spelling only            0.355
+chance (random pick)     0.082
+per group, fastText / spelling:
+  number      5 words   0.40 / 0.40
+  month       6 words   0.17 / 0.50
+  colour      5 words   0.20 / 0.20
+  element     5 words   0.20 / 0.40
+  instrument  5 words   0.00 / 0.00
+  science     5 words   0.80 / 0.60
+
+nearest known words of the whole vocabulary (fastText):
+  january    -> pbs, mcgraw, gwynedd, ludovico, sergio, lulu
+  four       -> honour, odour, timur, vigour, ashur, fourth
+  physics    -> chemistry, physiological, pataphysics, robotics, biochemistry, metaphysics
+  green      -> greenwich, greene, greens, tlemcen, greenhouse, mosque
+  silver     -> enver, closer, quaker, keeper, viper, gallbladder
+  violin     -> zulu, zeppelin, quincy, btr, mcdivitt, griffin
+Actual output from this lesson's run.
+
+======================================================================
+5. RARE REAL WORDS -- seen 1-4 times, so dropped from both vocabularies
+======================================================================
+Rare words made of a known word plus a common ending (s, es, ed, ing, ly, er, ers, ism, ist, ists, ian, ians, al, ic), e.g. 'pianists' = 'pianist' + 's'. Is the known stem among the word's 10 most similar known words?
+
+56701 rare words; 400 sampled with a known stem
+stem among the 10 most similar known words: fastText 0.182, spelling only 0.993
+examples (fastText's 4 most similar known words):
+  aargauer         -> bodybuilder, grimm, westminster, squealer
+  bronzes          -> diomedes, hellenes, dardanelles, miracles
+  digitally        -> graphically, adaptable, inevitable, unsuitable
+  griefs           -> miraculous, wessex, grief, miraculously
+  lettered         -> corrupted, embraced, represented, inscribed
+  physiques        -> physique, psychiatric, phys, phylogeny
+  samoans          -> cubans, koreans, bangladesh, spaniards
+  tattooing        -> loosening, kidnapping, crying, judging
+Actual output from this lesson's run.
+
+======================================================================
+6. WHY -- which rows dominate a word's vector
+======================================================================
+A word's vector is the mean of its rows. If some rows are much longer than others, they decide the direction. Row length after training, by how many known words share the row:
+
+row                               rows  mean length
+word rows (one per word)         21650        0.290
+n-gram, used by 1 words          38324        0.242
+n-gram, used by 2-9 words        45509        0.550
+n-gram, used by 10-99 words       8872        1.494
+n-gram, used by 100+ words         452        3.930
+
+known words: cosine between the n-gram-only vector and the full vector (word row included), mean of 300: 0.9996
+Actual output from this lesson's run.
+
+======================================================================
+7. WHAT THE SUBWORDS COST
+======================================================================
+weights: Word2Vec 2,165,000 (two tables of 21650 x 50); fastText 12,165,000 (plus 200,000 n-gram rows)
+time per epoch in this run: Word2Vec 67 s, fastText 279 s (4.2 times; median of 5 epochs)
+Actual output from this lesson's run.
+
+saved subword_results.png
+saved subword_diagram.png
+
+======================================================================
+8. WHAT COMES NEXT
+======================================================================
+Days 86 and 88 learned vectors from raw text. Day 89 trains GloVe from word co-occurrence counts, saves the vectors in GloVe's text format, loads them back, and uses them as pretrained vectors in Day 85's tagger.
