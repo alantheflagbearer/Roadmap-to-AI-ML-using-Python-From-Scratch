@@ -50,5 +50,20 @@ Exercise: [`day86_exercise.py`](day86_exercise.py) is the output layer a languag
 ![Skip-gram with negative sampling](word2vec_diagram.png)
 ![Scores by epoch, one change at a time, and the cost of a batch](word2vec_results.png)
 
+## Day 87 — Embedding visualization: PCA and t-SNE from scratch, and what survives the projection
+[`day87_embedding_visualization.py`](day87_embedding_visualization.py) — Day 86's 50 numbers per word drawn in two dimensions, two ways, both from scratch: PCA (the directions of largest spread) and exact t-SNE (keep each word's near neighbours near). Every picture comes with two numbers: the group check, and how many of each word's 10 nearest neighbours in 50-D stay among its 10 nearest in 2-D.
+
+- **Both methods checked:** PCA matches NumPy's SVD (9.9e-14); t-SNE's gradient passes the check (1.24e-10).
+- **PCA loses the groups:** two directions keep 0.377 of the spread; on 500 words the group check falls from 0.967 (50-D) to 0.433, and only 0.151 of near neighbours survive.
+- **t-SNE keeps them:** group check 0.944 to 0.956 over five random starts, about half the near neighbours (0.490 to 0.510); different layouts, the same numbers.
+- **Controls:** on the untrained random table, t-SNE gives chance (0.167) and draws no groups. On made-up clusters with known sizes, t-SNE draws a cluster 10.09 times wider as the same size (0.99) and a gap 4.00 times wider as the same (0.98); PCA keeps both roughly (12.79, 4.01).
+
+Study guide: [`day87_embedding_visualization_complete_guide.pdf`](day87_embedding_visualization_complete_guide.pdf) · Syntax walkthrough: [`day87_syntax_line_by_line.pdf`](day87_syntax_line_by_line.pdf) · [Run output](day87_run_output.txt)
+
+Exercise: [`day87_exercise.py`](day87_exercise.py) is `pca` in one function, checked against the SVD — the fourth part of Day 90's model, used to draw its character table ([run output](day87_exercise_run_output.txt)).
+
+![PCA and t-SNE](visualization_diagram.png)
+![PCA's spread, PCA and t-SNE of 500 words, t-SNE of the untrained table](visualization_results.png)
+
 ---
 [← Back to main README](../README.md)

@@ -1,0 +1,60 @@
+======================================================================
+1. PCA FROM SCRATCH -- the directions of largest spread
+======================================================================
+Centre the vectors, take the covariance matrix's eigenvectors, largest eigenvalue first. Checked against NumPy's SVD of the centred data: the same directions (up to sign) and the same projections.
+
+21681 words x 50 numbers (Day 86's table, rows scaled to length 1)
+largest |difference| from SVD: directions 9.9e-14, projections 7.1e-14
+share of the spread kept: 2 directions 0.377, 10 directions 0.823, 25 directions 0.959
+the largest direction holds 0.240; a direction of 50 equally spread ones would hold 0.020
+Actual output from this lesson's run.
+
+======================================================================
+2. t-SNE FROM SCRATCH -- checking its gradient
+======================================================================
+t-SNE moves 2-D points downhill on KL(P || Q). A tiny case: 8 random points in 5-D, perplexity 3, random 2-D positions; every coordinate nudged by +-1e-6.
+
+gradient check: 16 coordinates, largest |numeric - analytic| = 1.24e-10, all pass: True
+P sums to 1.000000; symmetric: True
+Actual output from this lesson's run.
+
+======================================================================
+3. 500 WORDS IN TWO DIMENSIONS -- PCA against t-SNE
+======================================================================
+The 90 category words of Day 86 and the 410 most frequent other words. Group check: share of category words whose nearest category word (in that space) is in the same group. Preserved: share of each word's 10 nearest neighbours (of the 500) in 50-D that are still among its 10 nearest in 2-D. t-SNE: perplexity 30, 1000 steps, five random starts.
+
+space                    group check  preserved
+50-D (no projection)           0.967      1.000
+PCA, 2-D                       0.433      0.151
+t-SNE, 2-D, seed 0             0.944      0.510
+t-SNE, 2-D, seed 1             0.956      0.502
+t-SNE, 2-D, seed 2             0.956      0.503
+t-SNE, 2-D, seed 3             0.956      0.490
+t-SNE, 2-D, seed 4             0.956      0.503
+t-SNE's final KL per seed: 0.972, 0.984, 0.960, 1.005, 0.974
+Actual output from this lesson's run.
+
+======================================================================
+4. CONTROLS -- what the pictures can and cannot be trusted with
+======================================================================
+(a) The same 500 words with Day 86's untrained table (seed 0's random start, rows scaled to length 1).
+random table: group check 50-D 0.156, t-SNE 2-D 0.167; preserved 0.278
+
+(b) Perplexity, on the trained table (seed 0):
+  perplexity   5: group check 0.956, preserved 0.463
+  perplexity  30: group check 0.944, preserved 0.510
+  perplexity 100: group check 0.956, preserved 0.497
+
+(c) Made-up clusters in 50-D whose true sizes and distances are known: A and B, 100 points each, A's spread 10 times B's; C, 100 points, 4 times as far from A as B is.
+  50-D (true)  size A / size B =  10.09   distance A-C / distance A-B =   4.00
+  PCA, 2-D     size A / size B =  12.79   distance A-C / distance A-B =   4.01
+  t-SNE, 2-D   size A / size B =   0.99   distance A-C / distance A-B =   0.98
+Actual output from this lesson's run.
+
+saved visualization_results.png
+saved visualization_diagram.png
+
+======================================================================
+5. WHAT COMES NEXT
+======================================================================
+Day 86 dropped every word seen fewer than 5 times, and has no vector for a word it never saw. Day 88 builds word vectors from character n-grams (fastText), so that a new word gets a vector from its pieces.

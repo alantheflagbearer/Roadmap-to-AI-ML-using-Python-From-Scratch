@@ -1,0 +1,4 @@
+directions orthonormal: largest |W^T W - I| = 4.4e-16
+against SVD: directions 1.8e-15, projections 3.1e-14
+all 6 directions: reconstruction error 5.3e-15; shares sum to 1.000000
+points near a 2-D plane: the first two directions keep 0.9990 of the spread; the rest 0.0003, 0.0003, 0.0003, 0.0002
