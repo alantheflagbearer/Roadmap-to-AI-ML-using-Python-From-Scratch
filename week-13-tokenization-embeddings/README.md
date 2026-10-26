@@ -96,5 +96,21 @@ Exercise: [`day89_exercise.py`](day89_exercise.py) is the vector-file part: save
 ![Pretrain, save, load, reuse](glove_diagram.png)
 ![GloVe by epoch, and the tagger with each starting table](glove_results.png)
 
+## Day 90 — The Week 13 build: a tiny character-level GPT-style model on Shakespeare
+[`day90_tiny_gpt.py`](day90_tiny_gpt.py) — Week 13's six exercise parts (Day 84's tokenizer, Day 85's embedding, Day 86's output layer and loss, Day 87's PCA, Day 88's n-grams, Day 89's vector files) copied in unchanged with banners, Week 12's parts imported from Day 83's build, and Day 37's Adam. The only new model code: a GPT block is Day 78's encoder block with Day 80's causal mask, and Day 78's backward pass works unchanged. Trained on Tiny Shakespeare (in [`corpora/`](corpora)), 90% to train, 10% held out.
+
+- **The build fits:** a gradient check of the whole model passes on 1218 entries (1.85e-10); a later token never changes an earlier score (0.0e+00). 111937 weights.
+- **Learning:** held-out bits per character fall from 6.018 to 2.564 and 2.614 (two seeds) in 4,000 steps, still falling.
+- **It uses long context, but only ties counting:** 3.68 bits with 1 character of context, 2.69 with 5, 2.50 with 17. Scored with at least 32 characters of context it reaches 2.525 and 2.578; counting what follows each 4 characters gives 2.554.
+- **BPE beats characters:** the same model on Day 84's BPE pieces (200 merges) reaches 2.399 with full context, the best model today; its 64-token window also spans about 119 characters, so vocabulary and context length change together.
+- **What it learned:** its samples look like a play (speaker names, verse lines; 0.710 real words), its invented words are made of real pieces (0.675, against 0.237 for random letters), and its character table puts each capital near its small letter (0.885 of letters) and '?' next to '!'.
+
+Study guide: [`day90_tiny_gpt_complete_guide.pdf`](day90_tiny_gpt_complete_guide.pdf) · Syntax walkthrough: [`day90_syntax_line_by_line.pdf`](day90_syntax_line_by_line.pdf) · [Run output](day90_run_output.txt) · learned character table: [`day90_char_vectors.txt`](day90_char_vectors.txt)
+
+Day 90 is the week's build, so it has no exercise script of its own.
+
+![A tiny GPT from the week's parts](tiny_gpt_diagram.png)
+![Learning, loss by position, invented words, the character table](tiny_gpt_results.png)
+
 ---
 [← Back to main README](../README.md)

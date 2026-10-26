@@ -1,0 +1,127 @@
+======================================================================
+1. THE BUILD -- the parts together, checked
+======================================================================
+Every function in section 1 is copied verbatim from a Week 13 exercise script (a banner names each one); Week 12's parts are imported from Day 83's build. A gradient check of the whole model at tiny sizes (10 tokens, length 6, d = 8, 2 heads, FFN 12, 2 blocks), every entry nudged by +-1e-5, Day 62's pass rule.
+
+gradient check: 1218 entries, largest |numeric - analytic| = 1.85e-10, every entry passes: True
+changing the token at position 4: largest change in the scores at positions 0-3 0.0e+00, at positions 4-5 4.1e-01 (the past cannot see the future)
+the lesson's model: 2 blocks, d = 64, 4 heads, FFN 256, context 64: 111937 weights for 65 characters
+Actual output from this lesson's run.
+
+======================================================================
+2. TOKENS -- characters, or BPE pieces (Day 84's tokenizer)
+======================================================================
+1,003,854 training characters, 111,540 held-out characters. With 0 merges Day 84's tokenizer gives characters; with 200 merges, BPE pieces (spaces and newlines are ordinary characters, so pieces can cross word boundaries).
+
+characters: vocabulary 65, held-out text 111,540 characters -> 111,540 tokens (1.00 characters per token); decodes back exactly: True; 0 s
+
+BPE: vocabulary 265, held-out text 111,540 characters -> 60,149 tokens (1.85 characters per token); decodes back exactly: True; 74 s
+characters: "\n !$&',-.3:;?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+first BPE merges: 'e ' | 'th' | 't ' | 's ' | 'd ' | ', ' | 'ou' | 'er' | 'in' | 'y '
+Actual output from this lesson's run.
+
+======================================================================
+3. WHAT TO BEAT -- counting models
+======================================================================
+An n-gram model predicts the next character from the previous n - 1 by counting how often each followed in the training text; add-k smoothing (k chosen on the last 10% of the training text) keeps unseen combinations possible. Held-out bits per character: log2(65) = 6.02 is a uniform guess.
+
+context              bits/char      k  contexts seen
+0 characters             4.829   0.01              1
+1 characters             3.583    0.1             65
+2 characters             2.951    0.1          1,380
+3 characters             2.574    0.1         11,228
+4 characters             2.554   0.01         48,539
+Actual output from this lesson's run.
+
+======================================================================
+4. TRAINING -- characters, two seeds, measured every 500 steps
+======================================================================
+Adam (Day 37) with learning rate 0.003, clipping at 1.0 (Day 60), batches of 32 random windows of 64 characters, 4000 steps. Held-out: all 1742 non-overlapping windows of the last 10% (each window starts with no context). Bits per character, train = mean over the last 500 steps' batches.
+
+  step  train s0  held-out s0  train s1  held-out s1
+     0         -        6.018         -        6.036
+   500     3.345        2.988     3.356        3.023
+  1000     2.726        2.866     2.746        2.837
+  1500     2.570        2.731     2.583        2.775
+  2000     2.480        2.688     2.502        2.704
+  2500     2.433        2.627     2.446        2.679
+  3000     2.392        2.623     2.410        2.657
+  3500     2.361        2.594     2.374        2.614
+  4000     2.338        2.564     2.355        2.614
+(317 ms per training step here, held-out checks not counted)
+Actual output from this lesson's run.
+
+The held-out windows above start with no context. Seed 0's held-out bits per character by position in the window (the prediction at position p is made from p + 1 characters):
+  position 0: 3.68, position 1: 3.15, position 2: 2.87, position 4: 2.69, position 8: 2.58, position 16: 2.50, position 32: 2.49, position 63: 2.59
+every character scored with at least 32 characters of context: seed 0 2.525, seed 1 2.578
+Actual output from this lesson's run.
+
+======================================================================
+5. CHARACTERS AGAINST BPE TOKENS -- same model, same steps, seed 0
+======================================================================
+The same model with a 265-token vocabulary (137737 weights: the token table and output layer grow). A window of 64 BPE tokens spans about 119 characters, against 64 for the character model. Both measured in bits per CHARACTER on the same held-out text.
+
+  step  characters     BPE
+     0       6.018   4.347
+   500       2.988   2.744
+  1000       2.866   2.584
+  1500       2.731   2.525
+  2000       2.688   2.487
+  2500       2.627   2.456
+  3000       2.623   2.451
+  3500       2.594   2.435
+  4000       2.564   2.425
+with at least 32 tokens of context for every scored token: characters 2.525, BPE 2.399 bits per character
+ms per step: characters 317, BPE 333
+Actual output from this lesson's run.
+
+======================================================================
+6. WHAT IT WRITES -- samples, and the words it makes up (character model, seed 0)
+======================================================================
+Drawn at temperature 1 (plain sampling, every character from the model's distribution):
+
+Look of you.
+KING RICHARD II:
+Go; Evenly long, and luck pitience it thy wit gener.
+His angive hat talk, but friends thou my he
+come been time my patsy the true sourth
+Much dauggs, and with he dunk gallieg To mys,
+CORINIUS:
+Thy drone, and for new-learnior:
+My go God! lary, whut our pards my come buts
+
+in a 5,000-character sample: 917 words, 0.710 of them real training words; 249 different invented words of 4+ letters, e.g. accound, apends, appoor, appress, armitter, arth, backingd, barac
+share of each word's character pieces (3-6, Day 88) that occur in training words: invented 0.675, real held-out words never seen in training 0.756 (623 words), random letters 0.237
+Actual output from this lesson's run.
+
+======================================================================
+7. WHAT THE CHARACTER TABLE LEARNED -- seed 0
+======================================================================
+saved to day90_char_vectors.txt and loaded back: same tokens True, largest |difference| 5.0e-06
+  'a'    -> 'A' 0.41, 'i' 0.28, 'u' 0.26, 'o' 0.26
+  'e'    -> 'E' 0.35, 'U' 0.25, 'u' 0.22, 'i' 0.19
+  'T'    -> 't' 0.52, 'X' 0.30, 'W' 0.27, 'v' 0.22
+  '?'    -> '!' 0.86, '.' 0.79, ':' 0.54, ';' 0.51
+  ' '    -> '-' 0.35, '\n' 0.32, 'X' 0.14, 'C' 0.10
+  '\n'   -> ' ' 0.32, 'X' 0.17, 'M' 0.16, '-' 0.14
+a lowercase letter's capital is among its 5 nearest characters: 0.885 of 26 letters
+a vowel's nearest other lowercase letter is a vowel: 1.000 of 5 (by chance about 4/25 = 0.16)
+PCA (Day 87): two directions keep 0.164 of the table's spread
+Actual output from this lesson's run.
+
+======================================================================
+8. WHAT IT COST
+======================================================================
+characters, seed 0    111937 weights, 317 ms per step, 21.2 minutes for 4000 steps
+characters, seed 1    111937 weights, 318 ms per step, 21.2 minutes for 4000 steps
+BPE, seed 0           137737 weights, 333 ms per step, 22.2 minutes for 4000 steps
+(one CPU thread for the matrix library; only ratios within this run are meaningful)
+Actual output from this lesson's run.
+
+saved tiny_gpt_results.png
+saved tiny_gpt_diagram.png
+
+======================================================================
+9. THE WEEK, AND WHAT COMES NEXT
+======================================================================
+Week 13 turned text into numbers: tokens (Day 84), vectors (85), vectors learned from raw text (86, 88, 89) and looked at (87); today the parts trained a language model. Week 14 studies that model properly: next-token prediction (Day 91), honest perplexity numbers (92) and sampling strategies (93).
