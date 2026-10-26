@@ -1,0 +1,4 @@
+round trip: same tokens True; largest |difference| 5.0e-06 (5 decimals kept)
+first two lines of the file: ['a 1.76405 0.40016 0.97874 2.24089', 'e 1.91733 0.54709 0.99423 2.27871']
+word2vec format (with a header): same tokens True, same vectors True
+most similar to 'a': [('e', 0.999), ('i', 0.998), ('x', 0.891)]

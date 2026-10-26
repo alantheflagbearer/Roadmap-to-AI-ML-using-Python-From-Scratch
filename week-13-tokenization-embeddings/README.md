@@ -81,5 +81,20 @@ Exercise: [`day88_exercise.py`](day88_exercise.py) is the subword part on its ow
 ![A word's vector from its pieces](subword_diagram.png)
 ![Known words, words never seen, rare words, row lengths](subword_results.png)
 
+## Day 89 — Pretrained embeddings: GloVe from scratch, saved, loaded and used
+[`day89_glove_pretrained.py`](day89_glove_pretrained.py) — GloVe: count how often every two words appear within 10 words of each other (weighted 1 / distance), then fit word vectors so that their dot products match the log counts. Trained on Day 86's corpus, saved in GloVe's text format (`day89_glove_vectors.txt.gz`), loaded back, and used with Day 86's Word2Vec vectors as the starting table of Day 85's tagger: frozen or fine-tuned, with all the labelled sentences or a tenth. Days 85 and 86 are imported from their scripts.
+
+- **Counts:** 8,153,059 nonzero pairs, 1.73% of all possible; the loss passes a gradient check (4.99e-09).
+- **GloVe is weaker here:** after 25 epochs (measured after each) category 0.900, capitals 0.074, gender 0.167, against Word2Vec's 0.967, 0.129, 0.211 on the same two million words; still rising.
+- **Files:** save and load lose only the 5-decimal rounding (5.0e-06); one loader reads GloVe's format and word2vec's.
+- **Pretrained vectors help when labels are few:** with 200 labelled sentences, fine-tuning from Word2Vec gives 0.7660 and from GloVe 0.7558, against 0.7373 from random (frozen: 0.7217, 0.6782 against 0.5583). With all 2,001 the fine-tuned gain almost vanishes (0.8537, 0.8548 against 0.8517).
+
+Study guide: [`day89_glove_pretrained_complete_guide.pdf`](day89_glove_pretrained_complete_guide.pdf) · Syntax walkthrough: [`day89_syntax_line_by_line.pdf`](day89_syntax_line_by_line.pdf) · [Run output](day89_run_output.txt)
+
+Exercise: [`day89_exercise.py`](day89_exercise.py) is the vector-file part: save, load (both formats) and nearest neighbours by cosine — the sixth and last part of Day 90's model ([run output](day89_exercise_run_output.txt)).
+
+![Pretrain, save, load, reuse](glove_diagram.png)
+![GloVe by epoch, and the tagger with each starting table](glove_results.png)
+
 ---
 [← Back to main README](../README.md)
