@@ -1,0 +1,91 @@
+======================================================================
+1. FROM TEXT TO PAIRS -- every word in turn is the centre
+======================================================================
+The corpus starts like this. With a window of 2, each centre word is paired with up to 2 words on each side; the model must predict each context word from the centre word alone.
+
+text: anarchism originated as a term of abuse first
+centre 'anarchism': pairs (anarchism, originated), (anarchism, as)
+centre 'a': pairs (a, originated), (a, as), (a, term), (a, of)
+Actual output from this lesson's run.
+
+======================================================================
+2. THE TWO OBJECTIVES -- gradient checks, and the cost of each
+======================================================================
+A tiny case (12 words, 4 numbers each, 3 pairs, 2 noise words each), every table entry nudged by +-1e-6, Day 62's pass rule. Then one batch of 1,024 pairs at this lesson's size, best of 5 timings.
+negative sampling  gradient check: 96 entries, largest |numeric - analytic| = 5.40e-10, all pass: True
+full softmax       gradient check: 96 entries, largest |numeric - analytic| = 8.05e-10, all pass: True
+
+one batch of 1024 pairs, V = 21681, d = 50: negative sampling (5 noise words) 1.8 ms, full softmax 519.8 ms -- 282 times slower (only the ratio is meaningful)
+scores computed per pair: 6 against 21681
+Actual output from this lesson's run.
+
+======================================================================
+3. TRAINING -- three seeds, measured after every epoch
+======================================================================
+1910050 tokens after dropping words seen fewer than 5 times; vocabulary 21681; d = 50, window up to 5, 5 noise words, subsampling 0.0001, 5 epochs, batches of 1024, learning rate 0.025 falling linearly. Scores: category = share of the 90 listed words whose nearest listed word is in the same group (8 groups); capitals = 272 questions like paris:france :: rome:?; gender = 90 questions like king:queen :: man:?. The whole vocabulary is searched.
+
+seed 0, after each epoch:
+ epoch    loss  category  capitals  gender
+     1   0.466     0.789     0.004   0.044
+     2   0.413     0.878     0.029   0.089
+     3   0.399     0.944     0.081   0.111
+     4   0.391     0.944     0.147   0.200
+     5   0.387     0.967     0.129   0.211
+(loss: mean per scored candidate, the real pair or a noise word; 33 s per epoch here)
+
+final scores per seed:
+  seed  category  capitals  gender
+     0     0.967     0.129   0.211
+     1     0.967     0.125   0.267
+     2     0.978     0.165   0.311
+  mean     0.970     0.140   0.263
+Actual output from this lesson's run.
+
+======================================================================
+4. WHAT THE VECTORS KNOW -- nearest neighbours and analogies, seed 0
+======================================================================
+Cosine similarity between centre-word vectors (W_in). Nobody told the model what any word means.
+
+  three     -> four, five, six, two, one, seven
+  january   -> june, november, february, december, october, july
+  france    -> spain, belgium, norway, italy, germany, netherlands
+  red       -> cross, black, white, blue, coat, shorts
+  physics   -> theoretical, mechanics, chemistry, relativity, mathematics, theory
+  computer  -> computers, digital, portable, graphical, machines, gui
+  war       -> outbreak, wars, liberated, invasion, revolutionary, battles
+  music     -> dance, pop, musical, folk, difranco, musicians
+  king      -> epirus, macedon, aragon, afonso, viii, portugal
+  river     -> lake, rivers, situated, shore, inland, coast
+
+analogies, a:b :: c:? -- the word nearest to b - a + c, question words excluded:
+  paris:france :: rome:?  -> ruled, dominions, retained
+  paris:france :: tokyo:?  -> overseas, japan, airways
+  man:woman :: king:?  -> andronicus, throne, iv
+  father:mother :: brother:?  -> husband, married, wife
+  france:french :: germany:?  -> german, russian, austrian
+  big:bigger :: small:?  -> absorbed, protected, rigid
+Actual output from this lesson's run.
+
+======================================================================
+5. WHAT EACH INGREDIENT DOES -- one change at a time, seed 0
+======================================================================
+Final scores after the same 5 epochs, changing one setting of section 3 at a time. 'untrained' is the starting table: what the scores give by chance.
+
+setting                       category  capitals  gender   s per epoch
+untrained (random table)         0.156     0.000   0.000
+section 3's settings             0.967     0.129   0.211
+no subsampling                   0.978     0.070   0.489            62
+window 2 instead of 5            0.922     0.044   0.322            16
+1 noise word instead of 5        0.900     0.011   0.111            11
+(seconds per epoch only for runs trained in this section; the section 3 run was timed there)
+Actual output from this lesson's run.
+
+saved all 21681 words' vectors to day86_vectors.txt.gz (for Days 87 and 89)
+
+saved word2vec_results.png
+saved word2vec_diagram.png
+
+======================================================================
+6. WHAT COMES NEXT
+======================================================================
+Fifty numbers per word cannot be looked at directly. Day 87 projects these vectors to two dimensions with PCA and t-SNE, and checks how much of the category structure survives the projection.

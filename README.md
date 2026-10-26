@@ -2,7 +2,7 @@
 
 A daily-practice log following a 52-week (365-day) roadmap from Python fundamentals through classical ML, deep learning, and into applied AI. Most lessons don't just call a library function — they build the underlying idea (gradient descent, backprop, convolution, dropout...) from scratch in NumPy first, then show the framework equivalent. Each day is a self-contained script; from Week 1 onward, most days add a paired study guide (a concept walkthrough and a line-by-line syntax breakdown, both PDF).
 
-**Currently on Day 85** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
+**Currently on Day 86** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
 
 ## How this repo is organized
 
@@ -26,7 +26,7 @@ A daily-practice log following a 52-week (365-day) roadmap from Python fundament
 | 10 | 63–69 | LSTM & GRU | [→ folder](week-10-lstm-gru) |
 | 11 | 70–76 | Attention Mechanism | [→ folder](week-11-attention-mechanism) |
 | 12 | 77–83 | The Transformer | [→ folder](week-12-the-transformer) |
-| 13 | 84–85 (of 84–90) | Tokenization & Embeddings — in progress | [→ folder](week-13-tokenization-embeddings) |
+| 13 | 84–86 (of 84–90) | Tokenization & Embeddings — in progress | [→ folder](week-13-tokenization-embeddings) |
 
 Weeks 14 onward (a mini-GPT, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
 
@@ -56,6 +56,7 @@ Starting with Week 6, the same small neural-network library — written entirely
 | ![Causal mask results](week-12-the-transformer/causal_mask_results.png) Decoder block: without the causal mask, a model that reads the answer — Day 80 | ![Transformer forward results](week-12-the-transformer/transformer_forward_results.png) The whole Transformer, untrained: every mask holds end to end — Day 81 |
 | ![Transformer backward results](week-12-the-transformer/transformer_backward_results.png) The backward pass: every gradient checked, and the check catches a planted bug — Day 82 | ![Tiny Transformer results](week-12-the-transformer/tiny_transformer_results.png) Week 12 build: the Transformer learns COPY fast; REVERSE, not as well as the LSTM — Day 83 |
 | ![BPE results](week-13-tokenization-embeddings/bpe_results.png) Byte-pair encoding: lossless, and no more unknown words — Day 84 | ![Embeddings results](week-13-tokenization-embeddings/embeddings_results.png) Word embeddings: a learned table beats one-hot inputs — Day 85 |
+| ![Word2Vec results](week-13-tokenization-embeddings/word2vec_results.png) Word2Vec from raw text: word groups right, analogies mostly not — Day 86 | |
 
 ## Featured project: Titanic EDA (Day 13)
 

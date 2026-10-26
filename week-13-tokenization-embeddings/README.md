@@ -34,5 +34,21 @@ Exercise: [`day85_exercise.py`](day85_exercise.py) is an embedding layer, forwar
 ![A one-hot vector times a table is a lookup](embeddings_diagram.png)
 ![Accuracy by input, and the learned table in two dimensions](embeddings_results.png)
 
+## Day 86 — Word2Vec (skip-gram) from scratch, on a real small corpus
+[`day86_word2vec_skipgram.py`](day86_word2vec_skipgram.py) — word vectors learned from raw text: every word in turn predicts the words around it (skip-gram), trained with negative sampling (is this pair real, or one of 5 made-up ones?). The corpus is new: the first 2,000,000 words of text8 (Wikipedia, lowercase letters only), kept with Tiny Shakespeare (for Day 90) in [`corpora/`](corpora) — see its [README](corpora/README.txt) for sources and licences.
+
+- **Both objectives checked:** negative sampling and the full softmax pass gradient checks (5.40e-10, 8.05e-10); one batch with the full softmax over 21681 words was 282 times slower in this run.
+- **Groups, from raw text:** 0.970 of 90 listed words (months, numbers, countries, ...) have a same-group nearest neighbour (three seeds), against 0.156 for the untrained table. Measured after every epoch: 0.789 after the first.
+- **Analogies mostly fail at this size:** capitals 0.140, gender 0.263 (paris:france :: rome:? and similar, the whole vocabulary searched).
+- **Ingredients trade off:** without subsampling, gender analogies rise to 0.489 but capitals fall to 0.070 (one seed; the likely reason, frequent words like 'he' and 'she' being thinned out, was not tested); a window of 2 or a single noise word is weaker.
+- All 21681 vectors are saved to `day86_vectors.txt.gz` (word2vec text format) for Days 87 and 89.
+
+Study guide: [`day86_word2vec_skipgram_complete_guide.pdf`](day86_word2vec_skipgram_complete_guide.pdf) · Syntax walkthrough: [`day86_syntax_line_by_line.pdf`](day86_syntax_line_by_line.pdf) · [Run output](day86_run_output.txt)
+
+Exercise: [`day86_exercise.py`](day86_exercise.py) is the output layer a language model needs instead: a full softmax over the vocabulary, forward and backward (gradient check 5.37e-10) — the third part of Day 90's model ([run output](day86_exercise_run_output.txt)).
+
+![Skip-gram with negative sampling](word2vec_diagram.png)
+![Scores by epoch, one change at a time, and the cost of a batch](word2vec_results.png)
+
 ---
 [← Back to main README](../README.md)
