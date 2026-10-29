@@ -2,7 +2,7 @@
 
 A daily-practice log following a 52-week (365-day) roadmap from Python fundamentals through classical ML, deep learning, and into applied AI. Most lessons don't just call a library function — they build the underlying idea (gradient descent, backprop, convolution, dropout...) from scratch in NumPy first, then show the framework equivalent. Each day is a self-contained script; from Week 1 onward, most days add a paired study guide (a concept walkthrough and a line-by-line syntax breakdown, both PDF).
 
-**Currently on Day 96** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
+**Currently on Day 97** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
 
 ## How this repo is organized
 
@@ -27,7 +27,7 @@ A daily-practice log following a 52-week (365-day) roadmap from Python fundament
 | 11 | 70–76 | Attention Mechanism | [→ folder](week-11-attention-mechanism) |
 | 12 | 77–83 | The Transformer | [→ folder](week-12-the-transformer) |
 | 13 | 84–90 | Tokenization & Embeddings | [→ folder](week-13-tokenization-embeddings) |
-| 14 | 91–96 (of 91–97) | Mini-GPT & Language Modeling — in progress | [→ folder](week-14-mini-gpt-language-modeling) |
+| 14 | 91–97 | Mini-GPT & Language Modeling | [→ folder](week-14-mini-gpt-language-modeling) |
 
 Weeks 15 onward (practical NLP with pretrained models, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
 
@@ -62,7 +62,7 @@ Starting with Week 6, the same small neural-network library — written entirely
 | ![Tiny GPT results](week-13-tokenization-embeddings/tiny_gpt_results.png) Week 13 build: a tiny GPT writes Shakespeare-shaped text, and ties a 4-character counter — Day 90 | ![Causal LM results](week-14-mini-gpt-language-modeling/causal_lm_results.png) Next-token prediction: a Kneser-Ney counter beats Day 90's GPT — Day 91 |
 | ![Training results](week-14-mini-gpt-language-modeling/training_results.png) Training the mini-GPT: level with Kneser-Ney, honestly measured — Day 92 | ![Sampling results](week-14-mini-gpt-language-modeling/sampling_results.png) Sampling: greedy loops, high temperature invents words — Day 93 |
 | ![Quality results](week-14-mini-gpt-language-modeling/quality_results.png) Generated text, measured: new, plausible, and still detectable — Day 94 | ![Scaling results](week-14-mini-gpt-language-modeling/scaling_results.png) Scaling: a clean power law in model size, not in data under a fixed budget — Day 95 |
-| ![Fine-tuning results](week-14-mini-gpt-language-modeling/fine_tuning_results.png) Fine-tuning on an unseen play: 2.486 to 2.104 bits, replay forgets least — Day 96 | |
+| ![Fine-tuning results](week-14-mini-gpt-language-modeling/fine_tuning_results.png) Fine-tuning on an unseen play: 2.486 to 2.104 bits, replay forgets least — Day 96 | ![Evaluation results](week-14-mini-gpt-language-modeling/evaluation_results.png) Week 14 build: perplexity separates the models, BLEU and ROUGE cannot — Day 97 |
 
 ## Featured project: Titanic EDA (Day 13)
 

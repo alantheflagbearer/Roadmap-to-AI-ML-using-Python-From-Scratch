@@ -93,5 +93,22 @@ Exercise: [`day96_exercise.py`](day96_exercise.py) is the model-file and fine-tu
 ![One general model, five ways to adapt it](fine_tuning_diagram.png)
 ![Dev curves, test loss and forgetting](fine_tuning_results.png)
 
+## Day 97 — The Week 14 build: language-model evaluation (perplexity, BLEU, ROUGE)
+[`day97_lm_evaluation.py`](day97_lm_evaluation.py) — the week's six exercise parts, copied verbatim under banners (Kneser-Ney; the schedule and full-context measure; the sampler; the text measures; the weight count and power-law fit; the model-file and fine-tuning helpers), plus BLEU-4 and ROUGE-1/2/L written from scratch. They evaluate Day 92's general GPT, Day 96's fine-tuned GPT and two Kneser-Ney models on The Tempest's test part, which none of them pretrained on.
+
+- **The build:** both saved models load with Day 96's part and match Day 95's weight formula (824129); the metrics give 1.000 for identical text and 0.000 for no shared word, and ROUGE-1 stays 1.000 for a scrambled sentence (ROUGE-L 0.429).
+- **Perplexity separates the models:** Day 92's GPT 2.486 bits per character, Day 96's 2.104; Kneser-Ney 2.460, and 2.142 with the play's train part.
+- **BLEU and ROUGE do not:** on 24 non-overlapping 150-character continuations every system scores BLEU-4 0.006, and real Shakespeare from the wrong place scores higher on ROUGE-1 (0.160) than any model. A first version with overlapping prompt windows inflated that control; the reported run removes the overlap.
+- **Day 94's measures do see differences:** Kneser-Ney repeats itself (distinct pairs 0.698 against 0.955 for real text); fine-tuning cut copying from 0.019 to 0.005.
+- **Context:** 3.66 bits after one character, flat after about 16 (2.035 for 17–64); no power law fits the whole curve.
+- **As a training signal:** dev bits fall at every check (2.819 to 2.242) while BLEU wanders with no trend.
+
+Study guide: [`day97_lm_evaluation_complete_guide.pdf`](day97_lm_evaluation_complete_guide.pdf) · Syntax walkthrough: [`day97_syntax_line_by_line.pdf`](day97_syntax_line_by_line.pdf) · [Run output](day97_run_output.txt)
+
+Day 97 is the week's build, so it has no exercise script of its own.
+
+![The week's parts assembled into one evaluation](evaluation_diagram.png)
+![Perplexity, BLEU/ROUGE with controls, loss against context, metrics during fine-tuning](evaluation_results.png)
+
 ---
 [← Back to main README](../README.md)

@@ -1,0 +1,87 @@
+======================================================================
+1. THE BUILD -- the parts, the two models, and BLEU/ROUGE on known cases
+======================================================================
+Every function in section 1 is copied verbatim from a Week 14 exercise script (a banner names each one); Day 90's GPT is imported through Day 96's script.
+Day 92 (general): 824129 weights loaded from day92_mini_gpt.npz; Day 95's formula gives 824129
+Day 96 (fine-tuned): 824129 weights loaded from day96_finetuned_gpt.npz; Day 95's formula gives 824129
+largest change made by fine-tuning: 0.026 (in Wout); arrays unchanged: 0 of 52
+
+BLEU and ROUGE on known cases (hypothesis | reference):
+  'the king is come to the island'     BLEU 1.000  ROUGE-1 1.000  ROUGE-2 1.000  ROUGE-L 1.000
+  'the king is come'                   BLEU 0.472  ROUGE-1 0.727  ROUGE-2 0.667  ROUGE-L 0.727
+  'island the to come is king the'     BLEU 0.263  ROUGE-1 1.000  ROUGE-2 0.000  ROUGE-L 0.429
+  'my mistress waits below'            BLEU 0.000  ROUGE-1 0.000  ROUGE-2 0.000  ROUGE-L 0.000
+Actual output from this lesson's run.
+
+======================================================================
+2. PERPLEXITY -- four models of The Tempest's test text
+======================================================================
+Bits per character on the play's test part (5,199 characters), and perplexity per character (2^bits) and per word (2^(bits x characters per word)). The GPTs: Day 92's full-context measure (day92_exercise.py's eval_bits). Kneser-Ney (6 characters of context): every character from the 7th, with its real preceding context.
+
+model                                bits/char  ppl/char  ppl/word
+Kneser-Ney, training text                2.460      5.50     15979
+Kneser-Ney, + the play's train part      2.142      4.41      4568
+Day 92 (general)                         2.486      5.60     17709
+Day 96 (fine-tuned)                      2.104      4.30      3928
+(5.68 characters per word in the test part; the two kinds of score are on slightly different positions)
+Actual output from this lesson's run.
+
+======================================================================
+3. BLEU AND ROUGE -- continuations against what Shakespeare wrote
+======================================================================
+24 non-overlapping prompts of 64 characters, evenly spaced through the play's test part; 150 characters written after each (top-p 0.9, day93_exercise.py's sampler). Reference: the real next 150 characters. BLEU: corpus BLEU-4, word level, BLEU+1 smoothing (one added to the 2- to 4-gram counts). ROUGE: mean F1. 3 sampling seeds; mean (spread). Controls: the reference itself; a real continuation of another prompt (real Shakespeare, wrong place); the prompt itself, repeated to the same length.
+
+system                            BLEU-4       ROUGE-1       ROUGE-2       ROUGE-L
+(reference itself)                 1.000         1.000         1.000         1.000
+(real text, wrong place)           0.008         0.160         0.010         0.104
+(prompt repeated)                  0.008         0.090         0.008         0.083
+Day 92 (general)             0.006 (0.000)   0.133 (0.006)   0.003 (0.001)   0.095 (0.002)
+Day 96 (fine-tuned)          0.006 (0.001)   0.129 (0.012)   0.003 (0.002)   0.096 (0.008)
+Kneser-Ney (+ play)          0.006 (0.000)   0.129 (0.015)   0.003 (0.001)   0.094 (0.007)
+Actual output from this lesson's run.
+
+======================================================================
+4. DAY 94'S MEASURES ON THE SAME CONTINUATIONS (seed 0)
+======================================================================
+Copied pieces are looked up in, and real words checked against, the training text plus the play's train part (everything either model was trained on).
+
+text                       copied (k=16)  distinct pairs  real words  speaker lines
+(real continuations)               0.013           0.955       0.932          0.320
+Day 92 (general)                   0.019           0.966       0.932          0.203
+Day 96 (fine-tuned)                0.005           0.972       0.883          0.207
+Kneser-Ney (+ play)                0.036           0.698       0.961          0.273
+Actual output from this lesson's run.
+
+======================================================================
+5. HOW THE LOSS FALLS WITH CONTEXT -- a power law, fitted with Day 95's part
+======================================================================
+Day 92's model on the rest of the held-out text (76,885 characters; 600 non-overlapping windows of 128): bits per character by how many characters the prediction sees, and L(n) = c + a n^-alpha fitted from n = 1, 4 and 16 on.
+
+  1: 3.66, 2: 2.90, 4: 2.58, 8: 2.20, 16: 2.19, 32: 2.10, 64: 2.18, 128: 2.10
+  fit from n =  1: c = 1.261, a = 1.270, alpha = 0.115; largest gap 1.127 bits (c searched on [0, 1.829])
+  fit from n =  4: c = 0.848, a = 1.424, alpha = 0.041; largest gap 0.380 bits (c searched on [0, 1.829])
+  fit from n = 16: c = 0.000, a = 2.011, alpha = -0.004; largest gap 0.212 bits (c searched on [0, 1.829])
+  mean bits at n = 1-8: 2.639; n = 9-16: 2.145; n = 17-64: 2.035; n = 65-128: 2.058
+Actual output from this lesson's run.
+
+======================================================================
+6. METRICS AS A TRAINING SIGNAL -- perplexity and BLEU during a short fine-tune
+======================================================================
+Day 92's model, top block and output layer only (day96_exercise.py's adam_subset), 200 steps at peak 0.0003 with day92_exercise.py's schedule; every 50 steps, dev bits per character and BLEU-4 of 20 dev continuations (one fixed sampling seed). The best checkpoint by dev bits is kept with snapshot().
+
+  step  dev bits  dev BLEU-4
+     0     2.819      0.0052
+    50     2.496      0.0074
+   100     2.283      0.0051
+   150     2.248      0.0066
+   200     2.242      0.0073
+best checkpoint by dev bits: step 200
+Actual output from this lesson's run.
+
+saved evaluation_results.png
+saved evaluation_diagram.png
+
+======================================================================
+7. THE WEEK, AND WHAT COMES NEXT
+======================================================================
+Week 14 studied one language model end to end: the chain rule and honest baselines (Day 91), training and perplexity (92), sampling (93), judging generated text (94), scaling (95), fine-tuning (96) and, today, the metrics. Week 15 turns to practical NLP with pretrained models.
