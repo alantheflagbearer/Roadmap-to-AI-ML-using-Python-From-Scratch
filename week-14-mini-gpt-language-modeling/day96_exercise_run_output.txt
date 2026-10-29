@@ -1,0 +1,5 @@
+round trip: same names True, largest |difference| 0.0e+00
+blocks.0.W   trainable: False  unchanged bit for bit: True
+blocks.1.W   trainable: True   unchanged bit for bit: False
+Wout         trainable: True   unchanged bit for bit: False
+after training, the snapshot still equals the old values: True; the shallow copy does not (it shares the arrays): False

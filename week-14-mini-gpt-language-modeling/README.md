@@ -75,5 +75,23 @@ Exercise: [`day95_exercise.py`](day95_exercise.py) is the weight count and the p
 ![Seven runs, one budget](scaling_diagram.png)
 ![Learning curves by size, and loss against size and against data](scaling_results.png)
 
+## Day 96 — Fine-tuning the mini-GPT on a narrower real task
+[`day96_fine_tuning.py`](day96_fine_tuning.py) — Day 92's saved mini-GPT never saw the last tenth of Tiny Shakespeare, which ends with a whole play, The Tempest. The play is split in its own order (70% train, 15% dev, 15% test) and the model is adapted to it in five ways, each for 400 steps with its best dev checkpoint kept: full fine-tuning (learning rate chosen on dev), from scratch, top block and output layer only, replay (half of each batch from the original text) and a quarter of the data. Forgetting is measured on the rest of the held-out text, which no run trains on. The fine-tuned model is saved as [`day96_finetuned_gpt.npz`](day96_finetuned_gpt.npz) for Day 97.
+
+- **The task is new:** all 11 of 11 of the play's speakers never speak in the training text; zero-shot the play's test part costs 2.486 bits per character against 2.054 for other unseen Shakespeare.
+- **Learning rate, on dev:** 0.0003 best (2.212 at step 100, then rising to 2.347 as it memorises); 0.0001 close behind (2.218) and still improving at step 400; 0.001 ends at 3.071, worse than zero-shot.
+- **Pretraining is most of the result:** full fine-tuning reaches 2.104 on test; the same model from scratch only 4.807.
+- **Top block + output only** (206145 of 824129 weights) matches full fine-tuning: 2.105.
+- **Forgetting:** other unseen Shakespeare goes from 2.054 to 2.190 after full fine-tuning. Replay did best on both measures, 2.050 on the play and 2.089 elsewhere (one seed; the reason it also helps the play was not tested).
+- **A quarter of the data:** 2.130, but best at step 50 and then overfitting; it forgot the most (2.230).
+- **In the samples:** 0.778 of the fine-tuned model's speaker lines name one of the play's new speakers, against 0.000 before.
+
+Study guide: [`day96_fine_tuning_complete_guide.pdf`](day96_fine_tuning_complete_guide.pdf) · Syntax walkthrough: [`day96_syntax_line_by_line.pdf`](day96_syntax_line_by_line.pdf) · [Run output](day96_run_output.txt)
+
+Exercise: [`day96_exercise.py`](day96_exercise.py) is the model-file and fine-tuning helpers: `save_params` / `load_params`, `adam_subset` (frozen weights do not move by one bit) and `snapshot` (a deep copy, unlike a shallow one) — the sixth part of Day 97's build ([run output](day96_exercise_run_output.txt)).
+
+![One general model, five ways to adapt it](fine_tuning_diagram.png)
+![Dev curves, test loss and forgetting](fine_tuning_results.png)
+
 ---
 [← Back to main README](../README.md)
