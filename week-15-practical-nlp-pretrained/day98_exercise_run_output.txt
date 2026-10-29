@@ -1,0 +1,10 @@
+size  1: 10 chunks, sizes [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], cover the list exactly in order: True
+size  3: 4 chunks, sizes [3, 3, 3, 1], cover the list exactly in order: True
+size  4: 3 chunks, sizes [4, 4, 2], cover the list exactly in order: True
+size 10: 1 chunks, sizes [10], cover the list exactly in order: True
+size 15: 1 chunks, sizes [10], cover the list exactly in order: True
+softmax of [1000, 1001]: naive [nan nan], safe [0.268941 0.731059] (expected [0.268941, 0.731059])
+batch 2: largest probability difference from one-at-a-time 6.0e-08
+batch 4: largest probability difference from one-at-a-time 6.0e-08
+batch 6: largest probability difference from one-at-a-time 8.9e-08
+P(positive): 'a gorgeous, witty,' 1.000, 'the plot is nothin' 0.000, "it's fine." 1.000, 'not bad at all' 0.999, 'an utter waste of ' 0.000, 'I laughed, I cried' 0.150

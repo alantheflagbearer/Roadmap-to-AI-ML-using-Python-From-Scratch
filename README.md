@@ -2,11 +2,11 @@
 
 A daily-practice log following a 52-week (365-day) roadmap from Python fundamentals through classical ML, deep learning, and into applied AI. Most lessons don't just call a library function — they build the underlying idea (gradient descent, backprop, convolution, dropout...) from scratch in NumPy first, then show the framework equivalent. Each day is a self-contained script; from Week 1 onward, most days add a paired study guide (a concept walkthrough and a line-by-line syntax breakdown, both PDF).
 
-**Currently on Day 97** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
+**Currently on Day 98** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
 
 ## How this repo is organized
 
-- **One folder per week** (`week-01-python-foundations/` … `week-14-mini-gpt-language-modeling/`) — each holds that week's scripts, study-guide PDFs, diagrams, and run outputs, plus its own `README.md` with a day-by-day index. Open a week's `README.md` first; it links to everything inside.
+- **One folder per week** (`week-01-python-foundations/` … `week-15-practical-nlp-pretrained/`) — each holds that week's scripts, study-guide PDFs, diagrams, and run outputs, plus its own `README.md` with a day-by-day index. Open a week's `README.md` first; it links to everything inside.
 - **`practice-drills/`** — short standalone Python-fundamentals exercises (`pfdsNN.py`), numbered independently of the daily roadmap.
 - Root-level `titanic.csv`, `titanic.db`, and `students.csv` are the shared datasets several early weeks use; each is also copied into every week folder whose scripts need it, so any single week folder runs standalone without reaching outside itself.
 
@@ -28,8 +28,9 @@ A daily-practice log following a 52-week (365-day) roadmap from Python fundament
 | 12 | 77–83 | The Transformer | [→ folder](week-12-the-transformer) |
 | 13 | 84–90 | Tokenization & Embeddings | [→ folder](week-13-tokenization-embeddings) |
 | 14 | 91–97 | Mini-GPT & Language Modeling | [→ folder](week-14-mini-gpt-language-modeling) |
+| 15 | 98 (of 98–104) | Practical NLP with Pretrained Models — in progress | [→ folder](week-15-practical-nlp-pretrained) |
 
-Weeks 15 onward (practical NLP with pretrained models, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
+Weeks 16 onward (classical ML: trees, ensembles, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
 
 Starting with Week 6, the same small neural-network library — written entirely in NumPy, no framework — is extended week over week: the `net.forward()` / `net.backward()` core built on Day 36 is still what every later script, all the way through Day 62, trains against; Week 10 starts a new cell, the LSTM.
 
@@ -63,6 +64,7 @@ Starting with Week 6, the same small neural-network library — written entirely
 | ![Training results](week-14-mini-gpt-language-modeling/training_results.png) Training the mini-GPT: level with Kneser-Ney, honestly measured — Day 92 | ![Sampling results](week-14-mini-gpt-language-modeling/sampling_results.png) Sampling: greedy loops, high temperature invents words — Day 93 |
 | ![Quality results](week-14-mini-gpt-language-modeling/quality_results.png) Generated text, measured: new, plausible, and still detectable — Day 94 | ![Scaling results](week-14-mini-gpt-language-modeling/scaling_results.png) Scaling: a clean power law in model size, not in data under a fixed budget — Day 95 |
 | ![Fine-tuning results](week-14-mini-gpt-language-modeling/fine_tuning_results.png) Fine-tuning on an unseen play: 2.486 to 2.104 bits, replay forgets least — Day 96 | ![Evaluation results](week-14-mini-gpt-language-modeling/evaluation_results.png) Week 14 build: perplexity separates the models, BLEU and ROUGE cannot — Day 97 |
+| ![Pretrained model results](week-15-practical-nlp-pretrained/pretrained_results.png) A pretrained DistilBERT: 0.911 on SST-2, overconfident, well ahead of bag of words — Day 98 | |
 
 ## Featured project: Titanic EDA (Day 13)
 
