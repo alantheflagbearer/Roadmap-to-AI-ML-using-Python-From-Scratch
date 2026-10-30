@@ -93,5 +93,20 @@ Exercise: [`day103_exercise.py`](day103_exercise.py) is the retriever: `mean_poo
 ![Keyword and semantic search, fused by rank](search_diagram.png)
 ![Recall@k, and recall@1 by word overlap](search_results.png)
 
+## Day 104 — The Week 15 build: a small retrieval-augmented question-answering system
+[`day104_rag_pipeline.py`](day104_rag_pipeline.py) — the week's six exercise parts, copied verbatim under banners (batching; bootstrap intervals; span scoring; sentences and chunks; SQuAD's metrics; the retrievers), assembled into RAG over every SQuAD validation paragraph, with 500 of Day 102's questions. Retrievers: BM25, MiniLM and their rank fusion. Readers: Day 102's extractive DistilBERT and the generative `google/flan-t5-small`.
+
+- **Retrieval:** the hybrid puts an answer in the top 3 passages for 0.888 of questions, top 10 for 0.966 (a lenient string-match test).
+- **End to end, F1:** closed book 0.043; RAG 0.691 with flan-t5 and 0.736 with the extractive reader; handed the right paragraph, 0.794 and 0.868.
+- **Where complete misses come from:** flan-t5 46 retrieval, 65 reading; extractive 49 and 53. Both halves need work.
+- **How many passages:** k = 1, 3, 5 give F1 0.619, 0.691, 0.684; at k = 5, 0.856 of prompts must be trimmed to fit 512 tokens. Trimming cuts the passages, never the question.
+
+Study guide: [`day104_rag_pipeline_complete_guide.pdf`](day104_rag_pipeline_complete_guide.pdf) · Syntax walkthrough: [`day104_syntax_line_by_line.pdf`](day104_syntax_line_by_line.pdf) · [Run output](day104_run_output.txt)
+
+Day 104 is the week's build, so it has no exercise script of its own.
+
+![The pipeline and the exercise part behind each step](rag_diagram.png)
+![Retrieval recall, end-to-end EM and F1, F1 against k](rag_results.png)
+
 ---
 [← Back to main README](../README.md)

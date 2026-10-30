@@ -1,0 +1,103 @@
+======================================================================
+1. THE BUILD -- the parts, the passages, the index
+======================================================================
+Every function in section 1 is copied verbatim from a Week 15 exercise script (a banner names each one); Day 102's span search and question sample are imported.
+documents: 2,067 SQuAD validation paragraphs (123 words on average, 4.9 sentences)
+word passages: 3,681 windows of 100 words overlapping by 25 (chunk_words); sentence passages: 3,627, whole sentences up to 100 words (split_sentences)
+questions: 500; a gold answer appears in at least one word passage for 1.000 of them (an answer can be cut by a window edge, but the overlap usually saves it)
+Actual output from this lesson's run.
+
+======================================================================
+2. RETRIEVAL -- is the answer in the top k passages?
+======================================================================
+answer-containing passage within the top k (indexing and searching both passage types: 130 s)
+
+passages  retriever     k=1     k=3     k=5    k=10
+word      BM25        0.752   0.884   0.918   0.938
+word      dense       0.634   0.846   0.880   0.928
+word      hybrid      0.754   0.888   0.934   0.966
+sentence  BM25        0.746   0.872   0.918   0.934
+sentence  dense       0.682   0.824   0.882   0.928
+sentence  hybrid      0.768   0.898   0.932   0.970
+
+word passages, hybrid, top 3 as a set (day100_exercise.py's prf): precision 0.365, recall 0.049 (of 11,111 answer-holding passages; several can hold one answer)
+Actual output from this lesson's run.
+
+======================================================================
+3. END TO END -- closed book, RAG, oracle
+======================================================================
+google/flan-t5-small: 76,961,152 weights; prompt: 'Answer the question using the passages.\n\n{ctx}\n\nQuestion: {q}\nAnswer:'
+
+system                          exact match      F1     F1 95% interval  s per question
+closed book (flan-t5)                 0.010   0.043      [0.031, 0.057]            0.03
+RAG, flan-t5 reader                   0.590   0.691      [0.651, 0.727]            0.16
+RAG, extractive reader                0.672   0.736      [0.702, 0.773]            0.15
+oracle paragraph, flan-t5             0.696   0.794      [0.762, 0.826]            0.12
+oracle paragraph, extractive          0.792   0.868      [0.842, 0.894]            0.07
+
+paired differences in F1 (day99_exercise.py): mean, 95% interval, share of resamples ahead
+  RAG, flan-t5 reader           minus closed book (flan-t5)  +0.648 [+0.609, +0.685] ahead in 1.000
+  RAG, extractive reader        minus RAG, flan-t5 reader    +0.046 [+0.013, +0.081] ahead in 0.996
+  oracle paragraph, flan-t5     minus RAG, flan-t5 reader    +0.103 [+0.070, +0.137] ahead in 1.000
+  oracle paragraph, extractive  minus RAG, extractive reader +0.131 [+0.099, +0.162] ahead in 1.000
+
+three questions, every system:
+  Q: What did Low suggest using Apollo 8 for instead of simply orbiting the Earth's surface?   gold: 'orbit the Moon'
+     closed book (flan-t5)         'a heliocentric orbit'
+     RAG, flan-t5 reader           'the D mission'
+     RAG, extractive reader        'eliminating the E mission'
+     oracle paragraph, flan-t5     'deferring the D mission to the next mission in March 1969, a'
+     oracle paragraph, extractive  'eliminating the E mission'
+  Q: How did Luther's writings sound as he became less healthy?   gold: 'harsher'
+     closed book (flan-t5)         'a snort'
+     RAG, flan-t5 reader           'at least partly the product of a declining state of mind'
+     RAG, extractive reader        'partly the product of a declining state of mind'
+     oracle paragraph, flan-t5     'short-tempered'
+     oracle paragraph, extractive  'harsher'
+  Q: When might starch grains become overly large?   gold: 'Under conditions such as high atmospheric CO2 concentrations'
+     closed book (flan-t5)         'a year'
+     RAG, flan-t5 reader           'Under conditions such as high atmospheric CO2 concentrations'
+     RAG, extractive reader        'Under conditions such as high atmospheric CO2 concentrations'
+     oracle paragraph, flan-t5     'Under conditions such as high atmospheric CO2 concentrations'
+     oracle paragraph, extractive  'Under conditions such as high atmospheric CO2 concentrations'
+Actual output from this lesson's run.
+
+======================================================================
+4. WHERE RAG FAILS -- retrieval or reading?
+======================================================================
+the top 3 passages hold a gold answer for 0.888 of questions
+  RAG, flan-t5 reader    : F1 = 0 on 111 questions -> passages lacked the answer 46, reader missed it although present 65; F1 when the answer was retrieved 0.771, when it was not 0.056
+  RAG, extractive reader : F1 = 0 on 102 questions -> passages lacked the answer 49, reader missed it although present 53; F1 when the answer was retrieved 0.823, when it was not 0.047
+  extractive reader's passage probability (softmax over 3 passages, so never below 1/3):
+    [0.33, 0.70): 33 questions, exact match 0.545
+    [0.70, 0.95): 81 questions, exact match 0.457
+    [0.95, 1.00): 386 questions, exact match 0.728
+Actual output from this lesson's run.
+
+======================================================================
+5. HOW MANY PASSAGES? -- k = 1, 3, 5, flan-t5 reader
+======================================================================
+  k = 1: exact match 0.534, F1 0.619 [0.579, 0.660]; passages shortened to fit 512 tokens: 0.000
+  k = 3: exact match 0.590, F1 0.691 [0.651, 0.727]; passages shortened to fit 512 tokens: 0.016
+  k = 5: exact match 0.578, F1 0.684 [0.645, 0.721]; passages shortened to fit 512 tokens: 0.856
+Actual output from this lesson's run.
+
+======================================================================
+6. WHICH ANSWERS ARE HARDEST? -- by entity type (Day 100's NER model)
+======================================================================
+answer type     questions         closed book        RAG, flan-t5     RAG, extractive     oracle, flan-t5  oracle, extractive
+not an entity         317               0.035               0.672               0.736               0.779               0.873
+ORG                    57               0.061               0.852               0.789               0.873               0.853
+MISC                   44               0.011               0.636               0.692               0.774               0.819
+PER                    43               0.031               0.752               0.811               0.827               0.922
+LOC                    39               0.127               0.603               0.629               0.792               0.850
+(mean F1 per type; numbers, dates and phrases are 'not an entity')
+Actual output from this lesson's run.
+
+saved rag_results.png
+saved rag_diagram.png
+
+======================================================================
+7. THE WEEK, AND WHAT COMES NEXT
+======================================================================
+Week 15 used pretrained models through a library: classification (98), fine-tuning (99), NER (100), summarization (101), question answering (102), search (103) and, today, all of it as one system. Week 16 returns to classical machine learning: decision trees, written from scratch.
