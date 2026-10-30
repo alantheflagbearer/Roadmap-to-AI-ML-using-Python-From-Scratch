@@ -85,5 +85,22 @@ Exercise: [`day109_exercise.py`](day109_exercise.py) is the regression tree and 
 ![Gradient boosting](boosting_diagram.png)
 ![Error correction, learning rates, flipped labels](boosting_results.png)
 
+## Day 110 — A production boosting library: XGBoost against the from-scratch version
+[`day110_xgboost_in_practice.py`](day110_xgboost_in_practice.py) — XGBoost 3.4.0 tested against a from-scratch version of its own Newton boosting, tree by tree, then its speed, missing-value handling, tuning, SHAP values and saving. Data: Diabetes, breast cancer, Titanic and digits, with one synthetic table for timing only.
+
+- **The same algorithm:** on breast cancer with lambda 1 or 10, 500 of 500 trees are identical, to 0.000001 log-odds. Remaining differences begin at near-ties (gains agree to 1.8e-06, median).
+- **Speed:** 30,000 rows take 16.64 s from scratch, 4.68 s with XGBoost's exact method, 0.25 s with histograms and 0.08 s on all threads: the better algorithm matters more than the compiled language.
+- **Missing values:** native handling did not beat a median fill (0.8114 vs 0.8170 on Titanic). A median leaves a value trees can isolate: with the top half of each feature missing, median fill keeps 0.9313 where a random fill collapses to 0.7158.
+- **Tuning:** +0.0117 on breast cancer, -0.0037 on Titanic.
+- **No single winner:** XGBoost leads on Titanic (0.8213), but Day 107's forest beats it on digits (0.9712 vs 0.9576).
+- **SHAP:** contributions add up exactly (to 2.9e-06), and a row number still moves one passenger by +1.365: it explains the model, not the world.
+
+Study guide: [`day110_xgboost_in_practice_complete_guide.pdf`](day110_xgboost_in_practice_complete_guide.pdf) · Syntax walkthrough: [`day110_syntax_line_by_line.pdf`](day110_syntax_line_by_line.pdf) · [Run output](day110_run_output.txt)
+
+Exercise: [`day110_exercise.py`](day110_exercise.py) is Newton boosting and a small wrapper around the library, checked by hand and against XGBoost — the last part of Day 111's build ([run output](day110_exercise_run_output.txt)).
+
+![The same loop, with the engineering around it](xgboost_diagram.png)
+![Speed, missing values, five models, SHAP](xgboost_results.png)
+
 ---
 [← Back to main README](../README.md)

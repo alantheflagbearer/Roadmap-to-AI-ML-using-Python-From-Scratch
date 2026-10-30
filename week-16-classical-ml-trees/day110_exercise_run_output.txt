@@ -1,0 +1,4 @@
+from F = 0, lambda = 1: split at 2.5; right leaf -G / (H + lambda) = 20 / 3 = 6.6667
+gain by hand: 0.5 * (0 + 400 / 3 - 400 / 5) = 26.6667; newton_split: 26.6667
+leaves: [-0.0, -0.0, 6.6667, 6.6667]
+30 rounds on 200 random rows, log loss: largest gap to XGBoost 0.000001

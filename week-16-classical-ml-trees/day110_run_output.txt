@@ -1,0 +1,132 @@
+======================================================================
+1. IS IT THE SAME ALGORITHM? prediction by prediction
+======================================================================
+xgboost 3.4.0; tree_method exact; no minimum child weight; 100 rounds, rate 0.1, depth 3, the same starting value; 5 splits
+our predictions use XGBoost's convention: 32-bit values, and a row exactly on a threshold goes right
+
+problem                      lambda  same trees  train: mean gap  test: mean gap   largest  pred std
+Diabetes (squared error)        0.0     466 of 500     0.467458        0.568782   25.7870    56.077
+Diabetes (squared error)        1.0     492 of 500     0.000023        0.070697   10.6103    55.064
+Diabetes (squared error)       10.0     490 of 500     0.000021        0.045441    9.4587    54.910
+Breast cancer (log loss)        0.0     404 of 500     0.000315        0.000333    0.0034     7.703
+Breast cancer (log loss)        1.0     500 of 500     0.000001        0.000001    0.0000     5.687
+Breast cancer (log loss)       10.0     500 of 500     0.000001        0.000001    0.0000     4.014
+
+the first tree to differ, in the 15 of 30 runs where any did: at the first differing question the two gains differ by 1.8e-06 (median), 4.1e-03 (largest), relative
+Day 109's rule on log loss chooses splits on the gradient alone; its mean gap to the Newton rule is 1.3181
+Actual output from this lesson's run.
+
+======================================================================
+2. SPEED -- rows against seconds
+======================================================================
+synthetic table for timing only: 20 features, 100 rounds, rate 0.1, depth 3; median of 5 fits (1 fit when one takes over 20 s); timed within this one run
+
+    rows  from scratch  xgb exact  xgb hist  xgb hist, all threads  sklearn hist
+    1000          0.55       0.15      0.05                   0.03          0.08
+    3000          1.33       0.45      0.06                   0.04          0.09
+   10000          4.77       1.50      0.10                   0.05          0.10
+   30000         16.64       4.68      0.25                   0.08          0.13
+  100000       not run      15.44      0.73                   0.18          0.24
+16 logical processors; scikit-learn's threads were left at their default, so that column uses them all
+Actual output from this lesson's run.
+
+======================================================================
+3. MISSING VALUES -- learned directions against filling in the median
+======================================================================
+Titanic, 177 of 891 ages really missing, 20 splits, 200 rounds:
+  native handling 0.8114, median fill 0.8170, gap -0.0056 [-0.0108, +0.0000]
+
+breast cancer, values removed from every feature, 20 splits, 200 rounds:
+  'at random': any value may go. 'large': only the largest in each feature go, so the gap itself is information.
+  'random fill' puts a random observed value of that feature in each gap, so a filled value does not stand out
+
+  removed  at random: native   median  large: native   median  random fill  native - median   +- SE
+       0%             0.9629   0.9629         0.9629   0.9629       0.9629          +0.0000  0.0000
+      10%             0.9564   0.9620         0.9632   0.9529       0.9336          +0.0102  0.0037
+      30%             0.9482   0.9500         0.9623   0.9649       0.8281          -0.0026  0.0026
+      50%             0.9310   0.9284         0.9348   0.9313       0.7158          +0.0035  0.0049
+Actual output from this lesson's run.
+
+======================================================================
+4. TUNING -- how much do the settings matter?
+======================================================================
+20 random settings per split, each scored by 3-fold log loss on the training part with early stopping (at most 1,000 rounds, patience 30)
+10 splits; the test part is used once
+
+Titanic: defaults (rate 0.3, depth 6, 100 rounds) 0.8052; rate 0.1, depth 3, early stopping 0.8190; tuned 0.8153
+  tuned minus simple -0.0037 [-0.0134, +0.0063]; better on 3, worse on 6 of 10
+  gap between the best and worst of the 20 settings in CV log loss: 0.0241 on average
+
+Breast cancer: defaults (rate 0.3, depth 6, 100 rounds) 0.9678; rate 0.1, depth 3, early stopping 0.9614; tuned 0.9731
+  tuned minus simple +0.0117 [+0.0053, +0.0193]; better on 8, worse on 0 of 10
+  gap between the best and worst of the 20 settings in CV log loss: 0.0481 on average
+Actual output from this lesson's run.
+
+======================================================================
+5. THE COMPARISON -- forests, Day 109, XGBoost and scikit-learn's boosting
+======================================================================
+forest: 100 trees (Day 107). Boosting: rate 0.1, depth 3, at most 500 rounds, stopped on 25% of the training part. Library defaults: as shipped
+
+Titanic: 891 rows, 20 splits
+  forest, from scratch      0.7996  (std 0.0208)
+  boosting, from scratch    0.8174  (std 0.0197)
+  XGBoost, simple           0.8213  (std 0.0198)
+  XGBoost, defaults         0.7957  (std 0.0253)
+  scikit-learn, defaults    0.8078  (std 0.0212)
+  XGBoost simple minus forest +0.0216 [+0.0125, +0.0308]; better on 18, worse on 2 of 20
+
+Breast cancer: 569 rows, 20 splits
+  forest, from scratch      0.9596  (std 0.0128)
+  boosting, from scratch    0.9485  (std 0.0187)
+  XGBoost, simple           0.9564  (std 0.0174)
+  XGBoost, defaults         0.9640  (std 0.0166)
+  scikit-learn, defaults    0.9629  (std 0.0111)
+  XGBoost simple minus forest -0.0032 [-0.0096, +0.0023]; better on 7, worse on 8 of 20
+
+Digits: 1797 rows, 6 splits
+  forest, from scratch      0.9712  (std 0.0054)
+  boosting, from scratch         n/a (binary only)
+  XGBoost, simple           0.9576  (std 0.0090)
+  XGBoost, defaults         0.9601  (std 0.0075)
+  scikit-learn, defaults    0.9697  (std 0.0028)
+  XGBoost simple minus forest -0.0136 [-0.0198, -0.0074]; better on 0, worse on 6 of 6
+the splits share rows, so these intervals are too narrow, a rough guide only
+Actual output from this lesson's run.
+
+======================================================================
+6. EXPLAINING ONE PREDICTION -- SHAP against Day 108's importance
+======================================================================
+Titanic with Day 108's PassengerId and coin columns, 150 rounds, test accuracy 0.7948
+SHAP values plus the base add up to each prediction: largest gap 2.9e-06 log-odds
+
+feature        mean |SHAP|
+is_female           1.3211
+Pclass              0.7043
+Age                 0.4451
+Fare                0.4257
+PassengerId         0.3112
+SibSp               0.1544
+coin                0.1128
+Parch               0.0380
+
+one passenger: the highest predicted survival in the test set, 0.994, base log-odds -0.485
+  Pclass = 1: +2.015; is_female = 1: +1.857; PassengerId = 821: +1.365; Fare = 93.5: +0.799; Age = 52: -0.536
+and the lowest, 0.003:
+  Fare = 6.45: -1.629; Age = 43: -1.209; PassengerId = 819: -1.045; is_female = 0: -0.990; Pclass = 3: -0.577
+Actual output from this lesson's run.
+
+======================================================================
+7. SAVING AND LOADING
+======================================================================
+a 200-round model saved as JSON is 148 KB; loaded back, the largest prediction gap is 0.0e+00
+predicting 171 rows from a new data object takes 0.41 ms on one thread, about 2.4 microseconds per row
+asking again with the same data object takes 0.04 ms: the library keeps the last answer, so timing that measures a lookup, not a prediction
+Actual output from this lesson's run.
+
+saved xgboost_results.png
+saved xgboost_diagram.png
+
+======================================================================
+8. WHAT COMES NEXT
+======================================================================
+Day 111 is the week's build: trees against neural networks, head to head on tabular data, assembled from the exercise parts of Days 105 to 110.
