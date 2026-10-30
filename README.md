@@ -2,7 +2,7 @@
 
 A daily-practice log following a 52-week (365-day) roadmap from Python fundamentals through classical ML, deep learning, and into applied AI. Most lessons don't just call a library function — they build the underlying idea (gradient descent, backprop, convolution, dropout...) from scratch in NumPy first, then show the framework equivalent. Each day is a self-contained script; from Week 1 onward, most days add a paired study guide (a concept walkthrough and a line-by-line syntax breakdown, both PDF).
 
-**Currently on Day 101** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
+**Currently on Day 102** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
 
 ## How this repo is organized
 
@@ -28,7 +28,7 @@ A daily-practice log following a 52-week (365-day) roadmap from Python fundament
 | 12 | 77–83 | The Transformer | [→ folder](week-12-the-transformer) |
 | 13 | 84–90 | Tokenization & Embeddings | [→ folder](week-13-tokenization-embeddings) |
 | 14 | 91–97 | Mini-GPT & Language Modeling | [→ folder](week-14-mini-gpt-language-modeling) |
-| 15 | 98–101 (of 98–104) | Practical NLP with Pretrained Models — in progress | [→ folder](week-15-practical-nlp-pretrained) |
+| 15 | 98–102 (of 98–104) | Practical NLP with Pretrained Models — in progress | [→ folder](week-15-practical-nlp-pretrained) |
 
 Weeks 16 onward (classical ML: trees, ensembles, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
 
@@ -66,6 +66,7 @@ Starting with Week 6, the same small neural-network library — written entirely
 | ![Fine-tuning results](week-14-mini-gpt-language-modeling/fine_tuning_results.png) Fine-tuning on an unseen play: 2.486 to 2.104 bits, replay forgets least — Day 96 | ![Evaluation results](week-14-mini-gpt-language-modeling/evaluation_results.png) Week 14 build: perplexity separates the models, BLEU and ROUGE cannot — Day 97 |
 | ![Pretrained model results](week-15-practical-nlp-pretrained/pretrained_results.png) A pretrained DistilBERT: 0.911 on SST-2, overconfident, well ahead of bag of words — Day 98 | ![BERT fine-tuning results](week-15-practical-nlp-pretrained/bert_finetune_results.png) Fine-tuning DistilBERT on a CPU: 0.869 from 4,000 items — Day 99 |
 | ![NER results](week-15-practical-nlp-pretrained/ner_results.png) NER on CoNLL-2003: entity F1 0.885, and new names a list cannot find — Day 100 | ![Summarization results](week-15-practical-nlp-pretrained/summarization_results.png) Summarization: lead-3 matches T5 on ROUGE; T5 invents details ROUGE cannot see — Day 101 |
+| ![Question answering results](week-15-practical-nlp-pretrained/qa_results.png) Extractive QA on SQuAD: F1 0.873, and a score that knows the wrong paragraph — Day 102 | |
 
 ## Featured project: Titanic EDA (Day 13)
 

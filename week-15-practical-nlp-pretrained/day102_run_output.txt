@@ -1,0 +1,71 @@
+======================================================================
+1. HOW THE MODEL ANSWERS -- start and end scores, the best span
+======================================================================
+question: What did Low suggest using Apollo 8 for instead of simply orbiting the Earth's surface?
+paragraph (174 words, 241 tokens with the question): Apollo 8 was planned to be the D mission in December 1968, crewed by McDivitt, Scott and Schweickart, launched on a Saturn V instead of two Saturn IBs. In the s...
+highest start scores: 'eliminating' -0.86, 'def' -0.88, 'bold' -1.72
+highest end scores:   'mission' 1.24, 'track' -0.69, '.' -1.43
+best valid span: 'eliminating the E mission' (start + end score 0.38); gold answers: ['orbit the Moon', 'orbit the Moon', 'to orbit the Moon', 'orbit the Moon', 'orbit the Moon']
+(the library's question-answering pipeline was removed in transformers 5; installed: 5.22.0; so the span search is checked against the naive alternative instead)
+naive search (best start and best end chosen separately) gives an invalid span for 6 of the first 200 questions; the constrained search never does
+question + paragraph longer than 384 tokens (needs more than one window): 18 of 1000
+Actual output from this lesson's run.
+
+======================================================================
+2. SQUAD'S METRICS -- exact match and F1
+======================================================================
+1,000 questions drawn at random from 10,570 (114 ms per question, 4 threads); 3.28 gold answers per question
+  exact match  0.8010   95% interval [0.7760, 0.8260]
+  F1           0.8732   95% interval [0.8542, 0.8914]
+
+examples where F1 gives partial credit (exact match 0, F1 above 0):
+  predicted 'future angel-like life in heaven in the midst of this life' gold 'service to the neighbor'          F1 0.286
+  predicted 'Pen-y-darren ironworks, near Merthyr Tydfil to Abercynon in south Wales' gold 'Abercynon'                        F1 0.571
+  predicted 'to continue to cut production in five percent monthly increments until their economic and political objectives were met' gold 'until their economic and political objectives were met' F1 0.615
+  predicted 'Subject Committees in the fourth Session' gold 'Session'                          F1 0.333
+Actual output from this lesson's run.
+
+======================================================================
+3. A FROM-SCRATCH BASELINE -- the best-overlap sentence
+======================================================================
+the chosen sentence contains a gold answer: 0.8310
+answering with the whole sentence: exact match 0.0040, F1 0.1867 (mean sentence 30.6 words against 3.0 for a gold answer)
+model minus baseline, F1: +0.6868 [+0.6663, +0.7072] (Day 99's paired bootstrap)
+Actual output from this lesson's run.
+
+======================================================================
+4. WHERE IT FAILS -- by question type
+======================================================================
+type       questions  exact match      F1
+what             564        0.785   0.855
+who              109        0.890   0.918
+when              85        0.859   0.911
+which             59        0.780   0.863
+how many          53        0.868   0.925
+how               49        0.633   0.813
+where             43        0.837   0.909
+other             15        0.867   0.960
+how much          14        0.786   0.874
+why                9        0.556   0.894
+Actual output from this lesson's run.
+
+======================================================================
+5. THE WRONG PARAGRAPH -- does the score know?
+======================================================================
+The first 300 questions again, each paired with the paragraph of a question from a DIFFERENT article. SQuAD v1.1 models were never trained to say 'no answer here', so they always point at some span.
+
+score (start + end) with the right paragraph: median 19.26; with a wrong one: median -10.23
+sample of answers from the wrong paragraph: 'What did Low suggest using Apollo 8 for ' -> 'poor physical health'; "How did Luther's writings sound as he be" -> 'less sucrose'; 'When might starch grains become overly l' -> 'during the Nazi Third Reich'
+area under the ROC curve, score as a 'right paragraph' detector: 0.989 (0.5 = useless, 1 = perfect)
+  refuse below 2.0: keeps 0.967 of right-paragraph answers (their exact match 0.807), lets through 0.090 of wrong-paragraph ones
+  refuse below 5.0: keeps 0.940 of right-paragraph answers (their exact match 0.816), lets through 0.050 of wrong-paragraph ones
+  refuse below 8.0: keeps 0.880 of right-paragraph answers (their exact match 0.830), lets through 0.023 of wrong-paragraph ones
+Actual output from this lesson's run.
+
+saved qa_results.png
+saved qa_diagram.png
+
+======================================================================
+6. WHAT COMES NEXT
+======================================================================
+Today the right paragraph was handed to the model. Day 103 finds it: semantic search with sentence embeddings over every SQuAD paragraph, against BM25 keyword search written from scratch.

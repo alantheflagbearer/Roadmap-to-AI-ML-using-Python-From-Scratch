@@ -1,0 +1,8 @@
+prediction                          gold answers                    EM     F1   why
+'The Denver Broncos'                ['Denver Broncos']               1  1.000   articles and case are ignored
+'Denver Broncos.'                   ['Denver Broncos']               1  1.000   punctuation is ignored
+'Broncos'                           ['Denver Broncos']               0  0.667   one of two words: precision 1, recall 0.5
+'the Denver Broncos football team'  ['Denver Broncos']               0  0.667   two of four words: precision 0.5, recall 1
+'Carolina Panthers'                 ['Denver Broncos', 'Broncos']    0  0.000   no shared word
+'Broncos'                           ['Denver Broncos', 'Broncos']    1  1.000   matches the second gold answer exactly
+'1,000'                             ['1000']                         1  1.000   the comma is punctuation: 1,000 becomes 1000

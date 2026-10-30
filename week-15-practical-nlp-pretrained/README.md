@@ -64,5 +64,20 @@ Exercise: [`day101_exercise.py`](day101_exercise.py) is the text-cutting part: `
 ![Four ways to summarise one article](summarization_diagram.png)
 ![ROUGE by system, and lead-3 against T5-small per article](summarization_results.png)
 
+## Day 102 — Question answering with a pretrained transformer on a real dataset
+[`day102_question_answering.py`](day102_question_answering.py) — `distilbert/distilbert-base-cased-distilled-squad` on 1,000 random SQuAD v1.1 validation questions. The best-span search over overlapping windows, SQuAD's official exact-match and F1, and a best-overlap-sentence baseline are written from scratch (transformers 5 removed its question-answering pipeline, so the span search is what the model needs).
+
+- **EM 0.8010, F1 0.8732** (95% intervals about two points wide); choosing start and end separately gives an invalid span for 6 of 200 questions.
+- **Baseline:** the best-overlap sentence contains the answer 0.8310 of the time but scores F1 0.1867 — locating is easy, the exact span is not.
+- **Hardest questions:** 'how' (EM 0.633) and 'why' (EM 0.556, 9 questions).
+- **The wrong paragraph:** the model still answers, but its score falls from a median 19.26 to -10.23; as a detector, ROC area 0.989 — the hook for Day 104.
+
+Study guide: [`day102_question_answering_complete_guide.pdf`](day102_question_answering_complete_guide.pdf) · Syntax walkthrough: [`day102_syntax_line_by_line.pdf`](day102_syntax_line_by_line.pdf) · [Run output](day102_run_output.txt)
+
+Exercise: [`day102_exercise.py`](day102_exercise.py) is SQuAD's metrics — `normalize`, `exact_match`, `f1` — checked on hand-worked cases; the fifth part of Day 104's build ([run output](day102_exercise_run_output.txt)).
+
+![Extractive question answering, step by step](qa_diagram.png)
+![Model vs baseline, F1 by question type, right vs wrong paragraph](qa_results.png)
+
 ---
 [← Back to main README](../README.md)
