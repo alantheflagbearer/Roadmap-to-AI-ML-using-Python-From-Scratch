@@ -20,5 +20,20 @@ Exercise: [`day98_exercise.py`](day98_exercise.py) is the batching part: `batche
 ![What one pipeline call does](pretrained_diagram.png)
 ![Calibration, the bag-of-words baseline, CPU speed](pretrained_results.png)
 
+## Day 99 — Fine-tuning a BERT-style model on a real classification dataset
+[`day99_fine_tuning_bert.py`](day99_fine_tuning_bert.py) — plain `distilbert-base-uncased` (no sentiment training) fine-tuned on this CPU on 250, 1,000 (three seeds) and 4,000 SST-2 items, in five parallel processes, with AdamW, warm-up and decay, and the best dev checkpoint. SST-2's validation set is split into 436 dev and 436 test sentences. Compared on the same test half: frozen pretrained features with a NumPy logistic regression, Day 98's from-scratch bag of words, and Day 98's ready-made model.
+
+- **Little data goes far:** 0.844 with 250 items, 0.851 with 1,000 (three seeds within 0.007), 0.869 with 4,000. Accuracies reproduced exactly on rerun; two runs were still improving at their last step.
+- **Against the alternatives:** bag of words 0.596 / 0.697 / 0.748; frozen features 0.810 / 0.796 / 0.810; ready-made (all 67,349 items) 0.913.
+- **Paired comparisons:** fine-tuned minus frozen at 1,000 items +0.055, ready-made minus the 4,000-item fine-tune +0.043, both excluding 0; 4,000 minus 1,000 items +0.018 crosses 0.
+- **Honest limits:** the frozen model's L2 choice on dev is noisy, and pairing did not narrow every comparison (0.103 wide, because those two models agree on only 0.681 of sentences).
+
+Study guide: [`day99_fine_tuning_bert_complete_guide.pdf`](day99_fine_tuning_bert_complete_guide.pdf) · Syntax walkthrough: [`day99_syntax_line_by_line.pdf`](day99_syntax_line_by_line.pdf) · [Run output](day99_run_output.txt)
+
+Exercise: [`day99_exercise.py`](day99_exercise.py) is `bootstrap_ci` and `paired_bootstrap`, checked on made-up results with a known answer — the second part of Day 104's build ([run output](day99_exercise_run_output.txt)).
+
+![Three ways to use a pretrained encoder](bert_finetune_diagram.png)
+![Dev curves, and test accuracy against training items](bert_finetune_results.png)
+
 ---
 [← Back to main README](../README.md)

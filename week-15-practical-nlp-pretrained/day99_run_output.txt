@@ -1,0 +1,66 @@
+======================================================================
+1. THE SETUP -- a pretrained body and a new head
+======================================================================
+distilbert/distilbert-base-uncased: 66,362,880 pretrained weights in the body; 592,130 NEW weights in the head (pre_classifier.weight, pre_classifier.bias, classifier.weight, classifier.bias)
+dev accuracy with the random head, before training: 0.491 (dev: 436 sentences, 0.532 positive)
+data: training items from a fixed shuffle of SST-2's 67,349; dev 436 and test 436 sentences (SST-2 validation split in two, test 0.486 positive)
+training: AdamW, peak learning rate 5e-05, 10% warm-up then linear decay to 0, batches of 16, 2 epochs, inputs cut at 64 tokens, gradient norm clipped at 1, weight decay 0.01 (not on biases or LayerNorm); 8 dev checks per run, best dev checkpoint kept
+Actual output from this lesson's run.
+
+======================================================================
+2. FIVE FINE-TUNING RUNS (in parallel processes)
+======================================================================
+5 runs at the same time, 3 threads each (wall time 17 minutes; timings vary between runs)
+
+ items  seed  steps  best step     dev    test    test 95% interval  minutes
+   250     0     32         16   0.846   0.844      [0.807, 0.876]      4.0
+  1000     0    126        126   0.842   0.851      [0.817, 0.883]      8.7
+  1000     1    126         78   0.858   0.856      [0.821, 0.888]      8.7
+  1000     2    126        110   0.872   0.849      [0.814, 0.883]      7.7
+  4000     0    500        500   0.888   0.869      [0.835, 0.901]     16.3
+1,000 items, three seeds: test 0.851, 0.856, 0.849; spread 0.007
+Actual output from this lesson's run.
+
+======================================================================
+3. THE ALTERNATIVES ON THE SAME TEST HALF
+======================================================================
+Frozen DistilBERT: its [CLS] vectors as fixed features, a logistic regression (NumPy) on top, L2 chosen on dev. Bag of words: Day 98's from-scratch model. Ready-made: Day 98's model, fine-tuned by its authors on all items.
+
+model                                   items    test      95% interval
+frozen DistilBERT + logistic (L2 0.1)     250   0.810      [0.771, 0.844]
+bag of words (Day 98)                     250   0.596      [0.550, 0.638]
+frozen DistilBERT + logistic (L2 10)    1,000   0.796      [0.757, 0.833]
+bag of words (Day 98)                   1,000   0.697      [0.654, 0.739]
+frozen DistilBERT + logistic (L2 10)    4,000   0.810      [0.771, 0.844]
+bag of words (Day 98)                   4,000   0.748      [0.706, 0.787]
+fine-tuned DistilBERT (seed 0)            250   0.844      [0.807, 0.876]
+fine-tuned DistilBERT (seed 0)          1,000   0.851      [0.817, 0.883]
+fine-tuned DistilBERT (seed 0)          4,000   0.869      [0.835, 0.901]
+ready-made (Day 98)                    67,349   0.913      [0.883, 0.938]
+
+the frozen baseline's dev accuracy for each L2 penalty (the highest is chosen; the test half is never consulted):
+    250 items: 0.0001: 0.761, 0.001: 0.759, 0.01: 0.768, 0.1: 0.787, 1: 0.764, 10: 0.768, 100: 0.764
+  1,000 items: 0.0001: 0.768, 0.001: 0.764, 0.01: 0.775, 0.1: 0.778, 1: 0.782, 10: 0.794, 100: 0.534
+  4,000 items: 0.0001: 0.752, 0.001: 0.761, 0.01: 0.794, 0.1: 0.807, 1: 0.805, 10: 0.812, 100: 0.534
+Actual output from this lesson's run.
+
+======================================================================
+4. PAIRED COMPARISONS -- the difference, resampled on the same sentences
+======================================================================
+For each pair: mean difference in test accuracy, its 95% paired-bootstrap interval, and the share of resamples in which the first model is ahead.
+  fine-tuned, 1000          minus frozen + logistic, 1000   +0.055  [+0.021, +0.089]  ahead in 1.000
+  fine-tuned, 1000          minus bag of words, 1000        +0.154  [+0.103, +0.206]  ahead in 1.000
+  fine-tuned, 4000          minus fine-tuned, 1000          +0.018  [-0.014, +0.050]  ahead in 0.857
+  ready-made (Day 98)       minus fine-tuned, 4000          +0.043  [+0.016, +0.071]  ahead in 0.999
+  frozen + logistic, 4000   minus bag of words, 4000        +0.062  [+0.016, +0.108]  ahead in 0.994
+
+width of the separate 95% intervals: 0.067 and 0.085; of the paired interval for the difference: 0.103; the two models agree on 0.681 of test sentences
+Actual output from this lesson's run.
+
+saved bert_finetune_results.png
+saved bert_finetune_diagram.png
+
+======================================================================
+5. WHAT COMES NEXT
+======================================================================
+Day 100 moves from one label per sentence to one label per word: named entity recognition with a pretrained model on a real dataset, scored by entity spans.

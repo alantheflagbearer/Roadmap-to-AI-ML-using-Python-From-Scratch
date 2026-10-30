@@ -1,0 +1,6 @@
+200 test sets of 436 from a system with true accuracy 0.85: the 95% interval covered it 190 times (0.950)
+
+A = B plus 13 fixed mistakes: accuracy A 0.888, B 0.858, they agree on 0.970 of examples
+separate intervals: A [0.856, 0.915], B [0.823, 0.890] -> they overlap: True
+paired interval for A - B: +0.030 [+0.016, +0.048], A ahead in 1.000 of resamples -> excludes 0: True
+A against a system with the same accuracy but unrelated errors: +0.000 [-0.046, +0.044] -> excludes 0: False
