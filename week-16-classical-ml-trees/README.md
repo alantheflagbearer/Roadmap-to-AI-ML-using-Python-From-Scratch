@@ -67,5 +67,23 @@ Exercise: [`day108_exercise.py`](day108_exercise.py) is both measures, with perm
 ![Two ways to ask a forest what mattered](importance_diagram.png)
 ![Two rankings, useless columns, digits](importance_results.png)
 
+## Day 109 — Gradient boosting from scratch: real sequential error correction
+[`day109_gradient_boosting.py`](day109_gradient_boosting.py) — a regression tree and gradient boosting in NumPy, for squared error and for log loss with Newton leaves, plus shrinkage and early stopping. Data: Diabetes, breast cancer and Titanic; scikit-learn's boosting runs only as an outside check, and a synthetic exclusive-or is used on purpose for interactions.
+
+- **Checked:** split search 30 of 30 against brute force, gradient to 3.7e-10, training log loss falling in 200 of 200 rounds, and test RMSE within +0.0929 of scikit-learn.
+- **Error correction:** on Diabetes training RMSE falls from 79.29 to 5.62, while test reaches 57.13 at round 15 and climbs to 63.77: unlike a forest, boosting overfits with more trees.
+- **Learning rate:** rates from 0.3 to 0.01 are indistinguishable once validation chooses the rounds, at 8.9 to 293.8 rounds.
+- **Depth:** stumps are best on Diabetes (56.35) and cannot learn an exclusive-or (0.5020); depth 3 reaches 0.9236.
+- **Bias and variance:** bias+noise falls from 0.2168 to 0.1336 while variance grows from 0.0004 to 0.0439; the best Brier score (0.1415) beats the forest's 0.1532.
+- **Wrong labels:** with 20% flipped, boosting peaks at 0.9187 and falls to 0.8766 as it memorises them; Day 107's forest holds 0.9333.
+- **No universal win:** boosting beats a forest on Titanic (+0.0177), loses on breast cancer (-0.0111), and plain linear regression beats it on Diabetes (54.77 vs 58.07).
+
+Study guide: [`day109_gradient_boosting_complete_guide.pdf`](day109_gradient_boosting_complete_guide.pdf) · Syntax walkthrough: [`day109_syntax_line_by_line.pdf`](day109_syntax_line_by_line.pdf) · [Run output](day109_run_output.txt)
+
+Exercise: [`day109_exercise.py`](day109_exercise.py) is the regression tree and the boosting loop, checked by hand on six numbers and on the edge cases — the fifth part of Day 111's build ([run output](day109_exercise_run_output.txt)).
+
+![Gradient boosting](boosting_diagram.png)
+![Error correction, learning rates, flipped labels](boosting_results.png)
+
 ---
 [← Back to main README](../README.md)

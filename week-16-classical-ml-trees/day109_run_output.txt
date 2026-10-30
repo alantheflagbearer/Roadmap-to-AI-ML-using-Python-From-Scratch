@@ -1,0 +1,123 @@
+======================================================================
+1. BY HAND -- three rounds on six numbers
+======================================================================
+y = [1.0, 1.0, 2.0, 2.0, 6.0, 8.0]; start from the mean, 3.333; learning rate 0.5, stumps (depth 1)
+round 1: residuals [-2.333, -2.333, -1.333, -1.333, 2.667, 4.667]; split x <= 4.5; leaves -1.833 / +3.667
+         prediction [2.417, 2.417, 2.417, 2.417, 5.167, 5.167]; squared error 13.083
+round 2: residuals [-1.417, -1.417, -0.417, -0.417, 0.833, 2.833]; split x <= 4.5; leaves -0.917 / +1.833
+         prediction [1.958, 1.958, 1.958, 1.958, 6.083, 6.083]; squared error 5.521
+round 3: residuals [-0.958, -0.958, 0.042, 0.042, -0.083, 1.917]; split x <= 5.5; leaves -0.383 / +1.917
+         prediction [1.767, 1.767, 1.767, 1.767, 5.892, 7.042]; squared error 2.215
+Actual output from this lesson's run.
+
+======================================================================
+2. CORRECTNESS CHECKS
+======================================================================
+30 random problems: the fast split search finds the brute-force reduction in squared error in 30 of 30
+log loss: numerical gradient against -(y - p): largest gap 3.7e-10
+a real leaf: one Newton step 0.5126; the exact best step by grid search 0.5240 (Newton is an approximation of it)
+training log loss fell in 200 of 200 rounds, from 0.6599 to 0.0001
+diabetes, 5 splits, 100 rounds, same settings as scikit-learn: test RMSE gap +0.0929 on average; largest prediction gap 14.9336 (target std 77.0; tied splits may differ)
+Actual output from this lesson's run.
+
+======================================================================
+3. SEQUENTIAL ERROR CORRECTION -- diabetes
+======================================================================
+309 training, 133 test patients; depth 3; learning rate 0.1; the mean alone gives test RMSE 71.42
+'corr' is the correlation between that round's tree and the residuals it was trained on
+
+  round  train RMSE  test RMSE   corr  worst residual
+      0       79.29      71.42    nan           193.9
+      1       74.84      68.31  0.758           182.5
+      2       71.07      65.71  0.719           171.1
+      5       62.27      61.05  0.630           151.5
+     10       53.55      57.86  0.520           127.6
+     25       42.59      57.70  0.332           108.1
+     50       35.29      59.18  0.289            95.0
+    100       27.90      60.93  0.325            79.0
+    200       18.25      62.52  0.279            64.0
+    500        5.62      63.77  0.277            28.3
+lowest test RMSE 57.13 at round 15 (read off the test set, so for this table only); at round 500: 63.77, while training reaches 5.62
+Actual output from this lesson's run.
+
+======================================================================
+4. LEARNING RATE AGAINST ROUNDS -- diabetes
+======================================================================
+10 splits: 60% training, 20% validation (chooses the round), 20% test (used once); depth 3; at most 1500 rounds
+
+   rate  mean rounds  at the limit  test RMSE     std
+    1.0          1.2             0      62.12    4.51
+    0.3          8.9             0      57.52    3.01
+    0.1         37.2             0      57.54    3.75
+   0.03        108.5             0      57.29    3.64
+   0.01        293.8             0      57.07    3.61
+Actual output from this lesson's run.
+
+======================================================================
+5. TREE DEPTH -- what stumps can and cannot do
+======================================================================
+10 splits; learning rate 0.1; at most 500 rounds; the round chosen on validation rows
+
+ depth  diabetes RMSE  rounds  xor accuracy  rounds
+     1          56.35   188.4        0.5020     3.4
+     2          56.43    47.0        0.8989   346.8
+     3          57.54    37.2        0.9236   168.3
+     4          57.95    21.7        0.9238   101.8
+     6          61.94    19.0        0.9128    49.8
+     8          63.92     9.8        0.8861    36.0
+the exclusive-or is synthetic on purpose; two perfect questions would reach about 0.95
+Actual output from this lesson's run.
+
+======================================================================
+6. BIAS AND VARIANCE -- boosting against Day 107's forest
+======================================================================
+Titanic: Day 107's 30 training sets of 300 passengers and the same 268 test passengers; learning rate 0.1, depth 3
+
+model                     variance  bias+noise   Brier  accuracy
+forest (64 trees)           0.0181      0.1351  0.1532    0.7868
+boosting, 1 round           0.0004      0.2168  0.2172    0.6157
+boosting, 5 rounds          0.0020      0.1694  0.1714    0.8021
+boosting, 25 rounds         0.0067      0.1348  0.1415    0.7948
+boosting, 100 rounds        0.0171      0.1336  0.1506    0.7975
+boosting, 400 rounds        0.0439      0.1404  0.1843    0.7710
+Actual output from this lesson's run.
+
+======================================================================
+7. WRONG LABELS -- when correcting errors goes wrong
+======================================================================
+breast cancer, 20% of training labels flipped, test labels correct, 10 splits; boosting at learning rate 0.1, depth 3
+'pull' is the mean size of the residual |y - p|: how hard the next tree is pushed by those rows
+
+  round  test acc  pull: correct rows  pull: flipped rows
+      1    0.6275              0.4521              0.5318
+     10    0.9187              0.2978              0.5884
+     50    0.9058              0.1559              0.4411
+    100    0.8930              0.0988              0.2869
+    200    0.8830              0.0416              0.1219
+    400    0.8766              0.0079              0.0229
+early stopping on a noisy validation part: test 0.9047, after 28.1 rounds; Day 107's forest on the same noisy labels: 0.9333
+Actual output from this lesson's run.
+
+======================================================================
+8. IS IT BETTER? against trees, forests and a straight line
+======================================================================
+20 splits; boosting uses learning rate 0.1, depth 3, at most 500 rounds, stopped on 25% of the training part; forest 100 trees
+
+Titanic: pruned tree 0.8093, forest 0.7996, boosting 0.8174
+  boosting minus forest +0.0177 [+0.0090, +0.0263]; better on 16, worse on 2 of 20
+
+Breast cancer: pruned tree 0.9243, forest 0.9596, boosting 0.9485
+  boosting minus forest -0.0111 [-0.0187, -0.0044]; better on 4, worse on 13 of 20
+
+Diabetes (RMSE, lower is better): the mean 75.55, boosting 58.07, linear regression 54.77
+  boosting minus linear regression +3.30 [+2.09, +4.41]; boosting better on 2 of 20
+the splits share rows, so these intervals are too narrow, a rough guide only
+Actual output from this lesson's run.
+
+saved boosting_results.png
+saved boosting_diagram.png
+
+======================================================================
+9. WHAT COMES NEXT
+======================================================================
+Day 110 is a production boosting library, XGBoost: the same idea with the engineering around it, compared honestly with this from-scratch version.

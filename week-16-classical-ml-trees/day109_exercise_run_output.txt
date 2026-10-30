@@ -1,0 +1,6 @@
+mean of y = 3.333; residuals of rows 5, 6 = 2.667, 4.667; the rest average -1.833
+one stump, rate 0.5: left step -0.917, right step +1.833; predictions [2.417, 2.417, 2.417, 2.417, 5.167, 5.167]
+zero rounds gives the best constant: [3.333, 3.333, 3.333, 3.333, 3.333, 3.333]
+rate 1, deep enough to isolate rows: training error 0.0e+00
+log loss, 50 rounds: probabilities [0.0, 0.0, 0.0, 0.0, 1.0, 1.0] for labels [0, 0, 0, 0, 1, 1]
+predict_boost equals the tracked training prediction: largest gap 0.0e+00
