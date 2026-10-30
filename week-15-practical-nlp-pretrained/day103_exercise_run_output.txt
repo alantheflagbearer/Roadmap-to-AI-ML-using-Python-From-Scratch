@@ -1,0 +1,6 @@
+mean pooling with and without 3 padding tokens: largest difference 0.0e+00
+top-5 for 20 queries over 500 vectors equals a full sort: True; scores descending: True
+idf: banana (in 4 of 5 documents) 0.288, durian (in 2 of 5) 0.875
+'apple' once vs three times: 0.924 vs 1.397 (three times is not three times the score)
+'banana' in a 2-word vs a 6-word document: 0.353 vs 0.214 (the shorter one wins)
+best document for 'durian banana': 'banana durian'

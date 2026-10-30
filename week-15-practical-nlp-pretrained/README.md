@@ -79,5 +79,19 @@ Exercise: [`day102_exercise.py`](day102_exercise.py) is SQuAD's metrics — `nor
 ![Extractive question answering, step by step](qa_diagram.png)
 ![Model vs baseline, F1 by question type, right vs wrong paragraph](qa_results.png)
 
+## Day 103 — Semantic search with embeddings: real vector-similarity search
+[`day103_semantic_search.py`](day103_semantic_search.py) — four searches over all 2,067 SQuAD validation paragraphs for Day 102's 1,000 questions: TF-IDF and BM25 (from scratch), dense search with `sentence-transformers/all-MiniLM-L6-v2` through plain transformers (mean pooling by hand), and a reciprocal-rank-fusion hybrid. Scored with recall@k, MRR and Day 99's bootstrap.
+
+- **Recall@1:** TF-IDF 0.610, BM25 0.758, dense 0.629, hybrid 0.765. Keyword search beats embeddings by 0.129 here; the hybrid's lead over BM25 (+0.007) is within noise.
+- **Why:** SQuAD's writers read the paragraph first — on average 0.675 of a question's words are in it. In the low-overlap third, dense and BM25 tie (0.536 and 0.531) and the hybrid is best (0.603).
+- **Costs:** 168 paragraphs exceed the encoder's 256 tokens and are cut; BM25 in plain Python scores all questions in 3.2 s.
+
+Study guide: [`day103_semantic_search_complete_guide.pdf`](day103_semantic_search_complete_guide.pdf) · Syntax walkthrough: [`day103_syntax_line_by_line.pdf`](day103_syntax_line_by_line.pdf) · [Run output](day103_run_output.txt)
+
+Exercise: [`day103_exercise.py`](day103_exercise.py) is the retriever: `mean_pool`, `cosine_top_k` and `BM25`, each checked on a known case — the sixth part of Day 104's build ([run output](day103_exercise_run_output.txt)).
+
+![Keyword and semantic search, fused by rank](search_diagram.png)
+![Recall@k, and recall@1 by word overlap](search_results.png)
+
 ---
 [← Back to main README](../README.md)
