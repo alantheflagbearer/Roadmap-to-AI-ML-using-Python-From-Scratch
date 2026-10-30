@@ -1,0 +1,94 @@
+======================================================================
+1. CORRECTNESS CHECKS
+======================================================================
+by hand: feature 0 removes 0.3 at the root (20 of 20 rows), feature 1 removes 0.1 on 8 of 20 rows: 0.3 / 0.34 = 0.8824, 0.04 / 0.34 = 0.1176
+tree_importance gives [0.8824, 0.1176, 0.0] (the third feature was never used)
+one tree, breast cancer: largest gap to scikit-learn's feature_importances_ 0.0154 (tied splits may differ)
+forest of 300: rank correlation with scikit-learn's forest 0.957; largest gap 0.0208
+Actual output from this lesson's run.
+
+======================================================================
+2. BREAST CANCER -- the two rankings side by side
+======================================================================
+forest of 100, test accuracy 0.9708; permutation on the 171 test tumours, 10 shuffles each
+
+feature                      MDI  MDI rank     perm      +-  perm rank
+worst perimeter           0.1481         1  -0.0070  0.0051         30
+worst area                0.1341         2  -0.0053  0.0031         28
+worst radius              0.1118         3  -0.0058  0.0045         29
+worst concave points      0.0763         4   0.0123  0.0049          1
+mean concave points       0.0699         5   0.0012  0.0044          4
+mean concavity            0.0636         6  -0.0006  0.0041         25
+mean perimeter            0.0563         7   0.0000  0.0000         22
+mean area                 0.0489         8   0.0000  0.0000         21
+worst concavity           0.0352         9   0.0029  0.0029          2
+area error                0.0328        10  -0.0018  0.0046         26
+rank correlation of the two lists: -0.280; features whose shuffle cost no accuracy at all: 26 of 30
+largest single loss 0.0123, which is 2.1 tumours of 171, though the features share a lot of information
+Actual output from this lesson's run.
+
+======================================================================
+3. CORRELATED FEATURES -- shuffle one, and its near-copies cover for it
+======================================================================
+greedy groups with |r| > 0.9 on the training rows: 21 groups from 30 features, 4 of them with more than one member
+
+largest groups                                           features best single  together
+mean radius, mean perimeter, mean area, worst radi...           6      0.0000    0.2813
+worst concave points                                            1      0.0123    0.0175
+mean concavity, mean concave points                             2      0.0012    0.0164
+mean texture, worst texture                                     2      0.0012    0.0070
+worst concavity                                                 1      0.0029    0.0018
+Actual output from this lesson's run.
+
+======================================================================
+4. USELESS COLUMNS -- a real ID number and a random coin, on Titanic
+======================================================================
+10 splits, 100 trees, mtry 3 of 8; permutation on training and on test rows; drop-column retrains without the feature
+
+feature       distinct     MDI  perm train  perm test  drop-column   +- SE
+is_female            2  0.2589      0.2763     0.1887      +0.1224  0.0056
+Fare               248  0.2043      0.1307     0.0247      +0.0183  0.0047
+PassengerId        891  0.1910      0.1028     0.0045      +0.0093  0.0055
+Age                 88  0.1666      0.1221     0.0433      +0.0265  0.0059
+Pclass               3  0.0798      0.1322     0.0701      +0.0112  0.0049
+SibSp                7  0.0439      0.0286     0.0129      +0.0007  0.0043
+Parch                7  0.0307      0.0170    -0.0011      -0.0063  0.0057
+coin                 2  0.0247      0.0378     0.0008      +0.0011  0.0049
+Actual output from this lesson's run.
+
+======================================================================
+5. A DUPLICATED FEATURE -- is_female twice
+======================================================================
+10 splits, 100 trees, mtry 2
+                     MDI  perm test
+alone             0.2685     0.1757
+with a copy       0.1427     0.0613
+the copy          0.1441     0.0593
+the two added     0.2868     0.1206
+Actual output from this lesson's run.
+
+======================================================================
+6. STABILITY -- the same question on 10 splits
+======================================================================
+MDI         : rank correlation between splits 0.930; top-5 lists share 4.42 of 5 features on average
+permutation : rank correlation between splits 0.144; top-5 lists share 1.89 of 5 features on average
+Actual output from this lesson's run.
+
+======================================================================
+7. USING IT -- digits: how few pixels does a forest need?
+======================================================================
+1797 images of 8x8 pixels, 10 classes; 3 splits; 50 trees; every ranking made on training rows only, then a new forest is trained
+
+ pixels kept       1       2       4       8      16      32      64
+MDI ranking   0.2375  0.3581  0.6395  0.8602  0.9462  0.9678  0.9697
+random pixels 0.1694  0.2127  0.4007  0.7273  0.8887  0.9468  0.9740
+pixels never used by any tree: 4 of 64; those pixels are non-blank in 0.0006 of images, the others in 0.5447
+Actual output from this lesson's run.
+
+saved importance_results.png
+saved importance_diagram.png
+
+======================================================================
+8. WHAT COMES NEXT
+======================================================================
+Day 109 is gradient boosting from scratch: trees grown one after another, each one correcting the errors of those before it.

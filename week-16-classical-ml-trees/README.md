@@ -50,5 +50,22 @@ Exercise: [`day107_exercise.py`](day107_exercise.py) is a small complete forest,
 ![A random forest](forest_diagram.png)
 ![Variance against trees, accuracy against trees, and mtry](forest_results.png)
 
+## Day 108 — Feature importance: permutation against impurity-based
+[`day108_feature_importance.py`](day108_feature_importance.py) — impurity importance (MDI), permutation importance and drop-column importance from scratch on Day 107's forest, tested on cases where the right answer is known. Data: breast cancer, Titanic and digits; scikit-learn appears only as an outside check.
+
+- **Two rankings, one forest:** on breast cancer their rank correlation is -0.280.
+- **Correlated features blind permutation:** 26 of 30 features cost nothing to shuffle, but shuffling a group of 6 correlated size features together costs 0.2813.
+- **Noise fools MDI:** a real row number, `PassengerId`, ranks third on Titanic (0.1910, above Age); held-out permutation gives it 0.0045. Permutation on training rows is fooled too (0.1028).
+- **A duplicated feature:** MDI divides the credit (0.1427 + 0.1441); permutation shrinks it (0.0613 + 0.0593 against 0.1757 alone).
+- **Stability:** rank correlation between splits is 0.930 for MDI and 0.144 for permutation, which is not the same as being right.
+- **Using it:** 16 of 64 digit pixels chosen on training rows reach 0.9462, against 0.9697 for all.
+
+Study guide: [`day108_feature_importance_complete_guide.pdf`](day108_feature_importance_complete_guide.pdf) · Syntax walkthrough: [`day108_syntax_line_by_line.pdf`](day108_syntax_line_by_line.pdf) · [Run output](day108_run_output.txt)
+
+Exercise: [`day108_exercise.py`](day108_exercise.py) is both measures, with permutation written for any model that has a score function — the fourth part of Day 111's build ([run output](day108_exercise_run_output.txt)).
+
+![Two ways to ask a forest what mattered](importance_diagram.png)
+![Two rankings, useless columns, digits](importance_results.png)
+
 ---
 [← Back to main README](../README.md)

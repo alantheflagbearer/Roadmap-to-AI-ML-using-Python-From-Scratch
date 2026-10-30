@@ -1,0 +1,4 @@
+by hand: 0.3 / 0.34 = 0.8824, 0.04 / 0.34 = 0.1176; tree_importance: [0.8824, 0.1176, 0.0]
+two identical trees average to the same shares: [0.8824, 0.1176, 0.0]
+a perfect rule on column 0: importance [0.4984, 0.0, 0.0] (about 0.5, because a shuffled column is right half the time)
+spearman: same order 1.0; reversed -1.0
