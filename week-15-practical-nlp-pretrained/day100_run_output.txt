@@ -1,0 +1,67 @@
+======================================================================
+1. THE TASK AND THE DATA -- CoNLL-2003
+======================================================================
+a training sentence, word by word:
+  EU/B-ORG  rejects/O  German/B-MISC  call/O  to/O  boycott/O  British/B-MISC  lamb/O  ./O
+train: 14,041 sentences, 203,621 words, 23,499 entities (PER 6,600, ORG 6,321, LOC 7,140, MISC 3,438); words tagged O: 0.833
+test: 3,453 sentences, 46,435 words, 5,648 entities (PER 1,617, ORG 1,661, LOC 1,668, MISC 702); words tagged O: 0.825
+Actual output from this lesson's run.
+
+======================================================================
+2. WORDS AND WORD PIECES
+======================================================================
+words: ['Schwarzenegger', 'visited', 'Ouagadougou', 'with', 'Lufthansa', '.']
+pieces: ['[CLS]', 'Sc', '##hwa', '##rz', '##ene', '##gger', 'visited', 'O', '##ua', '##gado', '##ug', '##ou', 'with', 'Lu', '##ft', '##han', '##sa', '.', '[SEP]']
+word of each piece: [None, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 3, 4, 4, 4, 4, 5, None]
+tag of each piece: [CLS]:O Sc:B-PER ##hwa:B-PER ##rz:B-PER ##ene:B-PER ##gger:B-PER visited:O O:B-LOC ##ua:B-LOC ##gado:B-LOC ##ug:B-LOC ##ou:B-LOC with:O Lu:B-PER ##ft:B-PER ##han:B-PER ##sa:B-PER .:O [SEP]:O
+one tag per word (first piece): ['B-PER', 'O', 'B-LOC', 'O', 'B-PER', 'O']
+Actual output from this lesson's run.
+
+======================================================================
+3. SCORING -- entity spans, not words
+======================================================================
+per-word tag accuracy 0.9780 (tagging every word O would already score 0.8253)
+entity level: 5,648 gold entities, 5,804 predicted, 5,070 exactly right -> precision 0.8735, recall 0.8977, F1 0.8854
+
+type     gold  precision   recall      F1
+PER     1,617     0.9419   0.9524  0.9471
+ORG     1,661     0.8440   0.8694  0.8565
+LOC     1,668     0.9004   0.9209  0.9105
+MISC      702     0.7314   0.7835  0.7565
+Actual output from this lesson's run.
+
+======================================================================
+4. A FROM-SCRATCH BASELINE -- the gazetteer
+======================================================================
+8,082 distinct entity strings in training (longest 10 words), each with its most common type
+
+system                      precision   recall      F1
+gazetteer (from scratch)       0.7196   0.5094  0.5965
+DistilBERT-NER                 0.8735   0.8977  0.8854
+Actual output from this lesson's run.
+
+======================================================================
+5. WHERE THE MODEL FAILS
+======================================================================
+DistilBERT-NER  recall on gold entities new: 0.8612 of 2,600; seen in training: 0.9288 of 3,048
+gazetteer       recall on gold entities new: 0.0000 of 2,600; seen in training: 0.9439 of 3,048
+
+the model's mistakes by kind: right words, wrong type 274, wrong boundary 246, invented (no gold overlap) 214, missed entirely 101
+wrong-type confusions (gold -> predicted), most common: ORG->LOC 49, LOC->ORG 41, ORG->MISC 34, MISC->ORG 34, ORG->PER 28
+Actual output from this lesson's run.
+
+======================================================================
+6. A CHECK AGAINST THE LIBRARY'S PIPELINE
+======================================================================
+text: Angela Merkel met Emmanuel Macron in Paris on Tuesday to discuss the European Union budget.
+pipeline: Angela Merkel (PER, 0.999); Emmanuel Macron (PER, 0.999); Paris (LOC, 0.998); European Union (ORG, 0.985)
+ours:     Angela Merkel (PER); Emmanuel Macron (PER); Paris (LOC); European Union (ORG)
+Actual output from this lesson's run.
+
+saved ner_results.png
+saved ner_diagram.png
+
+======================================================================
+7. WHAT COMES NEXT
+======================================================================
+Day 101 is summarization: picking the most important sentences (extractive, from scratch) against writing a new summary (abstractive, a pretrained T5), scored with Day 97's ROUGE on real news articles.

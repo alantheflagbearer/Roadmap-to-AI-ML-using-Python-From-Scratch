@@ -35,5 +35,20 @@ Exercise: [`day99_exercise.py`](day99_exercise.py) is `bootstrap_ci` and `paired
 ![Three ways to use a pretrained encoder](bert_finetune_diagram.png)
 ![Dev curves, and test accuracy against training items](bert_finetune_results.png)
 
+## Day 100 — Named entity recognition with a pretrained model on a real dataset (Day 100 of 365)
+[`day100_named_entity_recognition.py`](day100_named_entity_recognition.py) — `dslim/distilbert-NER` (DistilBERT fine-tuned on CoNLL-2003's training set) tags every word of CoNLL-2003's genuine held-out test set (3,453 Reuters sentences) as part of a person, organisation, location or other name, or none. Word-piece alignment, BIO-to-span decoding, entity-level scoring and a gazetteer baseline are written from scratch.
+
+- **Alignment matters:** this model tags every piece of a rare name B-PER; reading each word's first piece gives one tag per word, and the decoding matches the library's pipeline exactly.
+- **Entity-level F1 0.8854** (precision 0.8735, recall 0.8977); PER 0.9471, ORG 0.8565, LOC 0.9105, MISC 0.7565. Per-word accuracy (0.9780) flatters: tagging every word O already scores 0.8253.
+- **A gazetteer of every training name** (8,082 strings) gets 0.5965, and finds 0.0000 of the 2,600 names it never saw; the model finds 0.8612 of them.
+- **Mistakes:** 274 right words with the wrong type (ORG and LOC swapped most), 246 wrong boundaries, 214 invented, 101 missed.
+
+Study guide: [`day100_named_entity_recognition_complete_guide.pdf`](day100_named_entity_recognition_complete_guide.pdf) · Syntax walkthrough: [`day100_syntax_line_by_line.pdf`](day100_syntax_line_by_line.pdf) · [Run output](day100_run_output.txt)
+
+Exercise: [`day100_exercise.py`](day100_exercise.py) is the scoring part: `spans` (BIO tags to spans, including stray I- tags and type changes) and `prf` (exact-span precision, recall, F1) — the third part of Day 104's build ([run output](day100_exercise_run_output.txt)).
+
+![From words to an entity-level score](ner_diagram.png)
+![F1 by type, and the model's mistakes by kind](ner_results.png)
+
 ---
 [← Back to main README](../README.md)

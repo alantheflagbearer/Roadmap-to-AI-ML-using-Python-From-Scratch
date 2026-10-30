@@ -1,0 +1,9 @@
+one entity                     ['B-PER', 'I-PER', 'O'] -> [(0, 2, 'PER')]  correct: True
+runs to the end                ['O', 'B-LOC', 'I-LOC'] -> [(1, 3, 'LOC')]  correct: True
+two of one type side by side   ['B-PER', 'B-PER', 'I-PER'] -> [(0, 1, 'PER'), (1, 3, 'PER')]  correct: True
+stray I- with no B-            ['O', 'I-ORG', 'I-ORG', 'O'] -> [(1, 3, 'ORG')]  correct: True
+type change inside I- run      ['B-ORG', 'I-ORG', 'I-LOC'] -> [(0, 2, 'ORG'), (2, 3, 'LOC')]  correct: True
+nothing                        ['O', 'O'] -> []  correct: True
+
+3 gold spans, 4 predicted, 1 exactly right: precision 0.250 (1/4), recall 0.333 (1/3), F1 0.286
+a wrong type or a boundary off by one word earns nothing, exactly as in the CoNLL evaluation
