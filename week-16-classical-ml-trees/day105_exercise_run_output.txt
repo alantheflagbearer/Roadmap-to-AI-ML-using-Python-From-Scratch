@@ -1,0 +1,7 @@
+Gini of the whole table (4 flu, 4 not): 0.500; entropy 1.000 bits
+Gini    : best question 'feature 1 (temperature) <= 37.75', impurity removed 0.500 (temperature separates the classes perfectly, so all impurity goes)
+entropy : best question 'feature 1 (temperature) <= 37.75', impurity removed 1.000 (temperature separates the classes perfectly, so all impurity goes)
+a pure node: best_split -> None
+identical feature values: best_split -> None
+min_leaf = 5 on 8 rows (no split leaves 5 on both sides): best_split -> None
+min_leaf = 3: still possible -> feature 1, threshold 37.75, impurity removed 0.500

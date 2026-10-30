@@ -2,11 +2,11 @@
 
 A daily-practice log following a 52-week (365-day) roadmap from Python fundamentals through classical ML, deep learning, and into applied AI. Most lessons don't just call a library function — they build the underlying idea (gradient descent, backprop, convolution, dropout...) from scratch in NumPy first, then show the framework equivalent. Each day is a self-contained script; from Week 1 onward, most days add a paired study guide (a concept walkthrough and a line-by-line syntax breakdown, both PDF).
 
-**Currently on Day 104** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
+**Currently on Day 105** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
 
 ## How this repo is organized
 
-- **One folder per week** (`week-01-python-foundations/` … `week-15-practical-nlp-pretrained/`) — each holds that week's scripts, study-guide PDFs, diagrams, and run outputs, plus its own `README.md` with a day-by-day index. Open a week's `README.md` first; it links to everything inside.
+- **One folder per week** (`week-01-python-foundations/` … `week-16-classical-ml-trees/`) — each holds that week's scripts, study-guide PDFs, diagrams, and run outputs, plus its own `README.md` with a day-by-day index. Open a week's `README.md` first; it links to everything inside.
 - **`practice-drills/`** — short standalone Python-fundamentals exercises (`pfdsNN.py`), numbered independently of the daily roadmap.
 - Root-level `titanic.csv`, `titanic.db`, and `students.csv` are the shared datasets several early weeks use; each is also copied into every week folder whose scripts need it, so any single week folder runs standalone without reaching outside itself.
 
@@ -29,8 +29,9 @@ A daily-practice log following a 52-week (365-day) roadmap from Python fundament
 | 13 | 84–90 | Tokenization & Embeddings | [→ folder](week-13-tokenization-embeddings) |
 | 14 | 91–97 | Mini-GPT & Language Modeling | [→ folder](week-14-mini-gpt-language-modeling) |
 | 15 | 98–104 | Practical NLP with Pretrained Models | [→ folder](week-15-practical-nlp-pretrained) |
+| 16 | 105 (of 105–111) | Classical ML I — Trees — in progress | [→ folder](week-16-classical-ml-trees) |
 
-Weeks 16 onward (classical ML: trees, ensembles, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
+Weeks 17 onward (more classical ML, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
 
 Starting with Week 6, the same small neural-network library — written entirely in NumPy, no framework — is extended week over week: the `net.forward()` / `net.backward()` core built on Day 36 is still what every later script, all the way through Day 62, trains against; Week 10 starts a new cell, the LSTM.
 
@@ -67,7 +68,7 @@ Starting with Week 6, the same small neural-network library — written entirely
 | ![Pretrained model results](week-15-practical-nlp-pretrained/pretrained_results.png) A pretrained DistilBERT: 0.911 on SST-2, overconfident, well ahead of bag of words — Day 98 | ![BERT fine-tuning results](week-15-practical-nlp-pretrained/bert_finetune_results.png) Fine-tuning DistilBERT on a CPU: 0.869 from 4,000 items — Day 99 |
 | ![NER results](week-15-practical-nlp-pretrained/ner_results.png) NER on CoNLL-2003: entity F1 0.885, and new names a list cannot find — Day 100 | ![Summarization results](week-15-practical-nlp-pretrained/summarization_results.png) Summarization: lead-3 matches T5 on ROUGE; T5 invents details ROUGE cannot see — Day 101 |
 | ![Question answering results](week-15-practical-nlp-pretrained/qa_results.png) Extractive QA on SQuAD: F1 0.873, and a score that knows the wrong paragraph — Day 102 | ![Search results](week-15-practical-nlp-pretrained/search_results.png) Search on SQuAD: BM25 beats embeddings; hybrid is safest — Day 103 |
-| ![RAG results](week-15-practical-nlp-pretrained/rag_results.png) Week 15 build: retrieval takes a small model from F1 0.043 to 0.691 — Day 104 | |
+| ![RAG results](week-15-practical-nlp-pretrained/rag_results.png) Week 15 build: retrieval takes a small model from F1 0.043 to 0.691 — Day 104 | ![Decision tree results](week-16-classical-ml-trees/tree_results.png) Decision trees from scratch: depth, instability, and a readable Titanic tree — Day 105 |
 
 ## Featured project: Titanic EDA (Day 13)
 

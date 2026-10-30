@@ -1,0 +1,110 @@
+======================================================================
+1. IMPURITY, AND THE ROOT SPLIT
+======================================================================
+  a group 50% / 50%: Gini 0.500, entropy 1.000 bits
+  a group 90% / 10%: Gini 0.180, entropy 0.469 bits
+  a group 100% / 0%: Gini 0.000, entropy 0.000 bits
+
+Breast cancer: 569 tumours, 30 features, 0.627 benign
+  Gini     root split: worst radius <= 16.8 (impurity removed 0.3252); left [33, 346], right [179, 11] (malignant, benign)
+  entropy  root split: worst perimeter <= 106 (impurity removed 0.5620); left [17, 328], right [195, 29] (malignant, benign)
+Actual output from this lesson's run.
+
+======================================================================
+2. A CORRECTNESS CHECK -- the fast split search against brute force
+======================================================================
+30 random problems (25 rows, 3 features, 3 classes): the fast search finds the brute-force best gain in 30 of 30
+Actual output from this lesson's run.
+
+======================================================================
+3. DEPTH -- training and test accuracy
+======================================================================
+stratified split: 398 training, 171 test tumours (seed 0); Gini; minimum leaf 1
+
+ max depth  leaves  depth  train acc  test acc
+         1       2      1     0.9271    0.9064
+         2       4      2     0.9573    0.9357
+         3       8      3     0.9698    0.9240
+         4      10      4     0.9874    0.9415
+         5      12      5     0.9874    0.9415
+         6      15      6     0.9925    0.9415
+         7      18      7     0.9975    0.9415
+         8      19      8     1.0000    0.9415
+         9      19      8     1.0000    0.9415
+        10      19      8     1.0000    0.9415
+      None      19      8     1.0000    0.9415
+Actual output from this lesson's run.
+
+======================================================================
+4. CHOOSING THE DEPTH BY 5-FOLD CROSS-VALIDATION
+======================================================================
+  max depth    1: cross-validated accuracy 0.8945 (+- 0.0170 across folds)
+  max depth    2: cross-validated accuracy 0.9220 (+- 0.0261 across folds)
+  max depth    3: cross-validated accuracy 0.9170 (+- 0.0237 across folds)
+  max depth    4: cross-validated accuracy 0.9170 (+- 0.0207 across folds)
+  max depth    5: cross-validated accuracy 0.9196 (+- 0.0221 across folds)
+  max depth    6: cross-validated accuracy 0.9171 (+- 0.0234 across folds)
+  max depth    7: cross-validated accuracy 0.9146 (+- 0.0244 across folds)
+  max depth    8: cross-validated accuracy 0.9146 (+- 0.0244 across folds)
+  max depth    9: cross-validated accuracy 0.9146 (+- 0.0244 across folds)
+  max depth   10: cross-validated accuracy 0.9146 (+- 0.0244 across folds)
+  max depth None: cross-validated accuracy 0.9146 (+- 0.0244 across folds)
+chosen: max depth 2; test accuracy 0.9357, 95% interval [0.8947, 0.9708] (Day 99's bootstrap)
+Actual output from this lesson's run.
+
+======================================================================
+5. GINI VS ENTROPY
+======================================================================
+  Gini     max depth    2:   4 leaves, test accuracy 0.9357
+  Gini     max depth None:  19 leaves, test accuracy 0.9415
+  entropy  max depth    2:   4 leaves, test accuracy 0.9474
+  entropy  max depth None:  17 leaves, test accuracy 0.9649
+  the two criteria agree on 0.9064 of test tumours at max depth 2
+  the two criteria agree on 0.9415 of test tumours at max depth None
+Actual output from this lesson's run.
+
+======================================================================
+6. INSTABILITY -- the same recipe on 30 bootstrap resamples
+======================================================================
+root question chosen across resamples: worst area 13, worst perimeter 10, worst concave points 4, worst radius 2, mean concave points 1
+test accuracy of single trees: mean 0.9376, min 0.9006, max 0.9649
+test tumours on which the 30 trees disagree at all: 0.2515
+a majority vote of the 30 trees (bagging, Day 107's subject): test accuracy 0.9649
+Actual output from this lesson's run.
+
+======================================================================
+7. A READABLE TREE -- Titanic
+======================================================================
+891 passengers (623 training, 268 test), 0.384 survived; Gini, max depth 3; counts are [died, survived] among training passengers
+  if is_female <= 0.5:
+      if Age <= 5.5:
+          if SibSp <= 2.5:
+              -> survived  [0, 10]
+          else:
+              -> died  [3, 0]
+      else:
+          if Pclass <= 1.5:
+              -> died  [53, 30]
+          else:
+              -> died  [274, 35]
+  else:
+      if Pclass <= 2.5:
+          if Age <= 3:
+              -> died  [1, 0]
+          else:
+              -> survived  [6, 110]
+      else:
+          if Fare <= 23.4:
+              -> survived  [29, 51]
+          else:
+              -> died  [18, 3]
+test accuracy: tree 0.8022; 'women survive, men do not' 0.7724
+Actual output from this lesson's run.
+
+saved tree_results.png
+saved tree_diagram.png
+
+======================================================================
+8. WHAT COMES NEXT
+======================================================================
+Day 106 is pruning: growing the full tree and cutting it back (cost-complexity pruning), with a real demonstration of over- and underfitting.
