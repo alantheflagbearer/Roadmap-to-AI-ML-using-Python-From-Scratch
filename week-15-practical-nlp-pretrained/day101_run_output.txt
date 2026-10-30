@@ -1,0 +1,95 @@
+======================================================================
+1. THE DATA -- 100 CNN/DailyMail test articles
+======================================================================
+articles: 699 words on average (10th-90th percentile 272-1191), 31.8 sentences; reference highlights: 52 words
+
+first article's opening sentences (rule-based splitting):
+  | Boy, would Tiger like to find a fairway here,’ said former professional David Feherty.
+  | ‘Preferably one attached to this hole.’ It was that sort of day.
+  | Tiger Woods had worked so hard on his short game, the other quality needed to take a safe passage through these parts ha
+its reference: The Masters 2015 crowd wanted Tiger Woods to do well at Augusta. He was still the 111th ranked golfer in the world. A bit erratic, a bit brilliant, a bit rusty, a bit fallible. And, fleetingly, a bit marvellous too. The gallery was 10, 12 d
+Actual output from this lesson's run.
+
+======================================================================
+2. FOUR SUMMARIES OF EACH ARTICLE
+======================================================================
+T5-small: 60,506,624 weights; settings from its config: {'early_stopping': True, 'length_penalty': 2.0, 'max_length': 200, 'min_length': 30, 'no_repeat_ngram_size': 3, 'num_beams': 4, 'prefix': 'summarize: '}
+  7.2 s per article on this CPU (4 threads); input cut at 512 tokens
+
+the first article, each system:
+  lead-3   | Boy, would Tiger like to find a fairway here,’ said former professional David Feherty. ‘Preferably one attached to this hole.’ It was that sort of day. Tiger Woods had worked so hard on his short game, the other quality needed to 
+  TextRank | He walked to the ball, perched at the top of a small incline to the right of the green. There was a shot on the seventh that would have been a contender for play of the day. It was the golf of a competitor still battling against t
+  T5-small | the world no 111 struggled to get under par on his first round at augusta. woods had a poor chip shot on the third hole. the former professional said he would like to find a fairway here. he said: 'i think i'm not a golfer, but i 
+  oracle   | Still the biggest, still primed to applaud even the tiniest glimmer of his genius. But he was still the 111th ranked golfer in the world. A bit rusty, a bit erratic, a bit brilliant, a bit fallible.
+Actual output from this lesson's run.
+
+======================================================================
+3. ROUGE AGAINST THE JOURNALISTS' HIGHLIGHTS
+======================================================================
+Mean F1 over 100 articles (Day 97's functions; words are lowercase letters only, so numbers are ignored), with Day 99's 95% bootstrap interval for ROUGE-2, and the mean length.
+
+system      ROUGE-1  ROUGE-2  ROUGE-L    ROUGE-2 95% interval  words
+lead-3        0.386    0.166    0.246      [0.144, 0.187]     78
+TextRank      0.310    0.122    0.203      [0.102, 0.145]    109
+T5-small      0.374    0.154    0.244      [0.134, 0.175]     46
+oracle        0.550    0.331    0.390      [0.301, 0.366]     61
+
+paired differences in ROUGE-2 (Day 99's paired bootstrap): mean, 95% interval, share of resamples ahead
+  lead-3    minus TextRank  +0.043 [+0.018, +0.067]  ahead in 1.000
+  lead-3    minus T5-small  +0.011 [-0.009, +0.032]  ahead in 0.876
+  T5-small  minus TextRank  +0.032 [+0.004, +0.056]  ahead in 0.988
+  oracle    minus lead-3    +0.166 [+0.140, +0.195]  ahead in 1.000
+Actual output from this lesson's run.
+
+======================================================================
+4. WHAT ROUGE CANNOT SEE -- new wording and unsupported details
+======================================================================
+Novel 3-grams: share of the summary's word triples that never occur in the article (0 = pure copying). Unsupported: numbers, and words of four or more letters, in the summary whose first five letters match no word of the article (lowercase, letters only, since T5-small often lowercases words; 'suffered' counts as supported by 'suffer').
+
+system      novel 3-grams    summaries with an unsupported detail
+lead-3              0.000                                       0
+TextRank            0.033                                       0
+T5-small            0.235                                      15
+
+T5-small's unsupported details, all 15 cases: article 0: ['know', 'think']; article 7: ['23']; article 14: ['italian']; article 16: ['friday']; article 19: ['beat']; article 21: ['match']; article 27: ['year']; article 30: ['comes']; article 34: ['latest', 'manchester', 'news', 'united']; article 57: ['posted']; article 63: ['avlon', 'john']; article 65: ['pick']; article 70: ['saturday', 'says']; article 82: ['killed']; article 95: ['girl']
+
+each case: the T5 sentence holding the first flagged item, and the article's opening
+  article  0 [know] T5: he said: 'i think i'm not a golfer, but i don't know what to do'
+             article: Boy, would Tiger like to find a fairway here,’ said former professional David Feherty. ‘Preferably one attached to this hole.’ It was that sort of day
+  article  7 [23] T5: the 23-year-old will be with them throughout their Blast campaign.
+             article: Surrey have signed Australia all-rounder Moises Henriques for this summer's NatWest T20 Blast. Henriques will join Surrey immediately after the Indian
+  article 14 [italian] T5: but he admits he has heard about interest from the italian capital.
+             article: Arsenal midfielder Santi Cazorla has said he is happy to stay at Arsenal despite interest from Atletico Madrid, although he admits that 'you never kno
+  article 16 [friday] T5: a 31-year-old woman was arrested in queens, new york on friday.
+             article: Asia Siddiqui not only saw herself as a soldier for Allah, but a poet as well. The 31-year-old woman who was arrested Thursday in New York for alleged
+  article 19 [beat] T5: blackburn beat blackburn 1-0 in their quarter-final replay at Ewood Park.
+             article: It is not often you hear this said but the goalkeeper really should have scored. Deep in injury time, with Blackburn’s FA Cup journey about to end, Si
+  article 21 [match] T5: he was carried off on a stretcher during the match at the amex stadium.
+             article: Liverpool starlet Joao Teixeira has been ruled out for the rest of the season after suffering a broken leg during his loan spell at Brighton. The 22-y
+  article 27 [year] T5: Every house in the village got one as far as we are aware,' said 67-year-old.
+             article: A mysterious Easter Bunny has delivered chocolate eggs to every house in a village of 3,000 people. Residents from Alderholt, Dorset, woke to discover
+  article 30 [comes] T5: it comes as evidence against slager continues to mount.
+             article: Killer cop Michael Slager is not eligible for South Carolina's death penalty even if he is convicted of murder, according to local prosecutors. The No
+  article 34 [latest] T5: click here for all the latest manchester united news.
+             article: Andros Townsend hailed Harry Kane as the 'best finisher' he has played with and predicted a bright international career for his Tottenham Hotspur team
+  article 57 [posted] T5: he posted an image of himself alongside four of his former colleagues and their respective partners at a restaurant table.
+             article: Ryan Giggs, Paul Scholes, Gary Neville, Nicky Butt and Andrew Cole went out for dinner just hours after their former side's 1-0 defeat by Chelsea. Ex-
+  article 63 [avlon] T5: john avlon: bernie Sanders is a long shot to win election to the highest office in the nation.
+             article: (CNN)Bernie Sanders, my Vermont senator and, indeed, a friend of many years, is now running for president.  He noted at his announcement (with a famil
+  article 65 [pick] T5: the referee for Floyd Mayweather's clash with Manny Pacquiao will earn $10,000 (£6,800) the fight at the MGM Grand on may 2 is expected to draw revenu
+             article: The referee for Floyd Mayweather's clash with Manny Pacquiao in Las Vegas next month will earn $10,000 (£6,800). The fight at the MGM Grand on May 2 i
+  article 70 [saturday] T5: "Today I'm at a loss for words but I just remember Bob being a funny guy," the band's official Facebook page says saturday.
+             article: Atlanta (CNN)Robert Lewis Burns Jr., the original drummer in Southern rock band Lynyrd Skynyrd, died Friday night in a car crash, a Georgia State Patr
+  article 82 [killed] T5: now 41, Landon has visited the crash scene and is thought to be the first child survivor to return to the countryside where the crash killed 78 childr
+             article: An orphan who survived a horrific plane crash that claimed the lives of nearly 80 babies and children 40 years ago  has made an emotional return to th
+  article 95 [girl] T5: 'debate me like one of your French girls' - a reference to when Rose asks Jack in the 1997 film Titanic to 'draw me like a french girl'.
+             article: From David Cameron and Nick Clegg sitting on the Gogglebox sofa to Ed Miliband doing a Kate Winslet in Titanic, these are some of the best memes poste
+Actual output from this lesson's run.
+
+saved summarization_results.png
+saved summarization_diagram.png
+
+======================================================================
+5. WHAT COMES NEXT
+======================================================================
+Day 102 is question answering: a pretrained model that points at the answer inside a paragraph, measured on real SQuAD questions with the official exact-match and F1, written from scratch.

@@ -1,0 +1,9 @@
+  | Mr. Smith arrived in Washington on Monday.
+  | He met Dr. J. R. Doe at 5 p.m.
+  | "It went well," he said.
+  | U.S. officials declined to comment.
+  | Talks resume in Oct. 2025, a spokesman said.
+5 sentences (expected 5)
+size 10, overlap 3: 3 chunks of [10, 10, 9] words; all 23 words covered: True; words shared by neighbours: [3, 3]
+size 8, overlap 0: 3 chunks of [8, 8, 7] words; all 23 words covered: True; words shared by neighbours: [0, 0]
+size 30, overlap 5: 1 chunks of [23] words; all 23 words covered: True; words shared by neighbours: []

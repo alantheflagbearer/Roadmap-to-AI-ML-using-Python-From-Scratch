@@ -50,5 +50,19 @@ Exercise: [`day100_exercise.py`](day100_exercise.py) is the scoring part: `spans
 ![From words to an entity-level score](ner_diagram.png)
 ![F1 by type, and the model's mistakes by kind](ner_results.png)
 
+## Day 101 — Text summarization: extractive vs abstractive, on real news
+[`day101_summarization.py`](day101_summarization.py) — four summaries of 100 CNN/DailyMail test articles: lead-3, TextRank (TF-IDF sentence graph and PageRank, from scratch), the pretrained `google-t5/t5-small`, and an oracle that peeks at the reference. Scored with Day 97's ROUGE (imported unchanged) and Day 99's bootstrap, plus two checks ROUGE cannot do: novel wording, and numbers or words the article does not support.
+
+- **ROUGE-2:** lead-3 0.166, T5-small 0.154 (the difference, +0.011, is inside the noise), TextRank 0.122, oracle 0.331. Copying the opening is hard to beat on news.
+- **What ROUGE misses:** T5-small writes 0.235 novel 3-grams, and 15 of its 100 summaries are flagged; the script prints each flagged sentence beside the article. Reading them finds real errors — Friday for Thursday, 'the italian capital' for Madrid, an invented byline, 'blackburn beat blackburn' — next to harmless rewording.
+- **Honest limits of the check:** it flags paraphrase and cannot catch an error built from the article's own words.
+
+Study guide: [`day101_summarization_complete_guide.pdf`](day101_summarization_complete_guide.pdf) · Syntax walkthrough: [`day101_syntax_line_by_line.pdf`](day101_syntax_line_by_line.pdf) · [Run output](day101_run_output.txt)
+
+Exercise: [`day101_exercise.py`](day101_exercise.py) is the text-cutting part: `split_sentences` (abbreviations, initials, quotes) and `chunk_words` (overlapping windows) — the fourth part of Day 104's build ([run output](day101_exercise_run_output.txt)).
+
+![Four ways to summarise one article](summarization_diagram.png)
+![ROUGE by system, and lead-3 against T5-small per article](summarization_results.png)
+
 ---
 [← Back to main README](../README.md)
