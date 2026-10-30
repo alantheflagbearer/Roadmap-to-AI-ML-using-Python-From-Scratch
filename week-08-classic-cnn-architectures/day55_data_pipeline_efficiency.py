@@ -496,9 +496,10 @@ def demo_training_equivalence(file_paths, y, X_test, y_test, batch_size=20, epoc
     print(f"test accuracy -- InMemory-trained: {acc_mem:.4f}, "
           f"LazyDisk-trained: {acc_lazy:.4f}")
     print("Actual output from this lesson's run.")               # standing convention
-    print(f"\nreal, honest finding: {'the two networks are numerically '
-          f'identical' if max_weight_diff < 1e-9 else 'the two networks '
-          f'differ slightly'} after {epochs} epochs of training through two "
+    same = max_weight_diff < 1e-9                                 # True if the two trained networks match
+    verdict = ("the two networks are numerically identical" if same
+               else "the two networks differ slightly")           # chosen first: f-string braces stay on one line
+    print(f"\nreal, honest finding: {verdict} after {epochs} epochs of training through two "
           f"completely different data-loading code paths -- confirming a "
           f"loader's job is to change HOW FAST data arrives and HOW MUCH "
           f"memory it costs, never WHAT the model learns from it.")
