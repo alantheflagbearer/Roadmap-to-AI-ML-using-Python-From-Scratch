@@ -18,5 +18,21 @@ Exercise: [`day105_exercise.py`](day105_exercise.py) is `gini`, `entropy` and `b
 ![Growing a decision tree](tree_diagram.png)
 ![Impurity, accuracy against depth, root questions across resamples](tree_results.png)
 
+## Day 106 — Decision-tree pruning: real over- and underfitting
+[`day106_pruning.py`](day106_pruning.py) — cost-complexity pruning from scratch on Day 105's tree: the weakest-link path, alpha chosen by 5-fold cross-validation, and the one-standard-error rule. Data: Titanic and breast cancer, plus a synthetic exclusive-or, on purpose, for the horizon effect.
+
+- **Checked:** the path has the lowest possible cost in 1000 of 1000 checks against every possible pruned tree.
+- **Over- and underfitting:** Titanic from one leaf to 145: training rises to 0.9823 while test peaks at 0.8172 and falls to 0.7537.
+- **Thirty splits:** pruning adds +0.0397 on Titanic and +0.0076 on breast cancer. Against a depth limit it adds only +0.0052 and +0.0058, and the Titanic interval touches zero.
+- **Label noise:** with 30% of training labels flipped, the full tree scores 0.6524 and the pruned tree 0.8916.
+- **The horizon effect:** on an exclusive-or a fixed gain threshold of 0.02 stops at the root (0.4974), but a threshold chosen by CV avoids the trap (0.7901). Pruning reaches 0.7984 and cannot add what greedy growth missed.
+
+Study guide: [`day106_pruning_complete_guide.pdf`](day106_pruning_complete_guide.pdf) · Syntax walkthrough: [`day106_syntax_line_by_line.pdf`](day106_syntax_line_by_line.pdf) · [Run output](day106_run_output.txt)
+
+Exercise: [`day106_exercise.py`](day106_exercise.py) is the weakest-link path in short functions, checked on a three-leaf tree with alphas worked out by hand and on the edge cases — the second part of Day 111's build ([run output](day106_exercise_run_output.txt)).
+
+![Cost-complexity pruning](pruning_diagram.png)
+![Titanic's pruning path, five methods over 30 splits, label noise](pruning_results.png)
+
 ---
 [← Back to main README](../README.md)

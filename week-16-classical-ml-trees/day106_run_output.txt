@@ -1,0 +1,145 @@
+======================================================================
+1. THE COST, ON A TREE YOU CAN CHECK BY HAND
+======================================================================
+  if x0 <= 5.5:
+      if x0 <= 3.5:
+          -> class 0  [3, 0]
+      else:
+          if x0 <= 4.5:
+              -> class 1  [0, 1]
+          else:
+              -> class 0  [1, 0]
+  else:
+      -> class 1  [0, 5]
+full tree: 4 leaves, 0 training errors of 10
+  from alpha = 0.0000: 4 leaves, 0 errors, error rate 0.00
+  from alpha = 0.0500: 2 leaves, 1 errors, error rate 0.10
+  from alpha = 0.3000: 1 leaves, 4 errors, error rate 0.40
+Actual output from this lesson's run.
+
+======================================================================
+2. A CORRECTNESS CHECK -- the path against every possible pruned tree
+======================================================================
+40 trees from 40 random Titanic passengers each (depth up to 4): between 7 and 78 possible pruned trees
+at 25 random alphas each, the path's tree has the lowest possible cost in 1000 of 1000 cases
+Actual output from this lesson's run.
+
+======================================================================
+3. OVER- AND UNDERFITTING -- Titanic, from one leaf to the full tree
+======================================================================
+623 training, 268 test passengers; full tree: 145 leaves, depth 17; 19 trees on the pruning path
+training errors of the full tree: 11; unavoidable, because passengers identical in all six features had different outcomes: 11
+
+    alpha  leaves  train acc  test acc
+  0.00000     145     0.9823    0.7537
+  0.00040     127     0.9807    0.7612
+  0.00054     103     0.9679    0.7612
+  0.00064      93     0.9615    0.7649
+  0.00080      65     0.9406    0.7836
+  0.00120      44     0.9165    0.8022
+  0.00161      24     0.8844    0.8172
+  0.00206      17     0.8700    0.7985
+  0.00257      10     0.8523    0.8097
+  0.00482       7     0.8395    0.8022
+  0.00562       5     0.8283    0.7948
+  0.01124       4     0.8170    0.7948
+  0.17657       1     0.6164    0.6157
+highest test accuracy on the path (looked at for this table only, not used to choose): 0.8172 at 24 leaves
+Actual output from this lesson's run.
+
+======================================================================
+4. CHOOSING ALPHA BY 5-FOLD CROSS-VALIDATION
+======================================================================
+  best CV mean : alpha 0.00249, CV accuracy 0.8139 (+- 0.0178), 15 leaves, train 0.8652, test 0.7910
+  one-SE rule  : alpha 0.01163, CV accuracy 0.8011 (+- 0.0165), 4 leaves, train 0.8170, test 0.7948
+one-SE tree: 95% interval for test accuracy [0.7425, 0.8433] (Day 99's bootstrap)
+the one-SE tree as rules (counts are [died, survived] among training passengers):
+  if is_female <= 0.5:
+      -> died  [330, 75]
+  else:
+      if Pclass <= 2.5:
+          -> survived  [7, 110]
+      else:
+          if Fare <= 23.4:
+              -> survived  [29, 51]
+          else:
+              -> died  [18, 3]
+Actual output from this lesson's run.
+
+======================================================================
+5. IS IT BETTER? 30 SPLITS, FOUR WAYS OF CONTROLLING A TREE
+======================================================================
+every choice made by 5-fold CV on the training part; test used once per split; depth grid [1, 2, 3, 4, 5, 6, 8, 10, None], leaf-size grid [1, 2, 5, 10, 20, 40, 80]
+
+Titanic: 891 rows
+method              test acc     std  leaves
+full tree             0.7695  0.0194   145.5
+pruned, best CV       0.8092  0.0233    16.0
+pruned, one-SE        0.8045  0.0214     8.1
+depth limit           0.8040  0.0233    17.8
+leaf-size limit       0.7988  0.0222    48.2
+  pruned, best CV    minus full tree: +0.0397 [+0.0310, +0.0489]; better on 28, worse on 2 of 30 splits
+  pruned, one-SE     minus full tree: +0.0350 [+0.0260, +0.0438]; better on 28, worse on 2 of 30 splits
+  depth limit        minus full tree: +0.0345 [+0.0252, +0.0430]; better on 26, worse on 3 of 30 splits
+  leaf-size limit    minus full tree: +0.0292 [+0.0218, +0.0368]; better on 27, worse on 2 of 30 splits
+  pruned, best CV minus depth limit: +0.0052 [-0.0004, +0.0108]; better on 19, worse on 6 of 30 splits
+  chosen depth limits: [('3', 12), ('4', 9), ('5', 4), ('6', 3), ('8', 2)]
+  chosen leaf sizes: [(2, 1), (5, 12), (10, 12), (20, 2), (40, 2), (80, 1)]
+
+Breast cancer: 569 rows
+method              test acc     std  leaves
+full tree             0.9187  0.0180    17.5
+pruned, best CV       0.9263  0.0159     7.7
+pruned, one-SE        0.9230  0.0197     4.2
+depth limit           0.9205  0.0182    10.2
+leaf-size limit       0.9216  0.0210    11.9
+  pruned, best CV    minus full tree: +0.0076 [+0.0025, +0.0127]; better on 19, worse on 4 of 30 splits
+  pruned, one-SE     minus full tree: +0.0043 [-0.0035, +0.0119]; better on 17, worse on 8 of 30 splits
+  depth limit        minus full tree: +0.0018 [-0.0029, +0.0060]; better on 14, worse on 7 of 30 splits
+  leaf-size limit    minus full tree: +0.0029 [-0.0035, +0.0092]; better on 12, worse on 10 of 30 splits
+  pruned, best CV minus depth limit: +0.0058 [+0.0025, +0.0094]; better on 15, worse on 5 of 30 splits
+  chosen depth limits: [('2', 9), ('3', 4), ('4', 9), ('5', 1), ('6', 6), ('8', 1)]
+  chosen leaf sizes: [(1, 6), (2, 3), (5, 10), (10, 6), (20, 5)]
+the splits share rows, so they are not independent: these intervals are too narrow, a rough guide only
+Actual output from this lesson's run.
+
+======================================================================
+6. LABEL NOISE -- breast cancer with training labels flipped at random
+======================================================================
+test labels stay correct; mean of 30 splits; one-SE pruning chosen by 5-fold CV on the noisy training part
+
+ flipped  full acc  full leaves  pruned acc  pruned leaves     gain
+      0%    0.9187         17.5      0.9230            4.2  +0.0043
+     10%    0.8285         47.7      0.9164            3.0  +0.0879
+     20%    0.7511         64.1      0.9029            2.1  +0.1519
+     30%    0.6524         72.1      0.8916            2.8  +0.2392
+     40%    0.5764         76.8      0.7873            2.0  +0.2109
+Actual output from this lesson's run.
+
+======================================================================
+7. THE HORIZON EFFECT -- an exclusive-or, stopped early or pruned
+======================================================================
+synthetic on purpose: y = (x0 > 0.5) xor (x1 > 0.5), 5% noise, four useless features; 400 training rows, 2,000 test rows, 30 datasets
+the first split removes only 0.0095 Gini on average (the largest was 0.0158), though two questions nearly solve the problem
+the first split used a useful feature (x0 or x1) in 8 of 30 datasets; four of the six features are useless
+
+rule                          test acc   leaves
+stop if gain < 0.0              0.7863     56.5
+stop if gain < 0.002            0.7869     56.1
+stop if gain < 0.005            0.7839     50.8
+stop if gain < 0.01             0.5575      5.9
+stop if gain < 0.02             0.4974      1.0
+stop if gain < 0.05             0.4974      1.0
+stop, gain chosen by CV         0.7901     54.0
+grow all, prune (best CV)       0.7984     28.3
+grow all, prune (one-SE)        0.7565     10.8
+thresholds chosen by CV: [(0.0, 16), (0.005, 13), (0.01, 1)]
+Actual output from this lesson's run.
+
+saved pruning_results.png
+saved pruning_diagram.png
+
+======================================================================
+8. WHAT COMES NEXT
+======================================================================
+Day 107 is random forests: instead of cutting one tree back, grow many and average them, with a real measurement of the variance that removes.

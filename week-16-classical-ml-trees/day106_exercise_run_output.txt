@@ -1,0 +1,9 @@
+hand check: leaves and errors along the path
+  from alpha 0.000: 3 leaves, 2 errors
+  from alpha 0.100: 2 leaves, 4 errors
+  from alpha 0.200: 1 leaves, 8 errors
+left branch saves 2 errors of 20 with 1 extra leaf: 2 / 20 / 1 = 0.100; root then saves 8 - 4 = 4: 4 / 20 / 1 = 0.200
+at alpha 0.05 -> 3 leaves; at 0.1 -> 2; at 0.5 -> 1
+the original still has 3 leaves
+a single leaf: alphas [0.0], 1 tree
+a split that saves no errors (both children keep the majority): cut at alpha 0.000, 1 leaf
