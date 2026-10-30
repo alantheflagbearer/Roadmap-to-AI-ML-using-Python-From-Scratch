@@ -1,0 +1,5 @@
+eight patients, 25 trees, mtry 1: training accuracy 1.000, OOB accuracy 1.000
+probabilities sum to 1: largest error 0.0e+00
+same seed: largest difference 0.0e+00; another seed: 0.200
+rows left out per tree (expected about 8 x 0.34 = 2.7): 3.1
+mtry 1 with a constant column: the root still uses the real feature in 20 of 20 seeds

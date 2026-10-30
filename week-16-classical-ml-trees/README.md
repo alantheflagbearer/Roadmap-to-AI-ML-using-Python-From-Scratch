@@ -34,5 +34,21 @@ Exercise: [`day106_exercise.py`](day106_exercise.py) is the weakest-link path in
 ![Cost-complexity pruning](pruning_diagram.png)
 ![Titanic's pruning path, five methods over 30 splits, label noise](pruning_results.png)
 
+## Day 107 — Random forests from scratch: bagging and a real variance-reduction demo
+[`day107_random_forests.py`](day107_random_forests.py) — bagging and a random forest on Day 105's split search: bootstrap resamples, random feature subsets at each question, out-of-bag (OOB) scoring, and variance measured directly on repeated training sets. Data: Titanic, breast cancer and digits; scikit-learn's forest runs beside it only as an outside check.
+
+- **Checked:** with every feature, in Day 105's order and without resampling, the tree matches Day 105's exactly; the forest matches scikit-learn's on breast cancer (0.9608 vs 0.9614).
+- **Variance, measured:** on Titanic, from 1 to 64 trees the variance of a prediction falls from 0.1258 to 0.0224 while bias+noise stays near 0.14. Correlation between trees sets the floor (0.0207 for bagging, 0.0163 for a forest).
+- **OOB is a free validation set:** it stays within 0.0073 of test, and choosing the leaf size with it lifts Titanic from 0.8045 to 0.8175.
+- **Useless columns:** 300 of them take a forest from 0.9591 to 0.9497; bagging holds 0.9567.
+- **No universal win:** against a pruned tree the forest gains +0.1224 on digits and +0.0354 on breast cancer, but a default forest (0.7996) does not beat a pruned tree (0.8093) on Titanic.
+
+Study guide: [`day107_random_forests_complete_guide.pdf`](day107_random_forests_complete_guide.pdf) · Syntax walkthrough: [`day107_syntax_line_by_line.pdf`](day107_syntax_line_by_line.pdf) · [Run output](day107_run_output.txt)
+
+Exercise: [`day107_exercise.py`](day107_exercise.py) is a small complete forest, checked on Day 105's eight patients and on the edge cases — the third part of Day 111's build ([run output](day107_exercise_run_output.txt)).
+
+![A random forest](forest_diagram.png)
+![Variance against trees, accuracy against trees, and mtry](forest_results.png)
+
 ---
 [← Back to main README](../README.md)
