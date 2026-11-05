@@ -1,0 +1,4 @@
+multipliers [0.0, 0.8889, 0.8889, 0.0] after 4 steps; sum a y = 0.0e+00
+w = 1.3333, b = -1.6667: the boundary is at x = 1.2500, halfway between 0.5 and 2 (by hand: 1.25, w = 2 / 1.5 = 1.3333)
+the point at x = 10 is far from the boundary, so its multiplier is exactly 0.0; the one at x = 0 too: 0.0
+decision values for x = 1 and x = 1.5: [-0.3333, 0.3333]

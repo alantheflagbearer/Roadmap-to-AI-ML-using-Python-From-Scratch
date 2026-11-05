@@ -1,0 +1,78 @@
+======================================================================
+1. BY HAND -- two points
+======================================================================
+points (1, 1) labelled -1 and (3, 3) labelled +1: the best line is halfway, at right angles to the segment between them
+w = [0.5, 0.5], b = -2.0000, multipliers [0.25, 0.25]
+by hand: w = (0.5, 0.5), b = -2, margin 2 / |w| = 2.8284 = the distance between the points; from the solver 2.8284
+both points are support vectors: y (w.x + b) = [1.0, 1.0]
+Actual output from this lesson's run.
+
+======================================================================
+2. CORRECTNESS CHECKS -- breast cancer, standardised, C = 1
+======================================================================
+SMO finished in 5540 pair updates; sum of a_i y_i = 0.0e+00 (must be 0); every multiplier in [0, C]: True
+KKT: points with a = 0 should have margin >= 1: worst 1.0950; points with 0 < a < C should have margin 1: range 0.9995 to 1.0005; points with a = C should have margin <= 1: worst 0.9941
+primal 19.0334, dual 19.0309: the duality gap is 0.0026, 0.013% of the primal (0 at the exact optimum)
+scikit-learn's SVC on the same data: cosine between the two w 0.999998; b -0.2730 against -0.2729; support vectors 35 against 35
+test predictions that agree with scikit-learn: 1.0000
+Actual output from this lesson's run.
+
+======================================================================
+3. SEPARABLE DATA -- iris setosa against versicolor, petal length and width
+======================================================================
+100 flowers; SVM with C = 1e6 (a hard margin): 2 support vectors, margin width 1.3038 cm, training accuracy 1.0000
+perceptron from 20 random orders: training accuracy 1.0000 every time: True
+  but its gap ranges from 0.0109 to 1.2132 cm (mean 0.5283); the SVM's is the largest possible, 1.3038
+Actual output from this lesson's run.
+
+======================================================================
+4. ONLY THE SUPPORT VECTORS MATTER
+======================================================================
+breast cancer, standardised; SMO stops at a tolerance of 0.001, so changes of about that size are the solver's, not the data's
+C = 0.01: 96 support vectors of 398. Relative change in w: retrained on the support vectors alone 2.3e-04; without half of the other points 1.2e-03; without half of the support vectors 2.4e-01
+C = 1.0: 35 support vectors of 398. Relative change in w: retrained on the support vectors alone 1.6e-04; without half of the other points 1.6e-04; without half of the support vectors 4.9e-01
+Actual output from this lesson's run.
+
+======================================================================
+5. NON-SEPARABLE DATA -- what C does (breast cancer, standardised, one split)
+======================================================================
+       C   margin  support  inside or wrong  train acc  test acc  SMO steps
+   0.001   6.2727      200              192     0.9372    0.9415        113
+    0.01   2.9724       96               87     0.9673    0.9708        165
+     0.1   1.3990       51               37     0.9799    0.9883        416
+       1   0.6268       35               15     0.9899    0.9708       5540
+      10   0.2403       29                6     0.9950    0.9766      23154
+     100   0.0808       23                0     1.0000    0.9708      50870
+    1000   0.0808       23                0     1.0000    0.9708      50870
+margin is 2/|w| in standardised units; 'inside or wrong' counts training points with y f(x) < 0.99 (points on the margin sit within the solver's tolerance of 1)
+Actual output from this lesson's run.
+
+======================================================================
+6. CHOOSING C, SCALING, AND LOGISTIC REGRESSION -- breast cancer, 20 splits
+======================================================================
+C chosen by 5-fold CV on each training part: [(0.01, 1), (0.1, 16), (1, 3)]
+linear SVM, standardised: 0.9746 (std 0.0116)
+linear SVM, raw measurements, same C: 0.6696 (std 0.2557); SMO hit its 200,000-step limit on 19 of 20 splits
+logistic regression, standardised, same penalty: 0.9769 (std 0.0110)
+  SVM minus raw       +0.3050 [+0.1974, +0.4161]; better on 20, worse on 0 of 20
+  SVM minus logistic  -0.0023 [-0.0070, +0.0020]; better on 5, worse on 11 of 20
+the splits share rows, so these intervals are too narrow, a rough guide only
+Actual output from this lesson's run.
+
+======================================================================
+7. ONE MISLABELLED POINT -- hard margin against soft margin
+======================================================================
+flower 98 (petal 3.0 x 1.1 cm, really versicolor) relabelled as setosa
+  C = 1000000.0: margin 0.3162 cm, 2 support vectors, the other 99 flowers right: 1.0000
+  C = 10     : margin 0.6325 cm, 2 support vectors, the other 99 flowers right: 1.0000
+  C = 1      : margin 1.5040 cm, 4 support vectors, the other 99 flowers right: 1.0000
+  C = 0.1    : margin 2.1189 cm, 12 support vectors, the other 99 flowers right: 1.0000
+Actual output from this lesson's run.
+
+saved svm_results.png
+saved svm_diagram.png
+
+======================================================================
+8. WHAT COMES NEXT
+======================================================================
+Day 113 is the kernel trick: the dual only ever uses dot products, so replacing them with a kernel gives curved boundaries from the same solver.

@@ -2,11 +2,11 @@
 
 A daily-practice log following a 52-week (365-day) roadmap from Python fundamentals through classical ML, deep learning, and into applied AI. Most lessons don't just call a library function — they build the underlying idea (gradient descent, backprop, convolution, dropout...) from scratch in NumPy first, then show the framework equivalent. Each day is a self-contained script; from Week 1 onward, most days add a paired study guide (a concept walkthrough and a line-by-line syntax breakdown, both PDF).
 
-**Currently on Day 111** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
+**Currently on Day 112** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
 
 ## How this repo is organized
 
-- **One folder per week** (`week-01-python-foundations/` … `week-16-classical-ml-trees/`) — each holds that week's scripts, study-guide PDFs, diagrams, and run outputs, plus its own `README.md` with a day-by-day index. Open a week's `README.md` first; it links to everything inside.
+- **One folder per week** (`week-01-python-foundations/` … `week-17-classical-ml-kernels-ensembles/`) — each holds that week's scripts, study-guide PDFs, diagrams, and run outputs, plus its own `README.md` with a day-by-day index. Open a week's `README.md` first; it links to everything inside.
 - **`practice-drills/`** — short standalone Python-fundamentals exercises (`pfdsNN.py`), numbered independently of the daily roadmap.
 - Root-level `titanic.csv`, `titanic.db`, and `students.csv` are the shared datasets several early weeks use; each is also copied into every week folder whose scripts need it, so any single week folder runs standalone without reaching outside itself.
 
@@ -30,8 +30,9 @@ A daily-practice log following a 52-week (365-day) roadmap from Python fundament
 | 14 | 91–97 | Mini-GPT & Language Modeling | [→ folder](week-14-mini-gpt-language-modeling) |
 | 15 | 98–104 | Practical NLP with Pretrained Models | [→ folder](week-15-practical-nlp-pretrained) |
 | 16 | 105–111 | Classical ML I — Trees | [→ folder](week-16-classical-ml-trees) |
+| 17 | 112 (of 112–118) | Classical ML II — Kernels & Ensembles — in progress | [→ folder](week-17-classical-ml-kernels-ensembles) |
 
-Weeks 17 onward (more classical ML, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
+Weeks 18 onward (unsupervised learning, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
 
 Starting with Week 6, the same small neural-network library — written entirely in NumPy, no framework — is extended week over week: the `net.forward()` / `net.backward()` core built on Day 36 is still what every later script, all the way through Day 62, trains against; Week 10 starts a new cell, the LSTM.
 
@@ -72,6 +73,7 @@ Starting with Week 6, the same small neural-network library — written entirely
 | ![Pruning results](week-16-classical-ml-trees/pruning_results.png) Pruning: real over- and underfitting, and label noise — Day 106 | ![Random forest results](week-16-classical-ml-trees/forest_results.png) Random forests: averaging cuts variance, not bias — Day 107 |
 | ![Feature importance results](week-16-classical-ml-trees/importance_results.png) Feature importance: a row number ranks third on MDI — Day 108 | ![Gradient boosting results](week-16-classical-ml-trees/boosting_results.png) Gradient boosting: fits residuals, overfits, and can lose to a line — Day 109 |
 | ![XGBoost results](week-16-classical-ml-trees/xgboost_results.png) XGBoost: the same trees, reproduced from scratch; the gain is speed — Day 110 | ![Trees vs neural nets](week-16-classical-ml-trees/trees_vs_nets_results.png) Week 16 build: trees against neural networks, and why each wins — Day 111 |
+| ![SVM results](week-17-classical-ml-kernels-ensembles/svm_results.png) SVMs from scratch: the widest margin, decided by a few points — Day 112 | |
 
 ## Featured project: Titanic EDA (Day 13)
 
