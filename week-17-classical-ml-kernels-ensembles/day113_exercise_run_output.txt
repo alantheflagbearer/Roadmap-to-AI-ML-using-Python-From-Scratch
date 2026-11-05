@@ -1,0 +1,9 @@
+two features become 6: 1, sqrt2 x1, sqrt2 x2, x1^2, x2^2, sqrt2 x1 x2
+(x.z + 1)^2 against phi(x).phi(z): largest gap 1.1e-15
+by hand for the first two points: x.z = 1*0 + 2*(-1) = -2, so (x.z + 1)^2 = 1; kernel 1.0
+RBF, gamma 0.5: diagonal [1.0, 1.0, 1.0, 1.0], symmetric True, smallest eigenvalue 0.9555
+by hand: |x1 - x2|^2 = 1 + 9 = 10, exp(-0.5 * 10) = 0.006738; kernel 0.006738
+random features D =    10: largest error against the exact kernel 0.5834
+random features D =   100: largest error against the exact kernel 0.2266
+random features D =  1000: largest error against the exact kernel 0.0505
+random features D = 10000: largest error against the exact kernel 0.0300

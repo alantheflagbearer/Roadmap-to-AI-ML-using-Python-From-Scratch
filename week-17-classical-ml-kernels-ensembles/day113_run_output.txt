@@ -1,0 +1,94 @@
+======================================================================
+1. THE TRICK, CHECKED -- a kernel equals a dot product of mapped features
+======================================================================
+64 pixels -> 2145 explicit features for (x.z + 1)^2; largest gap between the two 500 x 500 matrices 5.7e-14 (values up to 520)
+time: explicit features then dot products 22.9 ms; the kernel 2.7 ms (one run, a rough comparison)
+  degree 2: the explicit map needs 2,145 features; the kernel needs 64
+  degree 3: the explicit map needs 47,905 features; the kernel needs 64
+  degree 5: the explicit map needs 11,238,513 features; the kernel needs 64
+the RBF kernel corresponds to infinitely many features, so only the kernel form can be computed exactly
+Actual output from this lesson's run.
+
+======================================================================
+2. WHAT MAKES A VALID KERNEL -- no negative eigenvalues
+======================================================================
+  linear                                : smallest eigenvalue -1.093e-12, largest +3.203e+03, negative ones 0
+  polynomial, degree 2                  : smallest eigenvalue +2.823e-01, largest +4.298e+04, negative ones 0
+  RBF, gamma 0.03                       : smallest eigenvalue +7.107e-04, largest +2.277e+02, negative ones 0
+  tanh(x.z - 1), a popular non-kernel   : smallest eigenvalue -7.054e-03, largest +3.000e+02, negative ones 62
+  minus the distance |x - z|            : smallest eigenvalue -9.036e+02, largest +8.344e+01, negative ones 1
+a kernel matrix must be positive semi-definite (no negative eigenvalues): then it is a table of real dot products, and the dual problem has one best answer
+Actual output from this lesson's run.
+
+======================================================================
+3. A REAL CURVED BOUNDARY -- breast cancer, two measurements, gamma from small to large
+======================================================================
+398 training, 171 test tumours; 'worst radius' and 'worst concave points', standardised; C = 1
+kernel              support  train acc  test acc
+linear                   65     0.9447    0.9591
+RBF gamma 0.01          140     0.9347    0.9591
+RBF gamma 0.1            81     0.9472    0.9532
+RBF gamma 1              74     0.9497    0.9532
+RBF gamma 10            178     0.9573    0.9591
+RBF gamma 100           328     0.9749    0.9474
+outside check, RBF gamma 1: test predictions that agree with scikit-learn's SVC 0.9942
+Actual output from this lesson's run.
+
+======================================================================
+4. WHERE A KERNEL HELPS -- breast cancer (30 features) and digits (64 pixels, 10 classes), 5 splits
+======================================================================
+C = 1; RBF gamma = 1 / (features x their variance), a common default; digits by one-vs-rest
+
+Breast cancer: linear 0.9754, polynomial degree 3 0.9509, RBF 0.9813
+  RBF minus linear +0.0058; better on 4, worse on 1 of 5
+
+Digits: linear 0.9633, polynomial degree 3 0.9866, RBF 0.9814
+  RBF minus linear +0.0182; better on 5, worse on 0 of 5
+for scale: on Day 107 a random forest scored 0.9712 on digits and 0.9596 on breast cancer, over its own splits
+Actual output from this lesson's run.
+
+======================================================================
+5. GAMMA AND C TOGETHER -- digits, one split, 3-fold CV on the training part
+======================================================================
+CV accuracy        C 0.1       C 1      C 10     C 100
+gamma 0.001       0.9006    0.9006    0.9149    0.9491
+gamma 0.003       0.9006    0.9006    0.9388    0.9610
+gamma 0.01        0.9054    0.9165    0.9579    0.9706
+gamma 0.03        0.9165    0.9499    0.9777    0.9825
+gamma 0.1         0.9316    0.9785    0.9889    0.9889
+gamma 0.3         0.9634    0.9881    0.9905    0.9905
+gamma 1           0.9793    0.9857    0.9889    0.9889
+gamma 3           0.8235    0.8267    0.8148    0.8148
+support share      C 0.1       C 1      C 10     C 100
+gamma 0.001        0.202     0.207     0.195     0.098
+gamma 0.003        0.205     0.208     0.145     0.072
+gamma 0.01         0.207     0.197     0.098     0.058
+gamma 0.03         0.208     0.150     0.077     0.061
+gamma 0.1          0.212     0.117     0.084     0.084
+gamma 0.3          0.239     0.177     0.175     0.175
+gamma 1            0.841     0.839     0.840     0.840
+gamma 3            0.999     1.000     1.000     1.000
+best by CV: gamma 0.3, C 10; test accuracy 0.9870
+Actual output from this lesson's run.
+
+======================================================================
+6. RANDOM FOURIER FEATURES -- the RBF kernel without the n-by-n matrix
+======================================================================
+digits, gamma 0.03; approximation error on a 400 x 400 kernel matrix, and test accuracy of a LINEAR SVM on the random features (C = 1, 5 splits)
+ random features  mean abs error  accuracy
+              10          0.1234    0.6583
+              30          0.1072    0.8686
+             100          0.0469    0.9391
+             300          0.0283    0.9547
+            1000          0.0136    0.9581
+            3000          0.0110    0.9566
+the exact RBF kernel on the same splits: 0.9570
+Actual output from this lesson's run.
+
+saved kernel_results.png
+saved kernel_diagram.png
+
+======================================================================
+7. WHAT COMES NEXT
+======================================================================
+Day 114 is Naive Bayes from scratch, on real text: a model that counts words, assumes they are independent, and is still hard to beat on small data.

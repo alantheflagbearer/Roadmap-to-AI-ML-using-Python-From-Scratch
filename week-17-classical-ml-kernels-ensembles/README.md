@@ -17,5 +17,21 @@ Exercise: [`day112_exercise.py`](day112_exercise.py) is the solver alone, which 
 ![A support vector machine, from the problem to the line](svm_diagram.png)
 ![Iris margins, and C on breast cancer](svm_results.png)
 
+## Day 113 — The kernel trick from scratch: a real RBF-kernel demonstration
+[`day113_kernel_trick.py`](day113_kernel_trick.py) — linear, polynomial and RBF kernels, the explicit features a polynomial kernel stands for, Day 112's SMO unchanged with one-vs-rest for ten classes, and random Fourier features. Data: breast cancer and handwritten digits.
+
+- **The trick, checked:** a degree-2 polynomial kernel equals the dot products of 2,145 explicit features to 5.7e-14; degree 5 would need 11,238,513.
+- **Valid kernels:** tanh(x.z - 1), once widely used as a 'sigmoid kernel', has 62 negative eigenvalues on 300 images.
+- **A real curved boundary:** on two breast-cancer measurements, gamma from 0.01 to 100 bends the boundary from straight to wrapping single tumours (train 0.9749, test 0.9474). A straight line is as good here (0.9591).
+- **Where it helps:** on digits RBF beats linear on all 5 splits (0.9814 against 0.9633); on breast cancer the gain is small (+0.0058). Tuned by CV (the grid was extended past its first edge), digits reach 0.9870.
+- **Random features:** a linear SVM on 3,000 random Fourier features matches the exact kernel (0.9566 against 0.9570).
+
+Study guide: [`day113_kernel_trick_complete_guide.pdf`](day113_kernel_trick_complete_guide.pdf) · Syntax walkthrough: [`day113_syntax_line_by_line.pdf`](day113_syntax_line_by_line.pdf) · [Run output](day113_run_output.txt)
+
+Exercise: [`day113_exercise.py`](day113_exercise.py) is the kernels and random features, checked by hand — the second part of Day 118's build ([run output](day113_exercise_run_output.txt)).
+
+![The kernel trick](kernel_diagram.png)
+![Boundaries for each kernel, and random features](kernel_results.png)
+
 ---
 [← Back to main README](../README.md)
