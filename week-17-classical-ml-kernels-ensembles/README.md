@@ -33,5 +33,21 @@ Exercise: [`day113_exercise.py`](day113_exercise.py) is the kernels and random f
 ![The kernel trick](kernel_diagram.png)
 ![Boundaries for each kernel, and random features](kernel_results.png)
 
+## Day 114 — Naive Bayes from scratch: real text classification
+[`day114_naive_bayes.py`](day114_naive_bayes.py) — multinomial, binary and Bernoulli Naive Bayes with Laplace smoothing, on unigrams and bigrams. Data: SST-2 from Week 15's local cache (67,349 training phrases and sentences, 872 validation sentences); Day 98's tokeniser, logistic regression and calibration measure are imported unchanged.
+
+- **Checked:** matches scikit-learn's MultinomialNB to 1.4e-13.
+- **Against the alternatives:** binary NB 0.8085, with bigrams 0.8165; Day 98's logistic regression 0.8165 (reproduced exactly); DistilBERT 0.9106.
+- **Little data:** Naive Bayes leads logistic regression on every subset up to 3,000 items (+0.0477 at 100), and loses with all of it (-0.0080), as Ng and Jordan (2002) predicted.
+- **The naive assumption:** 0.4484 of its answers claim 99% certainty (logistic regression 0.0688), ECE 0.1112 against 0.0202; writing each sentence twice doubles its evidence (2.0000).
+- **Smoothing:** cross-validation on training phrases chooses alpha 0.1, while validation sentences prefer 3, most likely because phrases are not sentences.
+
+Study guide: [`day114_naive_bayes_complete_guide.pdf`](day114_naive_bayes_complete_guide.pdf) · Syntax walkthrough: [`day114_syntax_line_by_line.pdf`](day114_syntax_line_by_line.pdf) · [Run output](day114_run_output.txt)
+
+Exercise: [`day114_exercise.py`](day114_exercise.py) is the three kinds of Naive Bayes in one class, checked by hand on four tiny reviews — the third part of Day 118's build ([run output](day114_exercise_run_output.txt)).
+
+![Naive Bayes, training is counting](naive_bayes_diagram.png)
+![Learning curves and calibration](naive_bayes_results.png)
+
 ---
 [← Back to main README](../README.md)

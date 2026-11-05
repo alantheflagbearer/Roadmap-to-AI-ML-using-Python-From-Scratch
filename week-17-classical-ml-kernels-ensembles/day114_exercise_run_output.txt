@@ -1,0 +1,5 @@
+'good fun movie': by hand 0.008 / (0.008 + 0.002) = 0.8; multinomial gives 0.8000
+with an unseen word, 'good fun movie zebra': 0.8000
+'good good movie': multinomial log-odds 1.3863 (good counted twice); binary 0.6931 (once)
+Bernoulli, empty text (only absent words speak): log-odds 0.2877; 'good': 1.3863
+bigrams of 'not bad at all': ['not', 'bad', 'at', 'all', 'not bad', 'bad at', 'at all']

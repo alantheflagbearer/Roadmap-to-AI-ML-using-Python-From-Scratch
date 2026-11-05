@@ -1,0 +1,93 @@
+======================================================================
+1. BY HAND -- four tiny reviews
+======================================================================
+positive: 'good movie', 'great fun'; negative: 'bad movie', 'boring bad'; 6 distinct words, 4 word slots per class, alpha 1
+for 'good fun movie': positive (1+1)/(4+6) x (1+1)/(4+6) x (1+1)/(4+6) = 0.008; negative (0+1)/10 x (0+1)/10 x (1+1)/10 = 0.002
+so P(positive) = 0.008 / (0.008 + 0.002) = 0.8; the class gives 0.8000
+an unseen word changes nothing: 'good fun movie zebra' -> 0.8000
+Actual output from this lesson's run.
+
+======================================================================
+2. CORRECTNESS -- against scikit-learn's MultinomialNB, same words
+======================================================================
+vocabulary: 13,816 words here, 13,816 in scikit-learn
+log-odds on the 872 validation sentences: largest gap 1.4e-13; the same predictions on 1.0000
+Actual output from this lesson's run.
+
+======================================================================
+3. THE THREE KINDS, AGAINST LOGISTIC REGRESSION AND DISTILBERT -- all 67,349 training items
+======================================================================
+model                             accuracy        95% interval
+multinomial NB                      0.8073      [0.7821, 0.8326]
+binary NB                           0.8085      [0.7821, 0.8337]
+Bernoulli NB                        0.8062      [0.7810, 0.8326]
+binary NB, + bigrams                0.8165      [0.7913, 0.8429]
+logistic regression (Day 98)        0.8165      [0.7913, 0.8417]
+DistilBERT (Day 98, its output)     0.9106
+binary NB and logistic regression give the same answer on 0.8704 of sentences
+Actual output from this lesson's run.
+
+======================================================================
+4. LEARNING CURVES -- who wins with little data? (5 random subsets per size)
+======================================================================
+ training items   binary NB   logistic   NB - LR  NB ahead in
+            100      0.5908     0.5431   +0.0477        5 of 5
+            300      0.6300     0.5819   +0.0482        5 of 5
+          1,000      0.7030     0.6626   +0.0404        5 of 5
+          3,000      0.7525     0.7298   +0.0227        5 of 5
+         10,000      0.7885     0.7853   +0.0032        4 of 5
+         30,000      0.8067     0.8044   +0.0023        2 of 5
+         67,349      0.8085     0.8165   -0.0080        0 of 1
+logistic regression is Day 98's recipe, unchanged (300 Adam steps, words in at least 2 training texts); with few items its settings were not re-tuned
+Actual output from this lesson's run.
+
+======================================================================
+5. SMOOTHING -- alpha by 5-fold cross-validation on the training items
+======================================================================
+   alpha  CV accuracy  validation
+    0.01       0.8795      0.7856
+    0.03       0.8796      0.7867
+     0.1       0.8796      0.7936
+     0.3       0.8785      0.7982
+       1       0.8764      0.8085
+       3       0.8719      0.8131
+      10       0.8572      0.8005
+chosen by CV: alpha 0.1 (the validation column is printed for comparison, not used to choose)
+Actual output from this lesson's run.
+
+======================================================================
+6. THE INDEPENDENCE ASSUMPTION -- confidence, calibration, repeated words
+======================================================================
+multinomial NB        : mean confidence 0.9170, accuracy 0.8073, answers at least 99% sure 0.4484, ECE 0.1112
+binary NB             : mean confidence 0.9158, accuracy 0.8085, answers at least 99% sure 0.4335, ECE 0.1189
+logistic regression   : mean confidence 0.8157, accuracy 0.8165, answers at least 99% sure 0.0688, ECE 0.0202
+each validation sentence written twice: multinomial log-odds change by a factor of 2.0000 (median, excluding the prior); binary NB by 1.0000
+multinomial NB on the doubled sentences: accuracy 0.8096, mean confidence 0.9614, ECE 0.1538
+Actual output from this lesson's run.
+
+======================================================================
+7. WHAT IT LEARNED, AND NEGATION
+======================================================================
+most positive (words in at least 100 texts): touching +4.36, solid +3.92, perfectly +3.92, unique +3.88, terrific +3.52, powerful +3.39, hilarious +3.31, portrait +3.29, inventive +3.18, beautifully +3.16
+most negative: unfunny -4.86, poorly -4.79, ugly -4.37, worse -4.24, stupid -3.98, pretentious -3.79, shallow -3.71, worst -3.63, mess -3.51, contrived -3.22
+  'good': log ratio +0.988
+  'not': log ratio -0.676
+  'bad': log ratio -2.377
+  'funny': log ratio +0.961
+
+validation sentences with a negation: 183; without: 689
+  binary NB                     : with negation 0.7322, without 0.8287
+  binary NB, + bigrams          : with negation 0.7322, without 0.8389
+  logistic regression (Day 98)  : with negation 0.7049, without 0.8462
+  bigram 'not bad': log ratio +1.138
+  bigram 'not good': log ratio -1.724
+  bigram 'not funny': log ratio -2.948
+Actual output from this lesson's run.
+
+saved naive_bayes_results.png
+saved naive_bayes_diagram.png
+
+======================================================================
+8. WHAT COMES NEXT
+======================================================================
+Day 115 is k-nearest neighbours from scratch, with a real demonstration of the curse of dimensionality.
