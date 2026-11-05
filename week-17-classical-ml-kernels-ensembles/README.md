@@ -49,5 +49,21 @@ Exercise: [`day114_exercise.py`](day114_exercise.py) is the three kinds of Naive
 ![Naive Bayes, training is counting](naive_bayes_diagram.png)
 ![Learning curves and calibration](naive_bayes_results.png)
 
+## Day 115 — k-nearest neighbours from scratch: a real curse-of-dimensionality demonstration
+[`day115_k_nearest_neighbors.py`](day115_k_nearest_neighbors.py) — kNN with all distances at once, partial sorting and a vote, and PCA by the singular value decomposition. Data: digits and breast cancer, plus uniform random points for the pure geometry; scikit-learn's KNeighborsClassifier runs only as an outside check.
+
+- **Checked:** identical predictions to scikit-learn at k = 1 and 5; 0.9829 on digits with no training at all.
+- **Scaling:** on raw breast-cancer measurements one feature makes up 0.6700 of the typical distance; standardising lifts accuracy from 0.9345 to 0.9637.
+- **Distances concentrate:** among 1,000 random points in 1,000 dimensions, the nearest is 0.9447 of the average distance away.
+- **Neighbourhoods stop being local:** in 100 dimensions a cube holding 1% of the points spans 0.9550 of every side.
+- **On real data:** 1,024 useless dimensions take digits from 0.9829 to 0.6545; with 256 of them, 10 PCA components recover 0.9555 against 0.8779.
+
+Study guide: [`day115_k_nearest_neighbors_complete_guide.pdf`](day115_k_nearest_neighbors_complete_guide.pdf) · Syntax walkthrough: [`day115_syntax_line_by_line.pdf`](day115_syntax_line_by_line.pdf) · [Run output](day115_run_output.txt)
+
+Exercise: [`day115_exercise.py`](day115_exercise.py) is the vote and PCA, checked by hand and on the edge cases — the fourth part of Day 118's build ([run output](day115_exercise_run_output.txt)).
+
+![k-nearest neighbours, and the curse of dimensionality](knn_diagram.png)
+![k, concentration, noise dimensions and PCA](knn_results.png)
+
 ---
 [← Back to main README](../README.md)

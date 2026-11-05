@@ -1,0 +1,118 @@
+======================================================================
+1. BY HAND -- five points
+======================================================================
+training: (0,0) class 0, (1,0) class 0, (0,1) class 1, (5,5) class 1, (6,5) class 1; query (0.4, 0.4)
+squared distances: [0.32, 0.52, 0.52, 42.32, 52.52]
+  k = 1: class 0  (nearest is (0,0))
+  k = 3: class 0  (two of the three nearest are class 0)
+  k = 5: class 1  (all five vote: three are class 1)
+Actual output from this lesson's run.
+
+======================================================================
+2. CORRECTNESS -- against scikit-learn's KNeighborsClassifier
+======================================================================
+digits, k =  1: the same prediction on 1.0000 of 539 test images; accuracy 0.9833 against 0.9833
+digits, k =  5: the same prediction on 1.0000 of 539 test images; accuracy 0.9870 against 0.9870
+digits, k = 15: the same prediction on 0.9981 of 539 test images; accuracy 0.9852 against 0.9833
+ties between equally common classes are the only place two correct versions can differ
+Actual output from this lesson's run.
+
+======================================================================
+3. CHOOSING k -- digits, 5 splits
+======================================================================
+    k  train acc  test acc
+    1     1.0000    0.9826
+    3     0.9957    0.9826
+    5     0.9917    0.9829
+    7     0.9893    0.9814
+    9     0.9874    0.9814
+   15     0.9843    0.9751
+   25     0.9736    0.9610
+   51     0.9498    0.9384
+k = 1 is perfect on training rows because each row finds itself; larger k smooths, and eventually blurs the classes
+Actual output from this lesson's run.
+
+======================================================================
+4. SCALING -- breast cancer, k = 5, 5 splits
+======================================================================
+the largest spreads: worst area 568.9, mean area 351.6, area error 45.5; the smallest: fractal dimension error 0.0026
+raw measurements: 0.9345; standardised: 0.9637
+on raw data, 'worst area' alone makes up 0.6700 of the squared distance between two tumours (median over all pairs): one feature decides who is near
+Actual output from this lesson's run.
+
+======================================================================
+5. THE CURSE ON RANDOM DATA -- distances become all alike
+======================================================================
+1,000 points uniform in the unit cube; for 100 query points: (farthest - nearest) / nearest, and nearest / mean distance
+ dimensions  relative contrast  nearest / mean
+          1          2520.4054          0.0009
+          2            70.8257          0.0272
+          5             6.8245          0.2132
+         10             2.7404          0.3974
+         20             1.3571          0.5819
+         50             0.6810          0.7396
+        100             0.4279          0.8215
+        200             0.2897          0.8705
+        500             0.1694          0.9222
+       1000             0.1169          0.9447
+as dimensions grow, the nearest point is barely nearer than the average one: 'nearest' stops meaning much
+Actual output from this lesson's run.
+
+======================================================================
+6. THE CURSE IN VOLUME -- how far a neighbourhood must reach
+======================================================================
+to hold 1% of points spread evenly in a unit cube, a smaller cube needs edge 0.01^(1/d); and the measured distance to the nearest of 1,000 points
+ dimensions  edge for 1%  nearest of 1,000  cube diagonal
+          1       0.0100            0.0003         1.0000
+          2       0.1000            0.0141         1.4142
+          5       0.3981            0.1928         2.2361
+         10       0.6310            0.5098         3.1623
+         20       0.7943            1.0516         4.4721
+         50       0.9120            2.1132         7.0711
+        100       0.9550            3.3347        10.0000
+        200       0.9772            5.0405        14.1421
+        500       0.9908            8.4052        22.3607
+       1000       0.9954           12.1731        31.6228
+in 100 dimensions the 'local' 1% cube spans 95% of every side: a neighbourhood is no longer local
+Actual output from this lesson's run.
+
+======================================================================
+7. THE CURSE ON REAL DATA -- digits with useless dimensions added, k = 5, 5 splits
+======================================================================
+each added dimension is uniform noise on 0..16, the same range as a pixel
+  added  dimensions  accuracy  nearest / mean distance
+      0          64    0.9829                   0.3535
+     16          80    0.9751                   0.5187
+     64         128    0.9584                   0.7080
+    256         320    0.8779                   0.8647
+   1024        1088    0.6545                   0.9398
+Actual output from this lesson's run.
+
+======================================================================
+8. FIGHTING BACK WITH PCA, AND THE COST OF A LAZY MODEL -- k = 5, 5 splits
+======================================================================
+digits: the first 10 PCA directions hold 0.7382 of the variance; the first 30, 0.9591
+ components  clean digits  digits + 256 noise
+          2        0.6171              0.6096
+          5        0.9195              0.9061
+         10        0.9733              0.9555
+         15        0.9792              0.9417
+         20        0.9796              0.9377
+         30        0.9818              0.9243
+         40        0.9829              0.9161
+         64        0.9829              0.8965
+PCA keeps the directions with most variance: a noise dimension has variance 21.33, an average pixel 18.77 and the busiest pixel 42.72,
+  so noise is not simply ranked last, and only part of it is filtered out
+    250 training images: predicting 539 test images takes 7.3 ms (mean of 5, within this run)
+    500 training images: predicting 539 test images takes 15.7 ms (mean of 5, within this run)
+   1000 training images: predicting 539 test images takes 23.7 ms (mean of 5, within this run)
+   1257 training images: predicting 539 test images takes 26.5 ms (mean of 5, within this run)
+Actual output from this lesson's run.
+
+saved knn_results.png
+saved knn_diagram.png
+
+======================================================================
+9. WHAT COMES NEXT
+======================================================================
+Day 116 is stacking and blending: training a model to combine other models' predictions, with a real meta-model demonstration.

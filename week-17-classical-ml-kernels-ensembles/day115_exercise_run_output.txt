@@ -1,0 +1,6 @@
+query (0.4, 0.4): k=1 -> 0, k=3 -> 0, k=5 -> 1 (by hand: 0, 0, 1)
+query (5.5, 4.0): k=1 -> 1 (by hand: 1)
+k = all 5 points: every query gets the majority class: [1, 1]
+a 2-2 tie at x = 1.6 (k = 4): the nearest neighbour is x = 1, class 1 -> 1
+PCA on spreads 3, 1, 0.1: variance shares [0.9008, 0.0983, 0.0009] (by hand about 9 : 1 : 0.01 of 10.01)
+directions are orthonormal: largest gap of V V^T from the identity 2.2e-16
