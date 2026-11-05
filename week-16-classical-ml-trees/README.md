@@ -102,5 +102,21 @@ Exercise: [`day110_exercise.py`](day110_exercise.py) is Newton boosting and a sm
 ![The same loop, with the engineering around it](xgboost_diagram.png)
 ![Speed, missing values, five models, SHAP](xgboost_results.png)
 
+## Day 111 — The Week 16 build: trees against neural networks on tabular data
+[`day111_trees_vs_neural_nets.py`](day111_trees_vs_neural_nets.py) — the week's six exercise parts, pasted in verbatim under banners (a run-time check confirms all 34 of 34 functions match), assembled into a pruned tree, a random forest, boosting from scratch and XGBoost. They face an MLP written today in NumPy (ReLU, Adam, weight decay, early stopping; gradients checked to about 1e-10), which with its hidden layers removed is the linear baseline. Data: Titanic, breast cancer, Diabetes and digits.
+
+- **No universal winner:** trees win on Titanic (XGBoost 0.8213, MLP 0.8084); the MLP beats the best tree on breast cancer (+0.0094), where a linear model beats everything (0.9749); the linear model is also best on Diabetes; on digits forest and MLP are level.
+- **Useless columns hurt the network:** with 300 random columns added, the MLP falls to 0.9053; the forest holds 0.9474 and XGBoost 0.9509.
+- **Rotation hurts trees:** rotated digits take the forest from 0.9707 to 0.9551; the MLP holds (0.9692).
+- **Distorted scales hurt the network:** exp(3z) features drop the MLP from 0.9778 to 0.7345 while trees do not move; ranks rescue it (0.9649).
+- **The same facts matter to all three:** permutation importance ranks sex first for every model; the two tree models agree perfectly (1.000), the MLP less (0.690).
+
+Study guide: [`day111_trees_vs_neural_nets_complete_guide.pdf`](day111_trees_vs_neural_nets_complete_guide.pdf) · Syntax walkthrough: [`day111_syntax_line_by_line.pdf`](day111_syntax_line_by_line.pdf) · [Run output](day111_run_output.txt)
+
+Day 111 is the week's build, so it has no exercise script of its own.
+
+![The week's parts, assembled](trees_vs_nets_diagram.png)
+![The head-to-head, useless columns, rotation, training-set size](trees_vs_nets_results.png)
+
 ---
 [← Back to main README](../README.md)

@@ -1,0 +1,135 @@
+======================================================================
+1. CHECKS -- the parts are verbatim, and the MLP's gradients are right
+======================================================================
+functions from day105_exercise.py to day110_exercise.py found here, character for character: 34 of 34
+MLP gradient check, binary    : largest gap between backpropagation and finite differences 1.1e-10
+MLP gradient check, multi     : largest gap between backpropagation and finite differences 2.3e-10
+MLP gradient check, regression: largest gap between backpropagation and finite differences 1.1e-09
+Actual output from this lesson's run.
+
+======================================================================
+2. THE HEAD-TO-HEAD -- six models, four problems
+======================================================================
+each model tunes itself on its own training part only; the test part is used once; accuracy, or RMSE for Diabetes (lower is better)
+MLP: two hidden layers, 4 settings chosen on validation; linear model: the same code without hidden layers
+
+Titanic: 891 rows, 6 features, 20 splits
+  model                 accuracy     std  seconds
+  pruned tree             0.8093  0.0253     0.26
+  random forest           0.8201  0.0186     2.98
+  boosting (scratch)      0.8174  0.0197     0.64
+  XGBoost                 0.8213  0.0198     0.02
+  linear model            0.7864  0.0273     0.30
+  MLP                     0.8084  0.0231     0.62
+  MLP minus the best tree model (XGBoost): -0.0129 [-0.0218, -0.0049]; MLP better on 5, worse on 13 of 20
+
+Breast cancer: 569 rows, 30 features, 20 splits
+  model                 accuracy     std  seconds
+  pruned tree             0.9243  0.0147     0.09
+  random forest           0.9596  0.0128     0.89
+  boosting (scratch)      0.9485  0.0187     1.36
+  XGBoost                 0.9564  0.0174     0.04
+  linear model            0.9749  0.0127     0.13
+  MLP                     0.9690  0.0114     0.34
+  MLP minus the best tree model (random forest): +0.0094 [+0.0032, +0.0155]; MLP better on 11, worse on 3 of 20
+
+Diabetes: 442 rows, 10 features, 20 splits
+  model                     RMSE     std  seconds
+  boosting (scratch)     57.9726  3.1239     0.66
+  XGBoost                57.7253  3.1854     0.01
+  linear model           56.5429  3.3378     0.11
+  MLP                    59.6204  2.9229     0.22
+  MLP minus the best tree model (XGBoost): +1.8951 [+0.3162, +3.4412]; MLP better on 7, worse on 13 of 20
+
+Digits: 1797 rows, 64 features, 5 splits
+  model                 accuracy     std  seconds
+  pruned tree             0.8531  0.0194     1.42
+  random forest           0.9707  0.0058    14.48
+  XGBoost                 0.9570  0.0097     0.60
+  linear model            0.9603  0.0049     0.68
+  MLP                     0.9681  0.0061     3.22
+  MLP minus the best tree model (random forest): -0.0026 [-0.0096, +0.0037]; MLP better on 2, worse on 3 of 5
+the splits share rows, so these intervals are too narrow, a rough guide only; seconds are medians per fit, within this run
+Actual output from this lesson's run.
+
+======================================================================
+3. USELESS COLUMNS -- breast cancer with random columns added
+======================================================================
+5 splits; the columns are random numbers with no relation to the label
+                                      random forest        XGBoost            MLP
+  0 useless columns (30 in all)              0.9591         0.9626         0.9778
+  30 useless columns (60 in all)             0.9532         0.9602         0.9591
+  100 useless columns (130 in all)           0.9509         0.9532         0.9415
+  300 useless columns (330 in all)           0.9474         0.9509         0.9053
+Actual output from this lesson's run.
+
+======================================================================
+4. ROTATION -- every new feature a mix of all the old ones
+======================================================================
+5 splits; features standardised with training statistics, then rotated by a random orthogonal matrix
+(the same information, so a model that does not care about the axes should not change)
+                                      random forest        XGBoost            MLP
+  Breast cancer: original axes               0.9591         0.9626         0.9778
+  Breast cancer: rotated                     0.9708         0.9637         0.9848
+  Digits: original axes                      0.9707         0.9570         0.9681
+  Digits: rotated                            0.9551         0.9432         0.9692
+Actual output from this lesson's run.
+
+======================================================================
+5. MONOTONE DISTORTIONS -- squash or stretch each feature without changing its order
+======================================================================
+breast cancer, one split: Day 105's tree on raw and on exp(3z) features gives the same probabilities on 1.0000 of TRAINING rows
+  and on 0.9942 of test rows: thresholds sit halfway between neighbouring training values, and halfway is not kept by exp,
+  so a test row that falls between two training values can land on the other side
+5 splits:
+                                      random forest        XGBoost            MLP
+  raw features                               0.9591         0.9626         0.9778
+  exp(3z): long right tails                  0.9591         0.9626         0.7345
+  ranks: every feature uniform               0.9532         0.9626         0.9649
+Actual output from this lesson's run.
+
+======================================================================
+6. TRAINING-SET SIZE -- who needs more rows?
+======================================================================
+5 splits; the test part is the usual 30%; training rows drawn from the rest
+
+Breast cancer:
+  training rows     random forest        XGBoost            MLP   linear model
+  50                       0.9345         0.9251         0.9427         0.9310
+  100                      0.9509         0.9310         0.9626         0.9497
+  200                      0.9579         0.9509         0.9731         0.9673
+  398                      0.9649         0.9661         0.9778         0.9825
+
+Digits:
+  training rows     random forest        XGBoost            MLP   linear model
+  50                       0.7113         0.5584         0.5239         0.6356
+  100                      0.8508         0.7224         0.7763         0.7822
+  200                      0.9069         0.8404         0.8456         0.8664
+  400                      0.9432         0.8976         0.9247         0.9154
+  1257                     0.9722         0.9547         0.9633         0.9581
+Actual output from this lesson's run.
+
+======================================================================
+7. WHAT EACH MODEL RELIES ON -- Day 108's permutation importance, on held-out rows
+======================================================================
+Titanic with Day 108's PassengerId and coin columns; 5 splits; accuracy lost when a column is shuffled
+
+  feature         random forest        XGBoost            MLP
+  is_female              0.1871         0.2139         0.1923
+  Pclass                 0.0446         0.0851         0.0466
+  Age                    0.0381         0.0526         0.0286
+  Fare                   0.0143         0.0107         0.0012
+  SibSp                  0.0108         0.0073         0.0160
+  PassengerId            0.0102         0.0057         0.0040
+  Parch                  0.0102        -0.0007         0.0082
+  coin                   0.0019        -0.0010         0.0042
+rank correlation (Day 108's spearman): forest-XGBoost 1.000, forest-MLP 0.690, XGBoost-MLP 0.690
+Actual output from this lesson's run.
+
+saved trees_vs_nets_results.png
+saved trees_vs_nets_diagram.png
+
+======================================================================
+8. WHAT COMES NEXT
+======================================================================
+Day 112 begins Week 17, classical ML II: support vector machines from scratch, on real linearly separable and non-separable data.
