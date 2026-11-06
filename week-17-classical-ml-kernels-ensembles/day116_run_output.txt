@@ -1,0 +1,105 @@
+======================================================================
+1. BY HAND -- two models, one meta-model
+======================================================================
+model A right on 0.750 of rows, model B on 0.875, their average on 1.000
+the meta-model weighs A's log-odds by 3.247 and B's by 3.165; it gets 1.000 of these rows right
+A is wrong on rows [3, 8], B on rows [4]: never the same row, so a mix can fix both (on eight rows, the meta-model is scored on the rows it fitted)
+Actual output from this lesson's run.
+
+======================================================================
+2. THE LEAKAGE TRAP -- a meta-model trained on in-sample predictions
+======================================================================
+10 splits per dataset; the same base models, the meta-model trained on two kinds of predictions
+
+Breast cancer: each base model's accuracy on its OWN training rows: logistic 0.9887, kNN 0.9638, RBF SVM 0.9834, forest 1.0000, boosting 1.0000
+  out-of-fold : test accuracy 0.9819; meta-weights logistic +0.31, kNN -0.03, RBF SVM +2.30, forest +0.05, boosting +0.09
+  in-sample   : test accuracy 0.9830; meta-weights logistic +2.12, kNN +2.41, RBF SVM -0.04, forest +2.57, boosting +2.83
+  out-of-fold minus in-sample: -0.0012; better on 3, worse on 3 of 10
+
+Titanic: each base model's accuracy on its OWN training rows: logistic 0.7995, kNN 0.8262, RBF SVM 0.8371, forest 0.9839, boosting 0.9244
+  out-of-fold : test accuracy 0.8209; meta-weights logistic +0.46, kNN +0.24, RBF SVM +0.31, forest +0.28, boosting +0.53
+  in-sample   : test accuracy 0.7937; meta-weights logistic -0.49, kNN -0.26, RBF SVM -0.21, forest +3.26, boosting +0.29
+  out-of-fold minus in-sample: +0.0272; better on 9, worse on 1 of 10
+Actual output from this lesson's run.
+
+======================================================================
+3. IS IT BETTER? stacking, blending and averaging against the best single model
+======================================================================
+stacking: meta-model on 5-fold out-of-fold predictions; blending: base models on 70% of the training rows, meta-model on the other 30%
+'chosen by CV' is the single base model with the best out-of-fold accuracy: what you would pick without stacking
+
+Breast cancer: 569 rows, 2 classes, 20 splits
+  logistic                    0.9725  (std 0.0126)
+  kNN                         0.9588  (std 0.0160)
+  RBF SVM                     0.9769  (std 0.0113)
+  forest                      0.9596  (std 0.0148)
+  boosting                    0.9596  (std 0.0179)
+  single model chosen by CV   0.9734  (std 0.0129)
+  simple average              0.9766  (std 0.0135)
+  blending                    0.9646  (std 0.0146)
+  stacking                    0.9760  (std 0.0123)
+  stacking minus the CV choice: +0.0026 [-0.0020, +0.0070]; better on 10, worse on 6 of 20
+  average minus the CV choice: +0.0032 [-0.0023, +0.0091]; better on 11, worse on 7 of 20
+  stacking took 4.7 s per split (median): every base model is trained 6 times
+
+Titanic: 891 rows, 2 classes, 20 splits
+  logistic                    0.7860  (std 0.0222)
+  kNN                         0.8015  (std 0.0218)
+  RBF SVM                     0.8192  (std 0.0194)
+  forest                      0.8007  (std 0.0187)
+  boosting                    0.8166  (std 0.0133)
+  single model chosen by CV   0.8164  (std 0.0201)
+  simple average              0.8209  (std 0.0161)
+  blending                    0.7944  (std 0.0527)
+  stacking                    0.8147  (std 0.0251)
+  stacking minus the CV choice: -0.0017 [-0.0131, +0.0069]; better on 11, worse on 6 of 20
+  average minus the CV choice: +0.0045 [-0.0009, +0.0095]; better on 11, worse on 6 of 20
+  stacking took 5.4 s per split (median): every base model is trained 6 times
+
+Digits: 1797 rows, 10 classes, 5 splits
+  logistic                    0.9677  (std 0.0057)
+  kNN                         0.9584  (std 0.0119)
+  RBF SVM                     0.9759  (std 0.0059)
+  forest                      0.9725  (std 0.0069)
+  single model chosen by CV   0.9751  (std 0.0056)
+  simple average              0.9766  (std 0.0064)
+  blending                    0.9380  (std 0.0075)
+  stacking                    0.9670  (std 0.0034)
+  stacking minus the CV choice: -0.0082 [-0.0100, -0.0059]; better on 0, worse on 5 of 5
+  average minus the CV choice: +0.0015 [-0.0026, +0.0056]; better on 2, worse on 1 of 5
+  stacking took 20.1 s per split (median): every base model is trained 6 times
+the splits share rows, so these intervals are too narrow, a rough guide only
+Actual output from this lesson's run.
+
+======================================================================
+4. WHAT THE META-MODEL LEARNED, AND HOW DIFFERENT THE MISTAKES ARE
+======================================================================
+Titanic, 20 splits: mean meta-weight on each model's log-odds: logistic +0.356, kNN +0.176, RBF SVM +0.298, forest +0.263, boosting +0.408
+
+correlation between models' mistakes (1 = the same rows wrong):
+              logistic       kNN   RBF SVM    forest  boosting
+  logistic       1.000     0.745     0.782     0.540     0.599
+  kNN            0.745     1.000     0.843     0.580     0.660
+  RBF SVM        0.782     0.843     1.000     0.592     0.673
+  forest         0.540     0.580     0.592     1.000     0.711
+  boosting       0.599     0.660     0.673     0.711     1.000
+test rows every model gets wrong: 0.1073; rows at least one gets right and at least one wrong: 0.2144
+no combination of these models can fix the first kind; the second kind is all stacking has to work with
+Actual output from this lesson's run.
+
+======================================================================
+5. DIVERSITY -- stacking similar models against different ones
+======================================================================
+breast cancer, 10 splits
+  three forests (different seeds): stack 0.9602, best member on each split 0.9643
+  forest, logistic, kNN:           stack 0.9789, best member on each split 0.9789
+('best member on each split' is chosen by looking at the test rows, so it flatters the members)
+Actual output from this lesson's run.
+
+saved stacking_results.png
+saved stacking_diagram.png
+
+======================================================================
+6. WHAT COMES NEXT
+======================================================================
+Day 117 is imbalanced data: when one class is rare, accuracy misleads, and SMOTE and class weights are compared on a real rare-class problem.

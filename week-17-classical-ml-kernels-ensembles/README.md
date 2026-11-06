@@ -65,5 +65,21 @@ Exercise: [`day115_exercise.py`](day115_exercise.py) is the vote and PCA, checke
 ![k-nearest neighbours, and the curse of dimensionality](knn_diagram.png)
 ![k, concentration, noise dimensions and PCA](knn_results.png)
 
+## Day 116 — Stacking and blending from scratch: a real meta-model
+[`day116_stacking_blending.py`](day116_stacking_blending.py) — softmax regression (base model and meta-model), out-of-fold predictions, stacking, blending and simple averaging, over five base models imported unchanged: kNN (Day 115), an RBF SVM (Days 112–113), a random forest (Day 107) and gradient boosting (Day 109). Data: breast cancer, Titanic and digits.
+
+- **The leakage trap:** on Titanic, a meta-model trained on in-sample predictions puts its weight on the forest (+3.26), which is right on 0.9839 of its own training rows, and loses 0.0272 accuracy (worse on 9 of 10 splits). On breast cancer it did no measurable harm (-0.0012).
+- **Stacking did not beat picking the best model by CV:** +0.0026 on breast cancer, -0.0017 on Titanic, -0.0082 on digits (worse on 5 of 5 splits).
+- **A plain average did as well or better:** 0.9766, 0.8209 and 0.9766; blending was worst (0.7944 on Titanic).
+- **Why the gains are small:** on Titanic 0.1073 of test rows are wrong for every model, and only 0.2144 are disputed; kNN and the SVM make mistakes on the same rows (correlation 0.843).
+- **Diversity matters:** three forests that differ only in seed stack to 0.9602, below their best member (0.9643).
+
+Study guide: [`day116_stacking_blending_complete_guide.pdf`](day116_stacking_blending_complete_guide.pdf) · Syntax walkthrough: [`day116_syntax_line_by_line.pdf`](day116_syntax_line_by_line.pdf) · [Run output](day116_run_output.txt)
+
+Exercise: [`day116_exercise.py`](day116_exercise.py) is softmax regression, out-of-fold predictions and the stack, checked on a useful and a useless model — the fifth part of Day 118's build ([run output](day116_exercise_run_output.txt)).
+
+![Stacking: out-of-fold predictions feed the meta-model](stacking_diagram.png)
+![Combining models against choosing one, and mistake correlations](stacking_results.png)
+
 ---
 [← Back to main README](../README.md)
