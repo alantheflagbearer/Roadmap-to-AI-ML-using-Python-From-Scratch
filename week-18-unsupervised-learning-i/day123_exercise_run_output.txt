@@ -1,0 +1,4 @@
+points on y = 2x: eigenvalues [12.5, 0.0]; first component [0.4472, 0.8944], by hand (1, 2)/sqrt(5) = [0.4472, 0.8944]
+axis-aligned cloud with spreads 3, 1, 0.5: eigenvalues [8.515, 0.991, 0.244] (by hand about 9, 1, 0.25); components are the axes: True
+all 3 components rebuild the data exactly: True; 1 component leaves a mean squared distance per point of 1.234 (by hand about 1 + 0.25)
+power iteration: eigenvalues [8.515, 0.991, 0.244], the same as eigh: True; steps [14, 21, 2]

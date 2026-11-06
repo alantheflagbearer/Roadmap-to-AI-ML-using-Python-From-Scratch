@@ -1,0 +1,78 @@
+======================================================================
+1. BY HAND -- five points in two dimensions
+======================================================================
+covariance [[2.5000, 2.1250], [2.1250, 1.8750]]
+by hand: eigenvalues = (a + c)/2 +- sqrt(((a - c)/2)^2 + b^2) = 4.3354 and 0.0396; eigh gives 4.3354 and 0.0396
+first component (0.7568, 0.6536): at 40.8 degrees, along the line the points follow; it explains 0.9909 of the variance
+coordinates along it: [-2.4941, -1.4104, 0.0, 1.0836, 2.8209]
+Actual output from this lesson's run.
+
+======================================================================
+2. CORRECTNESS -- against scikit-learn, and power iteration against eigh
+======================================================================
+digits: explained-variance shares, largest gap from scikit-learn 8.3e-17; first 10 components, smallest |cos| with scikit-learn's 1.0000000000 (signs may differ)
+power iteration, top 5: largest eigenvalue gap 4.8e-16 (relative); smallest |cos| with eigh's 1.00000000
+  steps to converge: [295, 180, 84, 73, 155]; ratios of each eigenvalue to the next: [0.915, 0.866, 0.713, 0.688, 0.85]
+power iteration converges at the speed of that ratio: the closer two eigenvalues, the more steps
+Actual output from this lesson's run.
+
+======================================================================
+3. VARIANCE EXPLAINED -- how many components hold how much
+======================================================================
+  data           features  1st share  for 80%  for 90%  for 95%  for 99%
+  digits               64     0.1489       13       21       29       41
+  breast cancer        30     0.4427        5        7       10       17
+  wine                 13     0.3620        5        8       10       12
+(breast cancer and wine standardised; digits as raw pixels)
+Actual output from this lesson's run.
+
+======================================================================
+4. RECONSTRUCTION -- digits from k components
+======================================================================
+     k  variance kept  mean squared error per pixel  sum of the dropped eigenvalues / 64
+     1         0.1489                       15.9777                              15.9777
+     2         0.2851                       13.4210                              13.4210
+     5         0.5450                        8.5424                               8.5424
+    10         0.7382                        4.9143                               4.9143
+    20         0.8943                        1.9843                               1.9843
+    40         0.9882                        0.2215                               0.2215
+    64         1.0000                        0.0000                               0.0000
+the error left is exactly the variance in the directions dropped: PCA keeps the most variance any k directions can
+Actual output from this lesson's run.
+
+======================================================================
+5. SCALING -- wine, raw against standardised
+======================================================================
+  raw          : 1st component explains 0.9981; its largest weights: 'proline' 1.000, 'magnesium' 0.018; k-means on 2 components, ARI 0.3711
+  standardised : 1st component explains 0.3620; its largest weights: 'flavanoids' 0.423, 'total_phenols' 0.395; k-means on 2 components, ARI 0.8951
+raw, the first component is almost exactly 'proline', the feature with the largest numbers; scaling decides what 'most variance' means
+Actual output from this lesson's run.
+
+======================================================================
+6. PCA BEFORE A MODEL -- digits, kNN (k = 3) and k-means (k = 10) on k components
+======================================================================
+   components  variance kept  kNN accuracy  k-means ARI
+            2         0.2927        0.5778       0.4096
+            5         0.5531        0.9019       0.5559
+           10         0.7427        0.9778       0.6536
+           20         0.8968        0.9870       0.6711
+           40         0.9885        0.9889       0.6672
+           64         1.0000        0.9907       0.6525
+Actual output from this lesson's run.
+
+======================================================================
+7. WHERE PCA MISLEADS -- the class signal in a low-variance direction (made on purpose, so the truth is known)
+======================================================================
+  the 1st component only  : variance kept 0.9687; kNN accuracy 0.5250
+  both components         : variance kept 1.0000; kNN accuracy 0.9917
+  the 2nd component only  : variance kept 0.0313; kNN accuracy 1.0000
+PCA never looks at the labels: 'most variance' and 'most useful' are different questions
+Actual output from this lesson's run.
+
+saved pca_results.png
+saved pca_diagram.png
+
+======================================================================
+8. WHAT COMES NEXT
+======================================================================
+Day 124 is the singular value decomposition and its relationship to PCA, with a real matrix-factorization demonstration.

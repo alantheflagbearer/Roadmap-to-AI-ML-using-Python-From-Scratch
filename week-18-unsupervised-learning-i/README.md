@@ -66,5 +66,21 @@ Exercise: [`day122_exercise.py`](day122_exercise.py) is the density, log-sum-exp
 ![The EM loop](gmm_diagram.png)
 ![k-means against a mixture, soft memberships, BIC and the ridge](gmm_results.png)
 
+## Day 123 — PCA from scratch: variance explained
+[`day123_pca.py`](day123_pca.py) — the covariance matrix and its eigenvectors, power iteration with deflation, projection, reconstruction and the variance each component explains. Data: digits, breast cancer and wine; Day 115's kNN and Day 119's k-means are imported, and scikit-learn's PCA is an outside check.
+
+- **Checked:** shares match scikit-learn to 8.3e-17; power iteration finds the same components, in steps that follow the eigenvalue ratios exactly ([295, 180, 84, 73, 155] for ratios [0.915, 0.866, 0.713, 0.688, 0.85]).
+- **Variance explained:** digits need 21 of 64 components for 90%; breast cancer's 30 measurements need 7.
+- **Reconstruction:** the error equals the variance of the dropped components at every k, to four decimals.
+- **Scaling decides:** raw wine's first component is proline alone (0.9981 of the variance); standardised, k-means on two components goes from 0.3711 to 0.8951.
+- **Most variance is not most useful:** kNN on 10 components scores 0.9778 against 0.9907 on all 64; but with the signal in a low-variance direction, the first component gives 0.5250 and the second 1.0000.
+
+Study guide: [`day123_pca_complete_guide.pdf`](day123_pca_complete_guide.pdf) · Syntax walkthrough: [`day123_syntax_line_by_line.pdf`](day123_syntax_line_by_line.pdf) · [Run output](day123_run_output.txt)
+
+Exercise: [`day123_exercise.py`](day123_exercise.py) is the fit, projection, reconstruction and power iteration, checked by hand — the fifth part of Day 125's build ([run output](day123_exercise_run_output.txt)).
+
+![The PCA pipeline](pca_diagram.png)
+![Variance explained, components as images, reconstruction and models on k components](pca_results.png)
+
 ---
 [← Back to main README](../README.md)
