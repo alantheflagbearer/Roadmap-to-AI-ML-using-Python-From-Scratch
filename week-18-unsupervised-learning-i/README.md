@@ -82,5 +82,21 @@ Exercise: [`day123_exercise.py`](day123_exercise.py) is the fit, projection, rec
 ![The PCA pipeline](pca_diagram.png)
 ![Variance explained, components as images, reconstruction and models on k components](pca_results.png)
 
+## Day 124 — The SVD and its relationship to PCA: a real matrix-factorization demonstration
+[`day124_svd.py`](day124_svd.py) — the SVD through the eigenvectors of AᵀA and by power iteration on A and Aᵀ, the rank-k approximation, low-rank matrix completion, and least squares through the pseudoinverse. Data: digits, Diabetes, and a real photograph bundled with scikit-learn (china.jpg, in grey); np.linalg.svd and lstsq are the checks.
+
+- **SVD is PCA:** on centred digits, s²/(n − 1) matches Day 123's eigenvalues to 3.4e-13, without forming the covariance matrix.
+- **Squaring costs precision:** through AᵀA, the 12 × 12 Hilbert matrix's 9th singular value is off by 2.7e+01 times its own size, and the 11th and 12th become 0.
+- **A photograph at rank 20:** 0.078 of the numbers, error 0.1364, exactly the size of the dropped singular values (Eckart–Young).
+- **Half the pixels hidden:** a rank-10 fill recovers them with error 0.1223, against 0.3069 for column means; ranks 20 and above never settle and get worse the longer they run.
+- **Least squares:** the pseudoinverse matches lstsq (1.4e-12); the smallest singular value (0.0793) belongs to two blood measurements correlated at 0.890, and dropping it tames the coefficients.
+
+Study guide: [`day124_svd_complete_guide.pdf`](day124_svd_complete_guide.pdf) · Syntax walkthrough: [`day124_syntax_line_by_line.pdf`](day124_syntax_line_by_line.pdf) · [Run output](day124_run_output.txt)
+
+Exercise: [`day124_exercise.py`](day124_exercise.py) is the five SVD tools, each checked on a case with a known answer — the sixth part of Day 125's build ([run output](day124_exercise_run_output.txt)).
+
+![A = U S Vᵀ](svd_diagram.png)
+![The photograph at rank 20, its singular values, matrix completion and the Hilbert matrix](svd_results.png)
+
 ---
 [← Back to main README](../README.md)

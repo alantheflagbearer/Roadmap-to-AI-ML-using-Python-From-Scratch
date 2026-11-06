@@ -1,0 +1,83 @@
+======================================================================
+1. BY HAND -- A = [[3, 0], [4, 5]]
+======================================================================
+A^T A = [[25, 20], [20, 25]]; its eigenvalues are 25 + 20 = 45 and 25 - 20 = 5, so the singular values are sqrt(45) and sqrt(5)
+by hand: 6.7082 and 2.2361; from A^T A here: 6.7082 and 2.2361; np.linalg.svd: [6.7082, 2.2361]
+U S V^T rebuilds A: True; columns of U perpendicular: True
+V's first column (0.7071, 0.7071) = (1, 1)/sqrt(2): A stretches that direction most, by 6.7082
+Actual output from this lesson's run.
+
+======================================================================
+2. SVD IS PCA -- digits, centred
+======================================================================
+s^2 / (n - 1) against Day 123's eigenvalues: largest gap 3.4e-13 (largest eigenvalue 179.0)
+right singular vectors against Day 123's components, first 20: smallest |cos| 1.0000000000
+U S equals the component scores (X - mean) V: True
+the SVD reaches PCA without forming the covariance matrix A^T A / (n - 1)
+Actual output from this lesson's run.
+
+======================================================================
+3. THREE ROUTES, AND WHAT SQUARING COSTS
+======================================================================
+digits (well conditioned at the top): top 5 singular values, relative gap from np.linalg.svd: through A^T A 4.0e-16, by power iteration 6.0e-16
+Hilbert 12 x 12: singular values from 1.795 down to 9.93e-17; condition number 1.8e+16
+    singular value   np.linalg.svd   through A^T A  relative error
+                 1       1.795e+00       1.795e+00         4.9e-16
+                 6       1.116e-05       1.116e-05         1.3e-07
+                 9       2.252e-10       6.202e-09         2.7e+01
+                11       2.650e-14       0.000e+00         1.0e+00
+                12       9.931e-17       0.000e+00         1.0e+00
+A^T A squares the condition number: values below about sqrt(machine precision) x the largest are lost in rounding
+Actual output from this lesson's run.
+
+======================================================================
+4. A PHOTOGRAPH AT RANK k -- china.jpg in grey, 427 x 640 pixels
+======================================================================
+   rank  relative error  from the dropped singular values  numbers stored  share of pixels
+      1          0.2917                            0.2917           1,068            0.004
+      5          0.1841                            0.1841           5,340            0.020
+     10          0.1602                            0.1602          10,680            0.039
+     20          0.1364                            0.1364          21,360            0.078
+     50          0.1028                            0.1028          53,400            0.195
+    100          0.0736                            0.0736         106,800            0.391
+    200          0.0361                            0.0361         213,600            0.782
+the error of the best rank-k picture is exactly the size of the singular values left out (the Eckart-Young theorem)
+Actual output from this lesson's run.
+
+======================================================================
+5. FILLING IN MISSING PIXELS -- half the photograph hidden at random (every 2nd pixel row and column kept: 214 x 320)
+======================================================================
+known pixels 0.501; error on the hidden pixels (RMSE, 0 to 1 scale): filled with column means 0.3069
+  rank   2: RMSE 0.1543 after 35 rounds
+  rank   5: RMSE 0.1273 after 97 rounds
+  rank  10: RMSE 0.1223 after 607 rounds
+  rank  20: RMSE 0.1508 after 2000 rounds  (the 2,000-round limit: not converged)
+  rank  40: RMSE 0.4764 after 2000 rounds  (the 2,000-round limit: not converged)
+  rank  80: RMSE 0.2886 after 2000 rounds  (the 2,000-round limit: not converged)
+the high ranks after only 200 rounds: rank 20 RMSE 0.1428, rank 40 RMSE 0.2481, rank 80 RMSE 0.2796: they get worse the longer they run
+too low a rank blurs; too high a rank has the freedom to match the known pixels in ways that do not carry over to the hidden ones
+Actual output from this lesson's run.
+
+======================================================================
+6. LEAST SQUARES THROUGH THE PSEUDOINVERSE -- Diabetes, 10 features plus an intercept
+======================================================================
+pseudoinverse against np.linalg.lstsq: largest coefficient gap 1.4e-12
+singular values of the training matrix: largest 17.61, smallest 0.0793
+the smallest one's direction is mostly 's1' (+0.71) and 's2' (-0.55); their correlation 0.890: one nearly repeats the other
+   kept  largest |coefficient|  test RMSE
+     11                  722.2     55.862
+     10                  584.6     56.252
+      9                  593.7     56.144
+      8                  520.4     55.295
+      6                  523.0     55.313
+      4                  260.7     59.266
+dropping the smallest singular values tames the coefficients; it changes the test error only a little here
+Actual output from this lesson's run.
+
+saved svd_results.png
+saved svd_diagram.png
+
+======================================================================
+7. WHAT COMES NEXT
+======================================================================
+Day 125 is the Week 18 build: t-SNE and UMAP from scratch, compared on real high-dimensional data, with the week's clustering parts.
