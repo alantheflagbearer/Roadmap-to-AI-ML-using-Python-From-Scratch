@@ -1,0 +1,117 @@
+======================================================================
+1. BY HAND -- six points, two centres
+======================================================================
+points 1, 2, 3, 10, 11, 12 on a line; centres start at 1 and 2
+  step 1: groups [[1.0], [2.0, 3.0, 10.0, 11.0, 12.0]], inertia 246.00; new centres [1.0, 7.6]
+  step 2: groups [[1.0, 2.0, 3.0], [10.0, 11.0, 12.0]], inertia 41.68; new centres [2.0, 11.0]
+  step 3: groups [[1.0, 2.0, 3.0], [10.0, 11.0, 12.0]], inertia 4.00; new centres [2.0, 11.0]
+by hand: the best split is {1, 2, 3} and {10, 11, 12}, centres 2 and 11, inertia 2 + 2 = 4
+Actual output from this lesson's run.
+
+======================================================================
+2. CORRECTNESS -- every step lowers the inertia, and scikit-learn agrees
+======================================================================
+digits, k = 10, 20 random starts: 381 steps in all; steps where the inertia went up: 0
+from the same starting centres: inertia 1167803.84 here, 1167791.56 in scikit-learn; adjusted Rand index between the two labellings 0.9972
+why they differ: at step 1, 2 image(s) lie exactly as far from two centres (image 23: squared distance 1432 to both); pixels are whole numbers, so exact ties happen, and rounding decides
+the same steps on mean-centred data, as scikit-learn computes them: inertia 1167791.56; ARI with scikit-learn's labelling 1.0000
+silhouette 0.187974 against scikit-learn's 0.187974; ARI with the true digits 0.652481 against 0.652481
+Actual output from this lesson's run.
+
+======================================================================
+3. STARTING POINTS -- random against k-means++, digits, k = 10, 20 single starts each
+======================================================================
+  random    : inertia 1165142 to 1243340 (mean 1183979); ARI with the digits 0.4682 to 0.7086; steps 20.1
+  k-means++ : inertia 1165156 to 1261017 (mean 1193076); ARI with the digits 0.4612 to 0.7435; steps 20.3
+  the best of 10 k-means++ starts: inertia 1167804, ARI 0.6525
+every start ends in a local minimum; different starts end in different ones, which is why restarts are standard
+Actual output from this lesson's run.
+
+======================================================================
+4. THE ELBOW, ON THREE REAL DATASETS
+======================================================================
+k-means++ with 10 restarts for every k; the true number of groups is known (3, 3 and 10) but never shown to k-means
+
+iris: 150 rows, 4 features, 3 true groups
+     k     inertia     drop  silhouette     ARI
+     1       600.0                  nan  0.0000
+     2       222.4    0.629      0.5818  0.5681
+     3       139.8    0.371      0.4599  0.6201
+     4       114.4    0.182      0.3850  0.4945
+     5        90.8    0.206      0.3455  0.4205
+     6        80.0    0.119      0.3267  0.3572
+     7        71.0    0.112      0.3277  0.3204
+     8        63.4    0.107      0.3303  0.3891
+     9        56.5    0.109      0.3443  0.3677
+    10        50.7    0.103      0.3404  0.3318
+  the automatic elbow: k = 3; best silhouette: k = 2; best agreement with the truth: k = 3
+
+wine: 178 rows, 13 features, 3 true groups
+     k     inertia     drop  silhouette     ARI
+     1      2314.0                  nan  0.0000
+     2      1659.0    0.283      0.2683  0.3887
+     3      1277.9    0.230      0.2849  0.8975
+     4      1183.1    0.074      0.2500  0.7424
+     5      1109.7    0.062      0.2379  0.7205
+     6      1044.3    0.059      0.2353  0.6890
+     7       987.3    0.055      0.2070  0.6081
+     8       934.7    0.053      0.2063  0.5380
+     9       898.4    0.039      0.1609  0.3835
+    10       859.5    0.043      0.1604  0.4730
+  the automatic elbow: k = 3; best silhouette: k = 3; best agreement with the truth: k = 3
+
+digits: 1797 rows, 64 features, 10 true groups
+     k     inertia     drop  silhouette     ARI
+     1   2159057.3                  nan  0.0000
+     2   1922853.1    0.109      0.1139  0.1106
+     3   1730176.5    0.100      0.1265  0.2211
+     4   1609622.2    0.070      0.1280  0.2858
+     5   1497593.8    0.070      0.1379  0.3869
+     6   1404985.5    0.062      0.1515  0.4303
+     7   1339432.6    0.047      0.1626  0.4780
+     8   1265042.2    0.056      0.1789  0.5797
+     9   1202297.9    0.050      0.1892  0.5977
+    10   1167803.8    0.029      0.1880  0.6525
+  the automatic elbow: k = 5; best silhouette: k = 9; best agreement with the truth: k = 10
+Actual output from this lesson's run.
+
+======================================================================
+5. SCALING -- wine, where one feature is measured in the hundreds
+======================================================================
+'proline' has spread 314.0; the next largest, 'magnesium', 14.2; the smallest 0.124
+  raw          : ARI with the 3 cultivars 0.3711
+  standardised : ARI with the 3 cultivars 0.8975
+Actual output from this lesson's run.
+
+======================================================================
+6. WHERE k-MEANS FAILS -- shapes it cannot represent (synthetic on purpose: the true groups must be known exactly)
+======================================================================
+  two interleaved moons                   : ARI 0.2475; cluster sizes [161, 139] (true [150, 150])
+  a wide cluster beside a small tight one : ARI 0.2036; cluster sizes [175, 325] (true [450, 50])
+k-means draws straight boundaries halfway between centres, so it cuts curved groups and splits big groups to balance distances
+Actual output from this lesson's run.
+
+======================================================================
+7. WHAT THE CLUSTERS LOOK LIKE -- digits, k = 10
+======================================================================
+ cluster  size  most common digit   share
+       5   179                  0   0.989
+       7   162                  4   0.988
+       3   181                  6   0.972
+       1   151                  5   0.927
+       4   201                  7   0.861
+       9   175                  2   0.829
+       6   123                  1   0.813
+       0   168                  8   0.798
+       8    91                  1   0.593
+       2   366                  3   0.437
+labelling each cluster by its most common digit gives 0.7896 of images right, with no labels used to form the clusters
+Actual output from this lesson's run.
+
+saved kmeans_results.png
+saved kmeans_diagram.png
+
+======================================================================
+8. WHAT COMES NEXT
+======================================================================
+Day 120 is hierarchical clustering from scratch: no k chosen in advance, but a whole tree of merges, drawn as a real dendrogram.
