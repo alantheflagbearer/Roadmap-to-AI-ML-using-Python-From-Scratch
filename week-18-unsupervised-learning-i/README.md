@@ -98,5 +98,21 @@ Exercise: [`day124_exercise.py`](day124_exercise.py) is the five SVD tools, each
 ![A = U S Vᵀ](svd_diagram.png)
 ![The photograph at rank 20, its singular values, matrix completion and the Hilbert matrix](svd_results.png)
 
+## Day 125 — The Week 18 build: t-SNE and UMAP from scratch
+[`day125_tsne_umap.py`](day125_tsne_umap.py) — the week's six exercise parts, pasted in verbatim under banners (a run-time check confirms all 26 of 26 match), with t-SNE (perplexity calibration, early exaggeration, momentum and gains) and a compact UMAP (fuzzy k-nearest-neighbour graph, fitted curve, spectral start) written today. PCA (Day 123) starts t-SNE; k-means, Ward, a Gaussian mixture and DBSCAN (Days 119–122) cluster the maps. Data: the digits, and random points made on purpose; scikit-learn's t-SNE and the umap-learn library are outside checks.
+
+- **Checked:** every perplexity calibrated to 30.0000; the t-SNE gradient matches finite differences to 2.7e-10; KL 0.6833 against scikit-learn's 0.6800; UMAP trustworthiness 0.9880 against umap-learn's 0.9888.
+- **What each map keeps:** t-SNE and UMAP keep neighbourhoods (trustworthiness 0.9926 and 0.9880) where PCA does not (0.8300); distances between the digit groups were kept best by t-SNE (0.8232) and PCA (0.8195), worse by umap-learn (0.5720).
+- **Clustering the maps with the week's parts:** k-means scores 0.8908 on the t-SNE map against 0.6495 on ten PCA components; DBSCAN goes from 0.0001 to 0.8811.
+- **Perplexity changes the picture:** 5 fragments the digits (k-means 0.8204), 30 was best here.
+- **Pure noise:** t-SNE drew an even disc, not clusters; its silhouette (0.3531) is close to PCA's flat picture of the same points (0.3232).
+
+Study guide: [`day125_tsne_umap_complete_guide.pdf`](day125_tsne_umap_complete_guide.pdf) · Syntax walkthrough: [`day125_syntax_line_by_line.pdf`](day125_syntax_line_by_line.pdf) · [Run output](day125_run_output.txt)
+
+Day 125 is the week's build, so it has no exercise script of its own.
+
+![t-SNE and UMAP: neighbours in, neighbours out](tsne_umap_diagram.png)
+![Three maps of the digits, two perplexities, and t-SNE of pure noise](tsne_umap_results.png)
+
 ---
 [← Back to main README](../README.md)

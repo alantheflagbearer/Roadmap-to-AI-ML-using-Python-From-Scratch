@@ -1,0 +1,76 @@
+======================================================================
+1. CHECKS -- the parts are verbatim
+======================================================================
+functions from day119_exercise.py to day124_exercise.py found here, character for character: 26 of 26
+left out as the same code as Day 119's sqdist: sqdist (day120), sqdist (day121)
+Actual output from this lesson's run.
+
+======================================================================
+2. t-SNE'S PIECES -- perplexity calibration, and a gradient check
+======================================================================
+digits: every point's perplexity after the binary search: 30.0000 to 30.0000 (target 30); P sums to 1.000000
+40 digits, a random layout: KL 1.6501; the gradient formula against finite differences, largest gap 2.7e-10 (largest component 0.033)
+Actual output from this lesson's run.
+
+======================================================================
+3. t-SNE ON DIGITS -- perplexity 30, 1,000 steps, against scikit-learn (exact method, the same PCA start)
+======================================================================
+                  final KL  trustworthiness  seconds
+  here              0.6833           0.9926    126.9
+  scikit-learn      0.6800           0.9923     49.9
+KL every 200 steps here: [2.6847, 0.8737, 0.735, 0.6986, 0.6833]; early exaggeration ends at step 250
+trustworthiness written here against scikit-learn's function, on this map: 0.992596 against 0.992596
+Actual output from this lesson's run.
+
+======================================================================
+4. UMAP ON DIGITS -- 15 neighbours, min_dist 0.1, 500 epochs, against umap-learn
+======================================================================
+the curve 1 / (1 + a d^(2b)): a 1.5811, b 0.8950 here (a grid search); umap-learn's fit: a 1.5769, b 0.8951
+                  trustworthiness  10 nearest kept  seconds
+  here                     0.9880           0.4775      3.1
+  umap-learn               0.9888           0.4913      9.3
+(umap-learn's time includes compiling its code with numba on first use)
+Actual output from this lesson's run.
+
+======================================================================
+5. THREE MAPS COMPARED -- what each keeps (digits, 2 dimensions)
+======================================================================
+  map                   trustworthiness  10 nearest kept  digit-centre distances (corr)
+  PCA, 2 components              0.8300           0.1179                         0.8195
+  t-SNE (here)                   0.9926           0.5825                         0.8232
+  UMAP (here)                    0.9880           0.4775                         0.2564
+  UMAP (umap-learn)              0.9888           0.4913                         0.5720
+trustworthiness and 'kept' judge each point's neighbourhood; the last column, distances between the 10 digit groups' centres
+Actual output from this lesson's run.
+
+======================================================================
+6. CLUSTERING THE MAPS WITH THE WEEK'S PARTS -- ARI with the true digits, k = 10
+======================================================================
+  representation                   k-means              Ward  Gaussian mixture            DBSCAN   DBSCAN noise
+  PCA, 10 components                0.6495            0.6977            0.7325            0.0001         0.010
+  t-SNE (here)                      0.8908            0.8861            0.8859            0.8811         0.016
+  UMAP (here)                       0.8272            0.8389            0.8272            0.8197         0.026
+k-means: Day 119; Ward: Day 120; Gaussian mixture: Day 122's E and M steps; DBSCAN: Day 121, eps from Day 121's k-distance; PCA: Day 123
+Actual output from this lesson's run.
+
+======================================================================
+7. WARNINGS -- perplexity changes the picture; and does t-SNE invent clusters in pure noise?
+======================================================================
+   perplexity  trustworthiness  k-means ARI  digit-centre corr
+            5           0.9911       0.8204             0.7947
+           30           0.9926       0.8908             0.8232
+          100           0.9915       0.8199             0.8153
+pure noise (1,000 uniform points in 10 dimensions), k-means with k = 5; silhouette near 0 means no real groups:
+  the points themselves : silhouette 0.0777
+  PCA, 2 components     : silhouette 0.3232
+  t-SNE map             : silhouette 0.3531
+any flat 2-D cloud scores higher than a 10-D one; t-SNE is judged against PCA's 2-D picture of the same points
+Actual output from this lesson's run.
+
+saved tsne_umap_results.png
+saved tsne_umap_diagram.png
+
+======================================================================
+8. WHAT COMES NEXT
+======================================================================
+Day 126 begins Week 19, unsupervised learning II: autoencoders from scratch, with a real reconstruction demonstration.
