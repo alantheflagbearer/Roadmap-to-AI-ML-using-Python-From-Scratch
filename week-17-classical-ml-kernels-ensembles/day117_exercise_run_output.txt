@@ -1,0 +1,4 @@
+perfect ranking: AUC 1.000; reversed: 0.000; all tied: 0.500
+rare rows ranked 1st and 3rd: AUC by hand 7 of 8 pairs = 0.875 -> 0.875; average precision by hand (1/1 + 2/3) / 2 = 0.833 -> 0.833
+at threshold 0.5: precision 0.500 (1 of 2 flagged), recall 0.500 (1 of 2 found), F1 0.500, balanced accuracy 0.625
+SMOTE, 5 new points from a triangle of rare points: all on its edges or inside: True; first: (1.927, 0.000)

@@ -81,5 +81,21 @@ Exercise: [`day116_exercise.py`](day116_exercise.py) is softmax regression, out-
 ![Stacking: out-of-fold predictions feed the meta-model](stacking_diagram.png)
 ![Combining models against choosing one, and mistake correlations](stacking_results.png)
 
+## Day 117 — Imbalanced data: SMOTE against class weighting
+[`day117_imbalanced_data.py`](day117_imbalanced_data.py) — metrics written from scratch (precision, recall, F1, balanced accuracy, ROC AUC in its rank form, average precision), SMOTE, random over- and undersampling, class-weighted logistic regression, a balanced random forest and threshold moving. Data, all real rows: digits (a 9 against the rest), breast cancer with malignant tumours subsampled to 5%, and the top 10% of Diabetes progression scores; scikit-learn's metrics are an outside check.
+
+- **Accuracy misleads:** always predicting the common class scores 0.8998 on digits and finds none of the rare rows.
+- **Checked metrics:** AUC, average precision and F1 match scikit-learn to six decimals (0.997595, 0.985937, 0.962963).
+- **Rebalancing moves the threshold:** on Diabetes, logistic recall rises from 0.2750 to 0.7929 with class weights, while AUC barely moves (0.8967 to 0.8991); F1 goes from 0.3386 to 0.5023 with weights and 0.5056 with SMOTE.
+- **The forest needs it more:** untreated it finds 0.1143 of Diabetes' rare cases; balanced, 0.7214.
+- **The price:** with class weights, the predicted rare share on Diabetes is 0.2670 against a true 0.1061, 2.52 times too many.
+
+Study guide: [`day117_imbalanced_data_complete_guide.pdf`](day117_imbalanced_data_complete_guide.pdf) · Syntax walkthrough: [`day117_syntax_line_by_line.pdf`](day117_syntax_line_by_line.pdf) · [Run output](day117_run_output.txt)
+
+Exercise: [`day117_exercise.py`](day117_exercise.py) is the metrics and SMOTE, checked by hand on six rows — the sixth part of Day 118's build ([run output](day117_exercise_run_output.txt)).
+
+![Three places to fix imbalance](imbalance_diagram.png)
+![F1 by remedy, and how rare is too rare](imbalance_results.png)
+
 ---
 [← Back to main README](../README.md)

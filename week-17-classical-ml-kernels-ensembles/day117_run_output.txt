@@ -1,0 +1,133 @@
+======================================================================
+1. THE ACCURACY PARADOX
+======================================================================
+problem                        rare share  always common: acc  recall  logistic, as is: acc  recall
+Digits: 9 against the rest         0.1002              0.8998  0.0000                0.9926  0.9630
+Breast cancer, 5% malignant        0.0494              0.9469  0.0000                0.9912  0.8333
+Diabetes: top 10%                  0.1065              0.8939  0.0000                0.8788  0.1429
+a model that never predicts the rare class is highly 'accurate' and useless: recall, the share of rare rows found, is the number to watch
+Actual output from this lesson's run.
+
+======================================================================
+2. THE METRICS, CHECKED AGAINST SCIKIT-LEARN
+======================================================================
+digits, one split: ROC AUC 0.997595 against 0.997595; average precision 0.985937 against 0.985937; F1 0.962963 against 0.962963
+with scores rounded to one decimal (many ties): ROC AUC 0.989290 against 0.989290; average precision 0.977187 against 0.976102 (this version ignores ties)
+Actual output from this lesson's run.
+
+======================================================================
+3. SMOTE BY HAND
+======================================================================
+rare points (0,0), (1,0), (0,1), (5,5); k = 1, so each new point lies between a rare point and its nearest rare neighbour
+  new point (0.545, 0.000)
+  new point (3.305, 2.882)
+  new point (0.354, 0.000)
+  new point (0.438, 0.000)
+  new point (1.433, 0.541)
+  new point (1.145, 0.182)
+every new point lies on such a segment: True; (5,5)'s nearest rare neighbour is far away, so its new points cross empty space
+Actual output from this lesson's run.
+
+======================================================================
+4. SIX REMEDIES, TWO MODELS, THREE PROBLEMS -- 20 splits
+======================================================================
+the threshold is 0.5 except for 'threshold moved', which keeps the data as it is and picks the threshold with the best F1 on 25% of the training rows
+forest 'class weights' is a balanced random forest: every tree's bootstrap draws equally from both classes
+
+Digits: 9 against the rest, logistic:
+  remedy                     precision        recall            F1  balanced acc       ROC AUC avg precision
+  none                          0.9364        0.8917        0.9128        0.9424        0.9937        0.9659
+  class weights                 0.8095        0.9398        0.8676        0.9572        0.9922        0.9582
+  random oversampling           0.8146        0.9361        0.8694        0.9559        0.9921        0.9590
+  SMOTE                         0.8424        0.9324        0.8812        0.9552        0.9913        0.9536
+  random undersampling          0.6308        0.9639        0.7609        0.9499        0.9845        0.8916
+  threshold moved               0.9243        0.8944        0.9059        0.9428        0.9937        0.9659
+
+Digits: 9 against the rest, forest:
+  remedy                     precision        recall            F1  balanced acc       ROC AUC avg precision
+  none                          0.9988        0.7417        0.8497        0.8708        0.9896        0.9615
+  class weights                 0.8202        0.9204        0.8668        0.9488        0.9899        0.9556
+  random oversampling           0.9870        0.8065        0.8859        0.9026        0.9946        0.9760
+  SMOTE                         0.9891        0.8315        0.9023        0.9152        0.9927        0.9726
+  random undersampling          0.7147        0.9481        0.8134        0.9525        0.9888        0.9501
+  threshold moved               0.9128        0.8704        0.8869        0.9301        0.9896        0.9615
+
+Breast cancer, 5% malignant, logistic:
+  remedy                     precision        recall            F1  balanced acc       ROC AUC avg precision
+  none                          0.9829        0.8583        0.9098        0.9287        0.9943        0.9647
+  class weights                 0.9565        0.9000        0.9212        0.9486        0.9940        0.9611
+  random oversampling           0.9423        0.8750        0.8981        0.9356        0.9919        0.9609
+  SMOTE                         0.9506        0.8750        0.9019        0.9359        0.9924        0.9622
+  random undersampling          0.6404        0.9333        0.7305        0.9449        0.9928        0.9289
+  threshold moved               0.9611        0.6917        0.7670        0.8442        0.9943        0.9647
+
+Breast cancer, 5% malignant, forest:
+  remedy                     precision        recall            F1  balanced acc       ROC AUC avg precision
+  none                          0.9579        0.7250        0.8052        0.8613        0.9725        0.9032
+  class weights                 0.6384        0.9000        0.7378        0.9339        0.9877        0.9120
+  random oversampling           0.9500        0.7833        0.8444        0.8903        0.9828        0.9132
+  SMOTE                         0.8874        0.7500        0.7963        0.8720        0.9833        0.9088
+  random undersampling          0.5421        0.9333        0.6614        0.9377        0.9894        0.9052
+  threshold moved               0.8867        0.6167        0.6840        0.8048        0.9725        0.9032
+
+Diabetes: top 10%, logistic:
+  remedy                     precision        recall            F1  balanced acc       ROC AUC avg precision
+  none                          0.4759        0.2750        0.3386        0.6193        0.8967        0.4659
+  class weights                 0.3711        0.7929        0.5023        0.8151        0.8991        0.4784
+  random oversampling           0.3677        0.8036        0.5022        0.8185        0.8986        0.4795
+  SMOTE                         0.3736        0.7893        0.5056        0.8154        0.8971        0.4876
+  random undersampling          0.2990        0.7429        0.4235        0.7676        0.8620        0.4202
+  threshold moved               0.4080        0.6607        0.4795        0.7643        0.8967        0.4659
+
+Diabetes: top 10%, forest:
+  remedy                     precision        recall            F1  balanced acc       ROC AUC avg precision
+  none                          0.3841        0.1143        0.1637        0.5446        0.8583        0.4090
+  class weights                 0.3444        0.7214        0.4647        0.7789        0.8723        0.4271
+  random oversampling           0.3934        0.2750        0.3137        0.6119        0.8487        0.3875
+  SMOTE                         0.3716        0.4179        0.3878        0.6670        0.8621        0.4254
+  random undersampling          0.3057        0.8357        0.4458        0.8043        0.8656        0.4286
+  threshold moved               0.3307        0.5679        0.3991        0.7180        0.8583        0.4090
+Actual output from this lesson's run.
+
+======================================================================
+5. IS IT JUST THE THRESHOLD?
+======================================================================
+ROC AUC and average precision do not depend on the threshold: they measure how well rare rows are RANKED above common ones
+problem, model                            AUC range across remedies    F1 range
+Digits: 9 against the rest, logistic           0.9845 to 0.9937 0.7609 to 0.9128
+Digits: 9 against the rest, forest             0.9888 to 0.9946 0.8134 to 0.9023
+Breast cancer, 5% malignant, logistic          0.9919 to 0.9943 0.7305 to 0.9212
+Breast cancer, 5% malignant, forest            0.9725 to 0.9894 0.6614 to 0.8444
+Diabetes: top 10%, logistic                    0.8620 to 0.8991 0.3386 to 0.5056
+Diabetes: top 10%, forest                      0.8487 to 0.8723 0.1637 to 0.4647
+Actual output from this lesson's run.
+
+======================================================================
+6. WHAT REBALANCING DOES TO THE PROBABILITIES -- logistic regression
+======================================================================
+mean predicted P(rare) on test rows, against the true rare share; 20 splits
+problem                        true share                  none         class weights                 SMOTE  weights / true
+Digits: 9 against the rest         0.1002                0.1008                0.1216                0.1182            1.21
+Breast cancer, 5% malignant        0.0531                0.0473                0.0525                0.0534            0.99
+Diabetes: top 10%                  0.1061                0.1060                0.2670                0.2503            2.52
+rebalancing inflates the predicted rare share most where the classes overlap (Diabetes) and hardly at all where they separate cleanly (breast cancer)
+Actual output from this lesson's run.
+
+======================================================================
+7. HOW RARE IS TOO RARE? breast cancer, logistic regression, the malignant share varied
+======================================================================
+ malignant share  rare training rows     none: recall  weights: recall    SMOTE: recall        none: AUC
+            0.02                 5.0           0.7000           0.8000           0.7750           0.9970
+            0.05                13.0           0.8583           0.9000           0.8750           0.9943
+            0.10                28.0           0.8625           0.8875           0.9042           0.9894
+            0.20                62.0           0.9093           0.9278           0.9241           0.9903
+            0.37               148.0           0.9445           0.9539           0.9539           0.9910
+Actual output from this lesson's run.
+
+saved imbalance_results.png
+saved imbalance_diagram.png
+
+======================================================================
+8. WHAT COMES NEXT
+======================================================================
+Day 118 is the week's build: model selection and cross-validation strategies (k-fold, stratified, and time-series splits), using the week's parts.
