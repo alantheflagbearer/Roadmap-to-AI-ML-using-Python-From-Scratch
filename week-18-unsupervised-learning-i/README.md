@@ -50,5 +50,21 @@ Exercise: [`day121_exercise.py`](day121_exercise.py) is the neighbourhoods, DBSC
 ![DBSCAN: core, border and noise](dbscan_diagram.png)
 ![Moons, rings, the k-distance curve, California and digits](dbscan_results.png)
 
+## Day 122 — Gaussian mixture models and the EM algorithm from scratch
+[`day122_gmm_em.py`](day122_gmm_em.py) — the Gaussian log-density through a Cholesky factor, log-sum-exp, the E and M steps with full, diagonal or spherical covariances, EM started from Day 119's k-means, and BIC. Data: iris, wine and digits (labels used only to judge) and Day 121's shapes; scikit-learn's GaussianMixture is an outside check.
+
+- **Checked:** the log-likelihood fell on 0 of 3454 EM steps; from the same start, the mean log-likelihood matches scikit-learn (-1.936874) and the labels agree exactly.
+- **Where a mixture beats k-means:** iris 0.9039 against 0.6201, a wide cluster beside a tight one 0.8988 against 0.2036; moons defeat both (0.2755).
+- **Soft assignments mean something:** of the 131 flowers it is at least 99% sure about, 0.985 are right; below 90%, 2 of 3.
+- **BIC chose the wrong k:** 2 for both iris and wine (true 3); wine's full model needs 314 parameters for 178 rows.
+- **Digits need a ridge:** 3 pixels never change, so full covariances fail without one; held-out likelihood prefers a ridge of 0.01, agreement with the digits prefers 10 (0.7510).
+
+Study guide: [`day122_gmm_em_complete_guide.pdf`](day122_gmm_em_complete_guide.pdf) · Syntax walkthrough: [`day122_syntax_line_by_line.pdf`](day122_syntax_line_by_line.pdf) · [Run output](day122_run_output.txt)
+
+Exercise: [`day122_exercise.py`](day122_exercise.py) is the density, log-sum-exp and the E and M steps, each checked against a formula — the fourth part of Day 125's build ([run output](day122_exercise_run_output.txt)).
+
+![The EM loop](gmm_diagram.png)
+![k-means against a mixture, soft memberships, BIC and the ridge](gmm_results.png)
+
 ---
 [← Back to main README](../README.md)

@@ -1,0 +1,4 @@
+log N((2, 0) | (1, -1), S): -2.634006; textbook formula with the inverse and determinant: -2.634006
+logsumexp of [1000, 1000]: 1000.693147 (exp(1000) overflows; the answer is 1000 + log 2 = 1000.693147)
+hard memberships: weights [0.6667, 0.3333] (40 and 20 of 60); mean of group 2 equals its own mean True; its covariance equals np.cov(bias=True) True
+responsibilities sum to 1 on every row: True; log-likelihood over 5 EM steps never falls: True

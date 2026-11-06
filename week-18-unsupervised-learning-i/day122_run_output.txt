@@ -1,0 +1,82 @@
+======================================================================
+1. BY HAND -- one EM step on six points: 0, 1, 2, 6, 7, 8
+======================================================================
+start: weights 0.5 and 0.5, means 1 and 5, variances 1 and 1
+E step: P(left cloud | x) = [1.0, 0.9997, 0.982, 0.0, 0.0, 0.0]; log-likelihood -17.6540
+by hand for x = 2: exp(-(2-1)^2/2) against exp(-(2-5)^2/2), so 1 / (1 + exp(-4)) = 0.9820
+M step: weights [0.4969, 0.5031], means [0.994, 6.9695], variances [0.6647, 0.8148]
+the next E step: log-likelihood -11.4863, up from -17.6540; the right cloud moved from 5 to the middle of 6, 7 and 8
+Actual output from this lesson's run.
+
+======================================================================
+2. CORRECTNESS -- the log-likelihood never falls, and scikit-learn agrees
+======================================================================
+iris and wine, 3 covariance types, 10 seeds each: 3454 EM steps; steps where the log-likelihood fell: 0
+iris, full covariances, the same start: mean log-likelihood -1.936874 here, -1.936874 in scikit-learn; largest gap between the means 8.3e-07; labels agree (ARI) 1.0000
+Actual output from this lesson's run.
+
+======================================================================
+3. WHERE A MIXTURE BEATS k-MEANS -- full covariances, k = the true number of groups
+======================================================================
+  iris         : ARI mixture 0.9039, k-means 0.6201; cluster sizes mixture [55, 50, 45], k-means [53, 50, 47]
+  wine         : ARI mixture 0.9459, k-means 0.8975; cluster sizes mixture [68, 62, 48], k-means [65, 62, 51]
+  wide + tight : ARI mixture 0.8988, k-means 0.2036; cluster sizes mixture [442, 58], k-means [325, 175]
+  two moons    : ARI mixture 0.2755, k-means 0.2475; cluster sizes mixture [221, 79], k-means [161, 139]
+each mixture cloud has its own size and shape, so a wide group and a tight one can sit side by side; moons are not ellipses at all
+Actual output from this lesson's run.
+
+======================================================================
+4. SOFT ASSIGNMENTS -- how sure is each point? iris, full covariances
+======================================================================
+  largest membership in [0.99, 1.00]: 131 flowers; named correctly 129 (0.985)
+  largest membership in [0.90, 0.99):  16 flowers; named correctly 14 (0.875)
+  largest membership in [0.00, 0.90):   3 flowers; named correctly 2 (0.667)
+the less sure the mixture is about a flower, the more often it is wrong: its memberships say which assignments to trust
+Actual output from this lesson's run.
+
+======================================================================
+5. CHOOSING k WITH BIC -- k = 1 to 8; lower is better
+======================================================================
+BIC = -2 log-likelihood + (number of parameters) x log n: a better fit, minus a price for every extra parameter
+  iris  full : best k 2 (true 3); BIC 1051, 795, 802, 849, 901, 943, 969, 1043
+  iris  diag : best k 6 (true 3); BIC 1743, 1078, 965, 961, 922, 918, 941, 950
+  wine  full : best k 2 (true 3); BIC 5741, 5608, 5773, 6039, 5900, 6112, 6298, 6816
+  wine  diag : best k 4 (true 3); BIC 6702, 5982, 5557, 5476, 5566, 5619, 5679, 5739
+iris, full covariances: 44 parameters at k = 3; wine: 314 (13 features, 178 rows)
+Actual output from this lesson's run.
+
+======================================================================
+6. COVARIANCE SHAPES -- full, diagonal, spherical (k = the true number of groups)
+======================================================================
+  data   covariance       ARI       BIC  parameters
+  iris   full          0.9039       802          44
+  iris   diag          0.7592       965          26
+  iris   spherical     0.6199      1227          17
+  wine   full          0.9459      5773         314
+  wine   diag          0.8636      5557          80
+  wine   spherical     0.8786      5709          44
+  Day 119's k-means: iris 0.6201, wine 0.8975
+spherical clouds with soft memberships behave much like k-means; full ones can tilt and stretch
+Actual output from this lesson's run.
+
+======================================================================
+7. WHEN A CLOUD COLLAPSES -- digits, 64 pixels, full covariances, k = 10
+======================================================================
+3 pixels are 0 in every image, so their variance is 0 and no covariance can be inverted
+  ridge 0: the Cholesky factor fails ('Matrix is not positive definite')
+    ridge     ARI   held-out log-likelihood per image
+    1e-06  0.6799                            -1890.53
+     0.01  0.7026                              -97.56
+        1  0.7453                             -124.04
+       10  0.7510                             -156.71
+      100  0.6274                             -213.18
+Day 119's k-means scored 0.6525; the ridge adds the same small variance to every pixel, a little like blurring each cloud
+Actual output from this lesson's run.
+
+saved gmm_results.png
+saved gmm_diagram.png
+
+======================================================================
+8. WHAT COMES NEXT
+======================================================================
+Day 123 is principal component analysis from scratch: the directions of greatest variance, with a real variance-explained demonstration.
