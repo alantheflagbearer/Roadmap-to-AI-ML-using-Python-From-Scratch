@@ -5,7 +5,7 @@ Weeks 16 and 17 covered supervised classical machine learning. Week 18 turns to 
 ## Day 119 — k-means from scratch: the elbow method tested
 [`day119_k_means.py`](day119_k_means.py) — Lloyd's loop, random and k-means++ starts with restarts, the silhouette, the adjusted Rand index (ARI) and an automatic elbow, all in NumPy. Data with known groups, used only to judge: iris and wine (standardised) and digits; scikit-learn runs only as an outside check.
 
-- **Checked:** the inertia rose on 0 of 381 steps; the silhouette and ARI match scikit-learn (0.187974, 0.652481). From the same start the two versions end slightly apart (1167803.84 against 1167791.56) because of one exact tie at step 1; on mean-centred data, as scikit-learn computes it, the result matches exactly.
+- **Checked:** the inertia rose on 0 of 381 steps; the silhouette and ARI match scikit-learn (0.187974, 0.652481). From the same start the two versions end slightly apart (1167803.84 against 1167791.56) because of exact ties at step 1 (two images equally far from two centres); on mean-centred data, as scikit-learn computes it, the result matches exactly.
 - **The elbow works twice and fails once:** it finds 3 on iris and wine, but k = 5 on digits, whose true number is 10.
 - **k-means++ was no better than random starts here** (mean inertia 1193076 against 1183979); restarts are what help.
 - **Scaling decides wine:** ARI 0.3711 raw, 0.8975 standardised.
