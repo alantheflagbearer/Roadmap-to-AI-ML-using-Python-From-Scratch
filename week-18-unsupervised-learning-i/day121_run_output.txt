@@ -1,0 +1,99 @@
+======================================================================
+1. BY HAND -- eleven points on a line, eps = 0.6, min_pts = 3
+======================================================================
+  point   0.0: 2 within 0.6 (itself included) -> border label 0
+  point   0.5: 3 within 0.6 (itself included) -> core   label 0
+  point   1.0: 3 within 0.6 (itself included) -> core   label 0
+  point   1.5: 2 within 0.6 (itself included) -> border label 0
+  point   5.0: 2 within 0.6 (itself included) -> border label 1
+  point   5.4: 3 within 0.6 (itself included) -> core   label 1
+  point   5.8: 2 within 0.6 (itself included) -> border label 1
+  point   9.0: 1 within 0.6 (itself included) -> noise  label -1
+  point  12.0: 2 within 0.6 (itself included) -> noise  label -1
+  point  12.3: 2 within 0.6 (itself included) -> noise  label -1
+  point  20.0: 1 within 0.6 (itself included) -> noise  label -1
+by hand: 0.5, 1 and 5.4 have 3 points within 0.6, so they are core; 0, 1.5 and 5.8 are within 0.6 of a core point, so they
+join its cluster as border points; 9, 12, 12.3 and 20 are noise (12 and 12.3 are close, but two points are fewer than min_pts)
+Actual output from this lesson's run.
+
+======================================================================
+2. CORRECTNESS -- against scikit-learn's DBSCAN
+======================================================================
+  two moons             (eps 0.2, min_pts 5): core points identical True; labels identical True; clusters 2
+  rings                 (eps 0.8, min_pts 5): core points identical True; labels identical True; clusters 2
+  California districts  (eps 5.0, min_pts 50): core points identical True; labels identical True; clusters 29
+Actual output from this lesson's run.
+
+======================================================================
+3. SHAPES k-MEANS CANNOT REPRESENT -- DBSCAN against Day 119's k-means (k = 2)
+======================================================================
+  two moons : DBSCAN (eps 0.2, min_pts 5) ARI 1.0000, 2 clusters, noise 0.000; k-means ARI 0.2475
+  rings     : DBSCAN (eps 0.8, min_pts 5) ARI 1.0000, 2 clusters, noise 0.000; k-means ARI 0.0039
+DBSCAN follows the shape through chains of dense neighbourhoods; k-means draws one straight boundary
+Actual output from this lesson's run.
+
+======================================================================
+4. CHOOSING eps -- the k-distance curve, and how sensitive DBSCAN is to it (two moons, min_pts = 5)
+======================================================================
+each point's distance to its 5th nearest point (itself first), sorted; the knee of that curve is at eps = 0.128
+     eps  clusters   noise      ARI
+     0.1        16   0.130   0.1378
+    0.15         2   0.003   0.9934
+     0.2         2   0.000   1.0000
+     0.3         2   0.000   1.0000
+     0.5         1   0.000   0.0000
+   0.128         6   0.027   0.4083
+too small: the moons break into fragments and noise; too large: they merge into one
+Actual output from this lesson's run.
+
+======================================================================
+5. REAL DATA -- where Californians live: 20,640 census districts by position (eps = 5 km, min_pts = 50)
+======================================================================
+29 clusters; 0.263 of districts are noise (rural, or between towns); the knee rule would suggest eps = 21.53 km
+    size  centre (lat, lon)    median house value  listed cities inside
+    7176  (33.98, -118.17)                207,850  Los Angeles
+    1952  (37.51, -122.17)                298,350  San Francisco, San Jose
+    1124  (37.78, -122.20)                187,150  Oakland
+    1086  (32.74, -117.10)                157,950  San Diego
+     667  (38.60, -121.39)                118,000  Sacramento
+     341  (36.78, -119.77)                 73,000  Fresno
+     299  (34.11, -117.32)                 93,300  (none listed)
+  noise districts: median house value 127,900; districts in any cluster: 195,400
+nobody told DBSCAN where the cities are: the clusters are where districts are densely packed
+Actual output from this lesson's run.
+
+======================================================================
+6. ONE eps FOR EVERY DENSITY -- DBSCAN's weakness
+======================================================================
+California, min_pts = 50: the same data at different eps
+   eps (km)  clusters   noise  largest  listed cities in the largest
+        2.0         9   0.888      971  (none listed)
+        3.0        23   0.443     6297  Los Angeles
+        5.0        29   0.263     7176  Los Angeles
+        8.0        22   0.178     8317  Los Angeles
+       12.0        22   0.106     8652  Los Angeles
+wide + tight (450 spread-out points beside 50 tight ones): the best of 21 settings is eps 0.3, min_pts 10: ARI 0.5548, 2 clusters, noise 0.916
+an eps small enough to separate the tight group leaves most of the wide one as noise; one large enough for the wide one swallows the tight one
+Actual output from this lesson's run.
+
+======================================================================
+7. HIGH DIMENSIONS -- digits (64 pixels), min_pts = 5
+======================================================================
+the knee rule suggests eps = 25.16; Day 119's k-means scored ARI 0.6525 on the same images
+    eps  clusters   noise  ARI, all  ARI, clustered only
+   16.0        27   0.768    0.0364               0.8376
+   18.0        37   0.494    0.1548               0.8024
+   20.0        25   0.258    0.4664               0.8633
+   22.0        13   0.130    0.5711               0.6842
+   24.0         8   0.059    0.1841               0.1882
+  25.16         3   0.028    0.0006               0.0003
+('ARI, all' counts noise as one more group; 'clustered only' judges just the images DBSCAN placed)
+Actual output from this lesson's run.
+
+saved dbscan_results.png
+saved dbscan_diagram.png
+
+======================================================================
+8. WHAT COMES NEXT
+======================================================================
+Day 122 is Gaussian mixture models and the EM algorithm from scratch: soft clusters, each an ellipse with its own shape and size.

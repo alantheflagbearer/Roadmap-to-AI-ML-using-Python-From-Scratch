@@ -34,5 +34,21 @@ Exercise: [`day120_exercise.py`](day120_exercise.py) is the merge loop, the cut 
 ![Agglomerative clustering](hierarchical_diagram.png)
 ![The iris dendrogram, four linkages, and chaining on wine](hierarchical_results.png)
 
+## Day 121 — DBSCAN from scratch: density-based clustering on non-convex data
+[`day121_dbscan.py`](day121_dbscan.py) — neighbourhoods within eps, core and border points and noise, cluster growth through core points, and the k-distance curve. Data: shapes made on purpose (two moons, two rings, a wide cluster beside a tight one), the latitude and longitude of 20,640 California census districts (scikit-learn's California housing data, downloaded once and cached outside the repository), and digits. scikit-learn's DBSCAN is an outside check.
+
+- **Checked:** core points and labels identical to scikit-learn on all three test sets, including California's 29 clusters.
+- **Shapes k-means cannot draw:** moons and rings recovered exactly (ARI 1.0000), where k-means scores 0.2475 and 0.0039.
+- **California's cities, from positions alone:** Los Angeles (7176 districts), San Francisco with San Jose, Oakland separately (the bay keeps them apart), San Diego, Sacramento and Fresno; noise districts' median house value 127,900 against 195,400 inside clusters.
+- **The k-distance knee rule chose badly on all three datasets:** eps 0.128 on the moons (ARI 0.4083), 21.53 km on California.
+- **One eps for every density:** California's noise share falls from 0.888 to 0.106 as eps grows from 2 to 12 km while Los Angeles swallows its neighbours; on digits the best score (0.5711) stays below Day 119's k-means.
+
+Study guide: [`day121_dbscan_complete_guide.pdf`](day121_dbscan_complete_guide.pdf) · Syntax walkthrough: [`day121_syntax_line_by_line.pdf`](day121_syntax_line_by_line.pdf) · [Run output](day121_run_output.txt)
+
+Exercise: [`day121_exercise.py`](day121_exercise.py) is the neighbourhoods, DBSCAN and the k-distance, checked by hand on eleven points — the third part of Day 125's build ([run output](day121_exercise_run_output.txt)).
+
+![DBSCAN: core, border and noise](dbscan_diagram.png)
+![Moons, rings, the k-distance curve, California and digits](dbscan_results.png)
+
 ---
 [← Back to main README](../README.md)
