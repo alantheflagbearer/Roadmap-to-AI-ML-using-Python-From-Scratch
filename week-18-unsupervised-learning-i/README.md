@@ -18,5 +18,21 @@ Exercise: [`day119_exercise.py`](day119_exercise.py) is the loop, the ARI, the s
 ![The k-means loop](kmeans_diagram.png)
 ![Elbows, scores, starts, the moons and the digit centres](kmeans_results.png)
 
+## Day 120 — Hierarchical clustering from scratch: a real dendrogram
+[`day120_hierarchical_clustering.py`](day120_hierarchical_clustering.py) — agglomerative clustering with single, complete, average and Ward linkage through one Lance–Williams update, cutting the tree, cophenetic correlation, and the dendrogram laid out and drawn by hand. Data: iris and wine (standardised) and digits, labels used only to judge; SciPy's `linkage` is an outside check, and Day 119's k-means is imported for comparison.
+
+- **Checked:** single, average and Ward match SciPy to 7.0e-15. Complete linkage differed (2.4e-02) because iris has 1631 tied distances; with ties broken by tiny noise all four agree to 1.3e-10.
+- **Ward wins everywhere:** ARI 0.6153 on iris, 0.7899 on wine, 0.7940 on digits, where it beats Day 119's k-means (0.6525) despite a higher inertia.
+- **Single linkage chains:** cut into 10 clusters, digits gives one cluster of 1788 of 1797 images.
+- **The biggest-gap cut** finds 3 on wine but 2 on iris and on digits.
+- **Cophenetic correlation does not pick the best cut:** average linkage keeps distances best (0.8544 on iris), Ward clusters best.
+
+Study guide: [`day120_hierarchical_clustering_complete_guide.pdf`](day120_hierarchical_clustering_complete_guide.pdf) · Syntax walkthrough: [`day120_syntax_line_by_line.pdf`](day120_syntax_line_by_line.pdf) · [Run output](day120_run_output.txt)
+
+Exercise: [`day120_exercise.py`](day120_exercise.py) is the merge loop, the cut and the cophenetic heights, checked by hand on five points — the second part of Day 125's build ([run output](day120_exercise_run_output.txt)).
+
+![Agglomerative clustering](hierarchical_diagram.png)
+![The iris dendrogram, four linkages, and chaining on wine](hierarchical_results.png)
+
 ---
 [← Back to main README](../README.md)
