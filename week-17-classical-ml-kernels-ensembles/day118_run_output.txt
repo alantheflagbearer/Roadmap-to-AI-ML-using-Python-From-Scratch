@@ -1,0 +1,86 @@
+======================================================================
+1. CHECKS -- the parts are verbatim
+======================================================================
+functions and classes from day112_exercise.py to day117_exercise.py found here, character for character: 24 of 24
+left out as duplicates of Day 113's identical sqdist: sqdist (day115), sqdist (day117); the hand-check helpers of Day 116 were not copied
+Actual output from this lesson's run.
+
+======================================================================
+2. k-FOLD AGAINST STRATIFIED FOLDS, ON RARE CLASSES -- 5 folds, 50 reshuffles
+======================================================================
+Day 117's metrics on kNN (k = 5) predictions; the spread is how much the CV estimate changes when only the shuffle changes
+
+digits: 9 against the rest: 1797 rows, 180 rare (0.100)
+  k-fold     : rare rows per fold 24 to 50; folds with none 0 of 250; CV F1 0.9527, spread across reshuffles (std) 0.0048
+  stratified : rare rows per fold 36 to 36; folds with none 0 of 250; CV F1 0.9520, spread across reshuffles (std) 0.0043
+
+breast cancer, 5% malignant: 376 rows, 19 rare (0.051)
+  k-fold     : rare rows per fold 0 to 9; folds with none 4 of 250; CV F1 0.7207, spread across reshuffles (std) 0.0778
+  stratified : rare rows per fold 3 to 4; folds with none 0 of 250; CV F1 0.7264, spread across reshuffles (std) 0.0445
+Actual output from this lesson's run.
+
+======================================================================
+3. HOW GOOD IS A CV ESTIMATE? digits, kNN (k = 3), 40 training sets of 150 images
+======================================================================
+each training set's CV estimate is compared with the model's accuracy on all the other 1,647 images: the truth, as near as it can be measured
+         folds  mean estimate  mean truth     bias  error std
+        2-fold         0.8528      0.9255  -0.0727     0.0376
+        5-fold         0.9007      0.9255  -0.0248     0.0257
+       10-fold         0.9093      0.9255  -0.0162     0.0258
+ leave-one-out         0.9162      0.9255  -0.0093     0.0239
+fewer folds train on fewer rows, so they underestimate; every estimate still misses a given training set's true accuracy by a few points
+Actual output from this lesson's run.
+
+======================================================================
+4. THE COST OF CHOOSING -- the best CV score, nested CV and the test (10 splits, breast cancer)
+======================================================================
+13 candidates: 9 RBF SVMs (gamma x C) and 4 kNNs; 5-fold stratified CV on the training part chooses one
+best CV score (what is often reported):  0.9726
+nested CV estimate:                       0.9678
+the chosen model's test accuracy:         0.9784
+  best CV    minus test: -0.0057 [-0.0129, +0.0023]
+  nested CV  minus test: -0.0105 [-0.0176, -0.0028]
+models chosen: [('SVM gamma 0.003 C 10', 4), ('SVM gamma 0.03 C 1', 1), ('SVM gamma 0.03 C 10', 5)]
+Actual output from this lesson's run.
+
+======================================================================
+5. TIME -- shuffled folds against forward-chaining, on real records
+======================================================================
+predict the next value from the last 8; the first 80% of each series is for choosing and estimating, the last 20% is the real future
+forward-chaining: 5 blocks, each predicted by a model trained only on everything before it
+
+CO2 (weekly, ppm): 2284 values; past 1820 rows, future 456 rows; RMSE in the series' own units
+  model               shuffled 5-fold  forward-chaining  the real future
+  kNN, k = 5                    0.521             2.932            7.232
+  linear on lags                0.438             0.457            0.466
+
+Sunspots (yearly): 309 values; past 240 rows, future 61 rows; RMSE in the series' own units
+  model               shuffled 5-fold  forward-chaining  the real future
+  kNN, k = 5                   16.677            17.641           29.108
+  linear on lags               14.627            14.596           20.320
+Actual output from this lesson's run.
+
+======================================================================
+6. CHOOSING A MODEL FOR THE FUTURE -- kNN's k, chosen by each strategy
+======================================================================
+CO2 (weekly, ppm):
+                kNN k 1    kNN k 3    kNN k 5   kNN k 10   kNN k 20   kNN k 40
+  shuffled        0.677      0.554      0.521      0.523      0.568      0.709
+  forward         3.081      2.957      2.932      3.022      3.254      3.756
+  future          6.944      7.305      7.232      7.374      7.626      7.858
+  shuffled CV chooses kNN k 5 (future RMSE 7.232); forward-chaining chooses kNN k 5 (7.232); best in hindsight kNN k 1 (6.944)
+Sunspots (yearly):
+                kNN k 1    kNN k 3    kNN k 5   kNN k 10   kNN k 20   kNN k 40
+  shuffled       19.184     16.504     16.677     16.623     17.602     20.537
+  forward        22.718     18.570     17.641     17.457     19.755     23.878
+  future         31.091     26.706     29.108     31.250     35.103     38.848
+  shuffled CV chooses kNN k 3 (future RMSE 26.706); forward-chaining chooses kNN k 10 (31.250); best in hindsight kNN k 3 (26.706)
+Actual output from this lesson's run.
+
+saved model_selection_results.png
+saved model_selection_diagram.png
+
+======================================================================
+7. WHAT COMES NEXT
+======================================================================
+Day 119 begins Week 18, unsupervised learning: k-means from scratch, with a real elbow-method demonstration.

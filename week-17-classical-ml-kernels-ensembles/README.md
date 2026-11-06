@@ -97,5 +97,21 @@ Exercise: [`day117_exercise.py`](day117_exercise.py) is the metrics and SMOTE, c
 ![Three places to fix imbalance](imbalance_diagram.png)
 ![F1 by remedy, and how rare is too rare](imbalance_results.png)
 
+## Day 118 — The Week 17 build: model selection and cross-validation strategies
+[`day118_model_selection.py`](day118_model_selection.py) — the week's six exercise parts, pasted in verbatim under banners (a run-time check confirms all 24 of 24 match), become the models: Day 112's SMO with Day 113's RBF kernel, Day 115's kNN and Day 117's metrics. New today: k-fold, stratified and forward-chaining folds, nested CV, and time-series helpers. Data: digits, breast cancer, and two real records from statsmodels' bundled datasets, weekly CO2 at Mauna Loa and yearly sunspots.
+
+- **Stratify on rare classes:** on breast cancer with 19 malignant rows, plain k-fold left 4 of 250 folds with none; stratified folds halve the wobble of the CV F1 (0.0778 to 0.0445).
+- **Fewer folds underestimate:** on digits, 2-fold misses the true accuracy by -0.0727 on average, leave-one-out by -0.0093; every estimate is still off by a few points for any one training set.
+- **Choosing was not costly here:** the best CV score (0.9726) sat below the chosen model's test accuracy (0.9784), and nested CV lower still (0.9678): the usual optimism did not show.
+- **Time series:** for kNN on CO2, shuffled folds report an RMSE of 0.521 ppm, forward-chaining 2.932, and the real future gives 7.232: kNN cannot forecast above anything it has seen.
+- **An honest estimate is not a good choice:** forward-chaining chose kNN's k no better than shuffled folds on either series.
+
+Study guide: [`day118_model_selection_complete_guide.pdf`](day118_model_selection_complete_guide.pdf) · Syntax walkthrough: [`day118_syntax_line_by_line.pdf`](day118_syntax_line_by_line.pdf) · [Run output](day118_run_output.txt)
+
+Day 118 is the week's build, so it has no exercise script of its own.
+
+![Three ways to cut folds](model_selection_diagram.png)
+![Rare classes, CV error, the cost of choosing, and the CO2 forecast](model_selection_results.png)
+
 ---
 [← Back to main README](../README.md)
