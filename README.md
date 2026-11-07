@@ -2,7 +2,7 @@
 
 A daily-practice log following a 52-week (365-day) roadmap from Python fundamentals through classical ML, deep learning, and into applied AI. Most lessons don't just call a library function — they build the underlying idea (gradient descent, backprop, convolution, dropout...) from scratch in NumPy first, then show the framework equivalent. Each day is a self-contained script; from Week 1 onward, most days add a paired study guide (a concept walkthrough and a line-by-line syntax breakdown, both PDF).
 
-**Currently on Day 128** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
+**Currently on Day 129** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
 
 ## How this repo is organized
 
@@ -32,7 +32,7 @@ A daily-practice log following a 52-week (365-day) roadmap from Python fundament
 | 16 | 105–111 | Classical ML I — Trees | [→ folder](week-16-classical-ml-trees) |
 | 17 | 112–118 | Classical ML II — Kernels & Ensembles | [→ folder](week-17-classical-ml-kernels-ensembles) |
 | 18 | 119–125 | Unsupervised Learning I | [→ folder](week-18-unsupervised-learning-i) |
-| 19 | 126–128 (of 126–132) | Unsupervised Learning II — Autoencoders — in progress | [→ folder](week-19-unsupervised-learning-ii) |
+| 19 | 126–129 (of 126–132) | Unsupervised Learning II — Autoencoders — in progress | [→ folder](week-19-unsupervised-learning-ii) |
 
 Weeks 20 onward (generative models, GANs, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
 
@@ -83,7 +83,7 @@ Starting with Week 6, the same small neural-network library — written entirely
 | ![Gaussian mixture results](week-18-unsupervised-learning-i/gmm_results.png) Gaussian mixtures: iris's stretched species found — Day 122 | ![PCA results](week-18-unsupervised-learning-i/pca_results.png) PCA: most variance is not most useful — Day 123 |
 | ![SVD results](week-18-unsupervised-learning-i/svd_results.png) The SVD: a photograph at rank 20, half its pixels refilled — Day 124 | ![t-SNE and UMAP results](week-18-unsupervised-learning-i/tsne_umap_results.png) Week 18 build: t-SNE and UMAP from scratch, and the week's clusterers on their maps — Day 125 |
 | ![Autoencoder results](week-19-unsupervised-learning-ii/autoencoder_results.png) Autoencoders: linear finds PCA, ReLU beats it — Day 126 | ![Denoising results](week-19-unsupervised-learning-ii/denoising_results.png) Denoising autoencoders: specialists that beat the median filter — Day 127 |
-| ![Anomaly detection results](week-19-unsupervised-learning-ii/anomaly_results.png) Anomaly detection: hard to rebuild is not always anomalous — Day 128 | |
+| ![Anomaly detection results](week-19-unsupervised-learning-ii/anomaly_results.png) Anomaly detection: hard to rebuild is not always anomalous — Day 128 | ![VAE trick results](week-19-unsupervised-learning-ii/vae_trick_results.png) The reparameterization trick: unbiased and far less noisy — Day 129 |
 
 ## Featured project: Titanic EDA (Day 13)
 

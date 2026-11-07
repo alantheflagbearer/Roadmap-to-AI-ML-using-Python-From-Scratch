@@ -1,0 +1,68 @@
+======================================================================
+1. BY HAND -- one draw, and one KL divergence
+======================================================================
+mu 1, sigma 2 (logvar = log 4), eps 0.5: z = 1 + 2 x 0.5 = 2.0000
+KL(N(1, 4) || N(0, 1)) by hand: 0.5 (sigma^2 + mu^2 - 1 - log sigma^2) = 0.5 (4 + 1 - 1 - 1.3863) = 1.3069; kl_normal: 1.3069
+KL of N(0, 1) from itself: 0.0000
+Actual output from this lesson's run.
+
+======================================================================
+2. THE KL FORMULA AGAINST A MONTE CARLO ESTIMATE -- 1,000,000 draws each
+======================================================================
+      mu  sigma   formula  Monte Carlo  standard error
+     0.0    1.0    0.0000       0.0000          0.0000
+     1.0    2.0    1.3069       1.3041          0.0029
+    -2.0    0.5    2.3181       2.3190          0.0011
+     0.5    0.1    1.9326       1.9338          0.0007
+Actual output from this lesson's run.
+
+======================================================================
+3. TWO GRADIENT ESTIMATORS -- d E[f(z)] / d mu and d sigma, z ~ N(mu, sigma^2), 100,000 single-draw estimates each
+======================================================================
+  f and where                                exact       estimator              mean      spread (std)
+  (z - 3)^2 at mu 0, sigma 1         (-6.00, 2.00)  score function     (-5.92, 1.91)    (14.85, 28.07)
+  (z - 3)^2 at mu 0, sigma 1         (-6.00, 2.00) reparameterized     (-5.99, 1.97)      (1.99, 6.58)
+  (z - 3)^2 at mu 2.9, sigma 0.1     (-0.20, 0.20)  score function     (-0.20, 0.20)      (0.55, 1.18)
+  (z - 3)^2 at mu 2.9, sigma 0.1     (-0.20, 0.20) reparameterized     (-0.20, 0.20)      (0.20, 0.35)
+both are right on average; the score function's d/d mu estimates spread 7.4 and 2.8 times wider than the trick's in the two cases
+Actual output from this lesson's run.
+
+======================================================================
+4. LEARNING A GAUSSIAN WITH EACH ESTIMATOR -- minimise E[(z - 3)^2 / (2 x 0.25)] + KL(q || N(0, 1)), one draw per step
+======================================================================
+by hand, the best q is the Bayesian posterior: precision 1 + 1/0.25 = 5, so sigma = sqrt(0.2), mu = 3 x 4/5 = 2.4
+  estimator        step size   blew up  mu (mean)  sigma (mean)    distance to the best
+  score function        0.01   3 of 20      2.530         0.366          (0.169, 0.102)
+  score function       0.001   0 of 20      2.405         0.450          (0.047, 0.036)
+  reparameterized       0.01   0 of 20      2.419         0.435          (0.038, 0.033)
+  reparameterized      0.001   0 of 20      2.404         0.448          (0.015, 0.010)
+(the means and distances are over the runs that did not blow up)
+Actual output from this lesson's run.
+
+======================================================================
+5. CORRECTNESS -- a gradient check through a whole VAE (encoder 6-5-4, two codes, decoder 2-5-6), eps held fixed
+======================================================================
+all 110 parameters: largest gap between backpropagation and finite differences 3.1e-09
+with eps fixed, z is an ordinary function of the encoder's outputs, so ordinary backpropagation applies: that is the trick
+Actual output from this lesson's run.
+
+======================================================================
+6. THE TRICK IN A REAL NETWORK -- a VAE on 20,000 MNIST images: 784 -> 256 -> (16 means, 16 log-variances), 16 -> 256 -> 784
+======================================================================
+   epoch  loss (negative ELBO)  reconstruction      KL   per test image, in nats
+       1                155.95          139.04   16.91
+       2                136.35          116.14   20.20
+       3                129.14          108.69   20.45
+       5                121.81          100.28   21.52
+      10                115.14           92.98   22.16
+trained in 26 s; KL per code dimension, largest first: [1.78, 1.63, 1.6, 1.56, 1.47, 1.38, 1.35, 1.34, 1.33, 1.32, 1.29, 1.28, 1.28, 1.25, 1.22, 1.1]
+dimensions carrying more than 0.1 nats: 16 of 16 (a dimension below that stays at the prior and carries nothing)
+Actual output from this lesson's run.
+
+saved vae_trick_results.png
+saved vae_trick_diagram.png
+
+======================================================================
+7. WHAT COMES NEXT
+======================================================================
+Day 130 trains VAEs properly, maps their latent space in two dimensions, and generates new digits from it.

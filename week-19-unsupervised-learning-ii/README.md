@@ -50,5 +50,20 @@ Exercise: [`day128_exercise.py`](day128_exercise.py) is the three scores, the th
 ![Anomaly detection by reconstruction](anomaly_diagram.png)
 ![Scores, ROC curves, every digit held out, and contamination](anomaly_results.png)
 
+## Day 129 — Variational autoencoders: the reparameterization trick from scratch
+[`day129_vae_reparameterization.py`](day129_vae_reparameterization.py) — z = μ + σε, the Gaussian KL divergence, the VAE loss (negative ELBO) with backpropagation through the draw, and the score-function (REINFORCE) estimator for comparison; Day 126's network parts do the arithmetic. Data: one-dimensional Gaussians with known answers, and MNIST.
+
+- **Checked:** the KL formula against a million-draw estimate (1.3069 against 1.3041, standard error 0.0029); a gradient check through a whole VAE (3.1e-09 over 110 parameters).
+- **Both estimators are unbiased; the trick is far less noisy:** one-draw spread 14.85 for the score function against 1.99.
+- **Learning a Gaussian with a known answer:** at step 0.01 the score function blew up in 3 of 20 runs and the trick in none; at step 0.001 the trick landed about three times closer.
+- **A real VAE, 10 epochs on MNIST:** loss 155.95 to 115.14 nats per image; reconstruction falls while the KL rises (16.91 to 22.16).
+
+Study guide: [`day129_vae_reparameterization_complete_guide.pdf`](day129_vae_reparameterization_complete_guide.pdf) · Syntax walkthrough: [`day129_syntax_line_by_line.pdf`](day129_syntax_line_by_line.pdf) · [Run output](day129_run_output.txt)
+
+Exercise: [`day129_exercise.py`](day129_exercise.py) is the trick, the KL term, the VAE loss and both estimators, checked by hand — the fourth part of Day 132's build ([run output](day129_exercise_run_output.txt)).
+
+![The reparameterization trick](vae_trick_diagram.png)
+![Gradient noise, learning a Gaussian, and a first MNIST VAE](vae_trick_results.png)
+
 ---
 [← Back to main README](../README.md)
