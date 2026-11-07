@@ -1,0 +1,6 @@
+log N(0; 0, 1): -0.918939; by hand -log(2 pi) / 2 = -0.918939
+two 1-D classes: p(1 | x = 3.5) = 0.952574; by hand sigmoid(6 x 3.5 - 18) = 0.952574
+LDA as linear scores against Bayes' rule: largest gap 6.1e-16
+marginal (features 0 and 1 of a 3-feature model) against a model of those 2 features: largest gap 0.0e+00
+200,000 samples of class 1: mean off by 0.0009, covariance off by 0.0036
+log p(x) of a typical point -3.287; of a far-away point -370.428

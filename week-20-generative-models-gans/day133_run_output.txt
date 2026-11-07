@@ -1,0 +1,86 @@
+======================================================================
+1. BY HAND -- two 1-D Gaussians with the same spread give a logistic posterior
+======================================================================
+means 1.0 and 5.0; shared variance (1/6) x (1 + 0 + 1 + 1 + 0 + 1) = 0.6667
+by hand: p(class 1 | x) = sigmoid(w x + b) with w = (mu1 - mu0) / s2 = 6.0000, b = (mu0^2 - mu1^2) / (2 s2) = -18.0000
+at x = 1, 3, 3.5: Bayes' rule gives 0.0000, 0.5000, 0.9526; the sigmoid gives 0.0000, 0.5000, 0.9526
+the boundary (probability 0.5) is halfway between the means, at x = 3: a straight line, as in logistic regression
+Actual output from this lesson's run.
+
+======================================================================
+2. THE SAME FAMILY, FITTED TWO WAYS -- LDA against logistic regression, on all 784 pixels
+======================================================================
+LDA fitted in 0.9 s (means and one covariance: no iterations); test accuracy 0.8798
+LDA's posterior as a softmax of linear scores x W + b: largest difference from Bayes' rule 8.0e-14
+logistic regression fitted in 39.7 s (500 Adam steps); test accuracy 0.8917
+   LDA       test log-loss 0.5019; average confidence 0.9353; share of predictions above 0.99 confident 0.6185
+   logistic  test log-loss 0.9116; average confidence 0.9745; share of predictions above 0.99 confident 0.8431
+they disagree on 0.1179 of test images
+Actual output from this lesson's run.
+
+======================================================================
+3. LEARNING CURVES -- test error against training-set size
+======================================================================
+MNIST, 50 PCA numbers per image (PCA fitted on the 60,000 training images, without labels); 5 random subsets per size
+   training images  naive Bayes          LDA          QDA     logistic   LDA - logistic
+                30       0.6055       0.4285       0.3947       0.5524   -0.1239
+               100       0.3447       0.2922       0.2185       0.3702   -0.0780
+               300       0.2030       0.1851       0.1247       0.2422   -0.0571
+             1,000       0.1460       0.1409       0.0959       0.1447   -0.0038
+             3,000       0.1352       0.1326       0.0881       0.1085   +0.0240
+            10,000       0.1301       0.1292       0.0864       0.0956   +0.0336
+            60,000       0.1270       0.1278       0.0847       0.0913   +0.0365
+(71 s; the 60,000 row is one fit, repeated)
+breast cancer: 30 measurements (log, then standardised by the training rows); 369 training and 200 test tumours; 20 random subsets per size
+     training rows  naive Bayes          LDA          QDA     logistic   NB - logistic
+                10       0.0970       0.1130       0.0900       0.0993   -0.0023
+                20       0.0553       0.0848       0.0595       0.0760   -0.0207
+                40       0.0413       0.0458       0.0377       0.0470   -0.0057
+                80       0.0363       0.0358       0.0355       0.0320   +0.0042
+               160       0.0308       0.0378       0.0323       0.0313   -0.0005
+               369       0.0300       0.0400       0.0350       0.0200   +0.0100
+one test error on 200 tumours is 0.005; settings fixed at every size (generative reg 0.1, QDA 1.0; logistic lambda 0.001), not re-tuned
+Actual output from this lesson's run.
+
+======================================================================
+4. GENERATING -- drawing new digits from p(x | digit), in 50 PCA numbers, then back to pixels
+======================================================================
+QDA with reg 1.0: 1,000 sampled images; section 2's logistic regression names the intended digit for 0.5410
+   per digit: 0 0.68, 1 0.01, 2 0.51, 3 0.79, 4 0.39, 5 0.51, 6 0.64, 7 0.73, 8 0.57, 9 0.58
+QDA with reg 0.001: 1,000 sampled images; section 2's logistic regression names the intended digit for 0.8620
+   per digit: 0 0.97, 1 0.85, 2 0.81, 3 0.92, 4 0.77, 5 0.77, 6 0.94, 7 0.90, 8 0.83, 9 0.86
+each digit's own total variance in the 50 numbers: 0 40.5, 1 18.2, 2 38.4, 3 35.1, 4 31.7, 5 37.3, 6 33.2, 7 28.9, 8 34.8, 9 30.4; reg 1.0 adds 50 x 1.0 = 50.0
+for comparison, 1,000 real test digits squeezed through the same 50 PCA numbers: 0.8600
+a logistic regression has no p(x | digit) to draw from: it can only label images it is given
+Actual output from this lesson's run.
+
+======================================================================
+5. MISSING PIXELS -- classifying with half of every test image hidden
+======================================================================
+   pattern             LDA, hidden pixels left out  logistic, hidden = 0  logistic, hidden = average  logistic retrained on that half
+   top half seen                            0.7771                0.3923                      0.4669                           0.7749
+   bottom half seen                         0.7625                0.4303                      0.5767                           0.7390
+   left half seen                           0.7936                0.5032                      0.5720                           0.8005
+   right half seen                          0.7870                0.4795                      0.5615                           0.7528
+the retrained column needs a new model for every pattern of missing pixels; LDA uses the one model it already has
+Actual output from this lesson's run.
+
+======================================================================
+6. KNOWING WHAT IT DOES NOT KNOW -- log p(x) against the classifier's confidence
+======================================================================
+score: generative, -log p(x) under section 2's LDA; discriminative, 1 - the logistic regression's top probability
+   unusual images        AUC -log p(x)  AUC 1 - confidence  logistic's average confidence on them
+   digits upside down           0.7259              0.7061  0.9148
+   random noise                 1.0000              0.0110  1.0000
+   two digits overlaid          0.8334              0.5935  0.9504
+for comparison, its average confidence on normal test digits: 0.9702
+Actual output from this lesson's run.
+
+saved generative_discriminative_results.png
+saved generative_discriminative_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+A Gaussian per class generates blurry, average-looking digits. Day 134 builds a GAN from scratch: a generator and a
+discriminator trained against each other, with no formula for p(x) at all.
