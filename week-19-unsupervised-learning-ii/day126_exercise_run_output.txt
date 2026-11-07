@@ -1,0 +1,4 @@
+gradient check, bce: largest gap 1.5e-09
+gradient check, mse: largest gap 2.2e-09
+points on y = 2x: decoder direction (0.4472, 0.8944); by hand (1, 2)/sqrt(5) = (0.4472, 0.8944); error 4.34e-12
+6-4-6 network, cross-entropy per image: 4.158 after epoch 1, 0.316 after 60; falls every 10 epochs: True

@@ -1,0 +1,64 @@
+======================================================================
+1. BY HAND -- a 2-1-2 linear autoencoder on points along the line y = 2x
+======================================================================
+squared error per point: 13.8091 after the first epoch, 0.0128 after 2,000
+the decoder's direction (0.4367, 0.8996); PCA's first component of the same noisy points (0.4352, 0.9003); the line without noise (1, 2)/sqrt(5) = (0.4472, 0.8944)
+one number per point (its position along the line) is all the code can hold, so the network learns the line
+Actual output from this lesson's run.
+
+======================================================================
+2. CORRECTNESS -- backpropagation against finite differences, through the whole network
+======================================================================
+  bce: largest gap over all 77 parameters 1.5e-09
+  mse: largest gap over all 77 parameters 2.2e-09
+Actual output from this lesson's run.
+
+======================================================================
+3. A LINEAR AUTOENCODER REDISCOVERS PCA -- 784 -> 32 -> 784, no ReLU, squared error, 20,000 training images
+======================================================================
+test error per pixel: linear autoencoder 0.01707 after 40 epochs (54 s); PCA with 32 components 0.01689
+held-out error every 10 epochs: [13.665, 13.394, 13.422, 13.383] (squared error summed per image)
+the decoder's subspace against PCA's: cosines of the principal angles from 0.9999 down to 0.9878 (1 = the same direction)
+a linear autoencoder can only learn PCA's subspace; it may not find all of it, and gradient descent gets there slowly
+Actual output from this lesson's run.
+
+======================================================================
+4. NONLINEAR AGAINST PCA -- 784 -> 256 -> k -> 256 -> 784 with ReLU, cross-entropy, 20 epochs
+======================================================================
+   code size       PCA  autoencoder  seconds
+           2   0.05572      0.04643      102
+           8   0.03753      0.02051       90
+          32   0.01689      0.00731      109
+test error per pixel (pixels from 0 to 1); the same 10,000 test images for both
+Actual output from this lesson's run.
+
+======================================================================
+5. HOW MUCH DATA -- the same 32-code network on 1,000 and on 20,000 training images, equal numbers of updates
+======================================================================
+    1000 training images: error per pixel on them 0.00161, on the test images 0.01827; gap +0.01666
+   20000 training images: error per pixel on them 0.00664, on the test images 0.00731; gap +0.00068
+Actual output from this lesson's run.
+
+======================================================================
+6. WHAT THE CODE HOLDS -- 32 numbers per image; labels used only to judge
+======================================================================
+  representation            kNN accuracy (k = 3)  k-means ARI (k = 10)
+  raw pixels (784)                        0.9050                0.4069
+  PCA (32)                                0.9170                0.3776
+  autoencoder code (32)                   0.9155                0.3875
+Actual output from this lesson's run.
+
+======================================================================
+7. DECODING CODES IT HAS NEVER SEEN -- the gaps in code space
+======================================================================
+distance to the nearest of 10,000 other real images (root mean square per pixel): decoded real codes 0.1504, decoded random codes 0.2193
+random codes land in regions no training image used, and decode to blurs: the code space has gaps (Day 129's VAE closes them)
+Actual output from this lesson's run.
+
+saved autoencoder_results.png
+saved autoencoder_diagram.png
+
+======================================================================
+8. WHAT COMES NEXT
+======================================================================
+Day 127 is denoising autoencoders: trained to rebuild clean images from damaged ones, with a real noise-removal demonstration.
