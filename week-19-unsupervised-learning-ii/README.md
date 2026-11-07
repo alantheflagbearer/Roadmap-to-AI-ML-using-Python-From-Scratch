@@ -80,5 +80,21 @@ Exercise: [`day130_exercise.py`](day130_exercise.py) is encoding, decoding, samp
 ![A trained VAE, used three ways](vae_latent_diagram.png)
 ![The 2-code map, a decoded grid, samples, interpolation and the beta trade-off](vae_latent_results.png)
 
+## Day 131 — Contrastive learning basics: a real positive/negative pair demonstration
+[`day131_contrastive_learning.py`](day131_contrastive_learning.py) — SimCLR-style contrastive learning from scratch: random views of each image (rotation, shift, erasing, noise, for a whole batch at once), the NT-Xent loss with its gradient derived by hand, and a network 784 → 256 → 128 → 64 trained on 20,000 unlabelled MNIST images. The 128-number layer is judged with linear probes (Day 116) using few labels.
+
+- **Checked:** the loss by hand (1.8680) and its gradient against finite differences through a whole network (3.0e-10).
+- **The views are not alike in pixels:** two views of one image have cosine 0.4232, barely above different images' 0.3536; after training, 0.7997 against 0.0174 on test images.
+- **Best with few labels:** with 10 labels per digit, a linear probe scores 0.8157, against 0.6078 for raw pixels and 0.7100 for Day 126's autoencoder code; with 100 per digit, 0.9311.
+- **Temperature depends on the use:** τ = 0.1 is best with 100 labels per digit (0.9311), τ = 0.5 with 10 (0.8437).
+- **The views decide the result:** noise alone gives 0.5800 with 10 labels per digit, below raw pixels; adding shift and rotation lifts it to 0.8111.
+
+Study guide: [`day131_contrastive_learning_complete_guide.pdf`](day131_contrastive_learning_complete_guide.pdf) · Syntax walkthrough: [`day131_syntax_line_by_line.pdf`](day131_syntax_line_by_line.pdf) · [Run output](day131_run_output.txt)
+
+Exercise: [`day131_exercise.py`](day131_exercise.py) is the views, the loss, training and the representation, checked by hand — the sixth part of Day 132's build ([run output](day131_exercise_run_output.txt)).
+
+![Two views, one shared network, one loss](contrastive_diagram.png)
+![Views, training, probes, the representation and temperature](contrastive_results.png)
+
 ---
 [← Back to main README](../README.md)

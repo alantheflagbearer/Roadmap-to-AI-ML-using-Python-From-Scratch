@@ -1,0 +1,69 @@
+======================================================================
+1. BY HAND -- the loss for two images, four views, temperature 0.5
+======================================================================
+row 0's similarities to rows 1, 2, 3 (cosine / 0.5): 0.0, 1.6, 1.2; its partner is row 2
+by hand: -log(e^1.6 / (e^0.0 + e^1.6 + e^1.2)) = 0.6271
+each row's probability of picking its partner: [0.5341, 0.0446, 0.5341, 0.0446]; the loss averages -log of these: 1.8680
+Actual output from this lesson's run.
+
+======================================================================
+2. CORRECTNESS -- the hand-derived gradient against finite differences
+======================================================================
+the loss alone, 8 projections of 3 numbers: largest gap 1.5e-10
+through a whole network (10-7-5-4, 3 images, 2 views each): largest gap 3.0e-10
+Actual output from this lesson's run.
+
+======================================================================
+3. THE VIEWS -- what a positive pair looks like, in raw pixels
+======================================================================
+cosine similarity in raw pixels: two views of the same image 0.4232 on average; views of different images 0.3536
+share of positive pairs less similar than the average negative pair: 0.3930
+in pixel space many positive pairs look no more alike than strangers: the network has to learn what stays the same
+Actual output from this lesson's run.
+
+======================================================================
+4. TRAINING -- 784 -> 256 -> 128 (the representation) -> 64, temperature 0.1, 30 epochs on 20,000 images, batches of 256
+======================================================================
+loss every 5 epochs: [4.91, 2.694, 2.355, 2.154, 1.998, 1.9, 1.838]; trained in 120 s
+for comparison: a network that could not tell views apart would score log(511) = 6.236
+on 2,000 test images: cosine of positive pairs 0.7997, of negative pairs 0.0174
+Actual output from this lesson's run.
+
+======================================================================
+5. WHAT IT LEARNED -- 128 numbers per image; labels used only to judge
+======================================================================
+for comparison, Day 126's autoencoder with a 128-number code, 20 epochs (45 s)
+  representation            kNN (5,000 labelled)  probe, 10 per digit  probe, 100 per digit
+  raw pixels (784)                        0.9085               0.6078                0.8059
+  PCA (128)                               0.9155               0.5356                0.8217
+  autoencoder code (128)                  0.9110               0.7100                0.8824
+  contrastive (128)                       0.9135               0.8157                0.9311
+probes: Day 116's softmax regression on standardised features, tested on all 10,000 test images; 10 per digit averaged over 3 draws
+Actual output from this lesson's run.
+
+======================================================================
+6. TEMPERATURE -- the same network, 30 epochs each (0.1 is section 4's network)
+======================================================================
+   temperature  final loss  probe, 10 per digit  probe, 100 per digit
+           0.1       1.838               0.8157                0.9311
+           0.5       4.676               0.8437                0.8959
+           1.0       5.410               0.8257                0.8591
+(losses at different temperatures are on different scales and cannot be compared with each other)
+Actual output from this lesson's run.
+
+======================================================================
+7. WHICH VIEWS MATTER -- the same training with only some of the changes
+======================================================================
+  noise                     : probe, 10 per digit 0.5800; 100 per digit 0.8211
+  noise + shift             : probe, 10 per digit 0.7724; 100 per digit 0.8482
+  noise + shift + rotation  : probe, 10 per digit 0.8111; 100 per digit 0.8956
+  (noise + shift + rotation + erasing: section 5's contrastive row)
+Actual output from this lesson's run.
+
+saved contrastive_results.png
+saved contrastive_diagram.png
+
+======================================================================
+8. WHAT COMES NEXT
+======================================================================
+Day 132 is the Week 19 build: a self-supervised pretext task (predicting rotations), compared with every representation of the week.

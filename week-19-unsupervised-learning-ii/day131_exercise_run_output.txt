@@ -1,0 +1,5 @@
+a view with every change switched off equals the image: True
+no change keeps the pixel at row 3, column 13: True
+two images, four views: loss 1.8680; row 0 picks its partner with probability 0.5341; by hand e^1.6 / (e^0 + e^1.6 + e^1.2) = 0.5341
+gradient against finite differences: largest gap 3.9e-10
+64 random images, a small network: loss 4.211 after epoch 1, 4.122 after 8; representation shape (64, 32)
