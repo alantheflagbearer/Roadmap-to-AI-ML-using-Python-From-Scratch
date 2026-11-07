@@ -18,5 +18,21 @@ Exercise: [`day126_exercise.py`](day126_exercise.py) is the network's machinery,
 ![An autoencoder](autoencoder_diagram.png)
 ![Reconstructions, error against code size, learning curves and decoded codes](autoencoder_results.png)
 
+## Day 127 — Denoising autoencoders: a real noise-removal demonstration
+[`day127_denoising_autoencoders.py`](day127_denoising_autoencoders.py) — Gaussian noise, masking and hidden squares, PSNR, a 3 × 3 median filter and PCA as baselines, and Day 126's network trained to turn damaged MNIST images back into clean ones (damage passed through its noise hook).
+
+- **On the damage it trained for, the denoiser wins:** Gaussian σ 0.3: 19.25 dB, against 17.55 for the median filter, 16.42 for PCA and 13.32 untouched; the plain autoencoder makes it worse (12.93).
+- **Light noise is better left alone:** at σ 0.1 the untouched image (22.65 dB) beats every denoiser.
+- **The wrong damage can hurt:** the masking denoiser on Gaussian noise scores 9.45 dB, below doing nothing.
+- **Robust codes:** kNN on noisy test images' codes: denoiser 0.9090, plain autoencoder 0.2815.
+- **Hidden squares:** filled only modestly (error 0.4354 against 0.5492 blank).
+
+Study guide: [`day127_denoising_autoencoders_complete_guide.pdf`](day127_denoising_autoencoders_complete_guide.pdf) · Syntax walkthrough: [`day127_syntax_line_by_line.pdf`](day127_syntax_line_by_line.pdf) · [Run output](day127_run_output.txt)
+
+Exercise: [`day127_exercise.py`](day127_exercise.py) is the three kinds of damage, PSNR and the median filter, checked by hand — the second part of Day 132's build ([run output](day127_exercise_run_output.txt)).
+
+![A denoising autoencoder](denoising_diagram.png)
+![Repairs, training against test noise, masking and hidden squares](denoising_results.png)
+
 ---
 [← Back to main README](../README.md)

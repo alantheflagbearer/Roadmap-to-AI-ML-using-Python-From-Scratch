@@ -1,0 +1,5 @@
+PSNR of an image off by 0.1 everywhere: 20.00 dB; by hand 10 log10(1 / 0.01) = 20.00 dB
+masking 0.3 keeps 0.7000 of the pixels (by hand about 0.7)
+Gaussian noise on black pixels, clipped: none below 0: True; about half stay 0: 0.5001
+hidden squares: [100, 100, 100, 100, 100] pixels each (by hand 10 x 10 = 100), all set to 0: True
+median 3 x 3: the lone bright pixel becomes 0; the middle of the 5 x 5 block stays 1

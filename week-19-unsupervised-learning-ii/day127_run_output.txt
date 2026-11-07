@@ -1,0 +1,69 @@
+======================================================================
+1. BY HAND -- PSNR, and what each kind of damage does
+======================================================================
+one test image with Gaussian noise (sigma 0.3): mean squared error 0.04445; by hand 10 log10(1 / 0.04445) = 13.52 dB; psnr() 13.52 dB
+(sigma^2 = 0.09 would be the error without clipping; clipping to [0, 1] removes part of it, because most pixels are 0)
+  Gaussian, sigma 0.3       : PSNR of the damaged test images 13.32 dB
+  masking, half the pixels  : PSNR of the damaged test images 12.45 dB
+  a hidden 10 x 10 square   : PSNR of the damaged test images 14.15 dB
+Actual output from this lesson's run.
+
+======================================================================
+2. PLAIN AGAINST DENOISING, AGAINST THE BASELINES -- PSNR on 10,000 damaged test images (dB, higher is better)
+======================================================================
+three networks trained, 20 epochs each on 20,000 images: 100, 135 and 104 s
+  method                                Gaussian 0.3   masking 0.5
+  no repair (the damaged image)                13.32         12.45
+  3 x 3 median filter                          17.55         10.91
+  PCA, 32 components                           16.42         13.63
+  plain autoencoder (Day 126)                  12.93         13.05
+  denoising, trained on Gaussian 0.3           19.25         13.07
+  denoising, trained on masking 0.5             9.45         18.57
+Actual output from this lesson's run.
+
+======================================================================
+3. TRAINING NOISE AGAINST TEST NOISE -- Gaussian noise; PSNR (dB) of the repaired test images
+======================================================================
+  trained on       tested on 0.1   tested on 0.3   tested on 0.5
+  sigma 0.1               20.93           17.30           12.55
+  sigma 0.3               19.91           19.27           17.02
+  sigma 0.5               18.09           18.29           17.57
+  no repair               22.65           13.32            9.37
+Actual output from this lesson's run.
+
+======================================================================
+4. THE WRONG KIND OF NOISE -- each denoiser on the other's damage, and on salt-and-pepper it never saw
+======================================================================
+  trained on                  Gaussian 0.3           masking 0.5   salt and pepper 20%
+  Gaussian 0.3                       19.25                 13.07                 18.34
+  masking 0.5                         9.45                 18.57                 10.33
+  no repair                          13.32                 12.45                 10.16
+  3 x 3 median                       17.55                 10.91                 18.49
+Actual output from this lesson's run.
+
+======================================================================
+5. WHAT THE CODE HOLDS WHEN THE INPUT IS DAMAGED -- kNN (k = 3) on the 32-number codes, labels used only to judge
+======================================================================
+  network                  clean test images    Gaussian 0.3    Gaussian 0.5
+  plain                               0.9155          0.2815          0.1825
+  denoising (0.3)                     0.9110          0.9090          0.8625
+the reference codes come from clean training images; only the test images are damaged
+Actual output from this lesson's run.
+
+======================================================================
+6. FILLING IN A HIDDEN SQUARE -- 10 x 10 pixels blanked at a random place in each test image
+======================================================================
+  left blank                        : error inside the square (root mean square) 0.5492; PSNR of the whole image 14.15 dB
+  PCA, 32 components                : error inside the square (root mean square) 0.4717; PSNR of the whole image 13.76 dB
+  plain autoencoder                 : error inside the square (root mean square) 0.5246; PSNR of the whole image 13.55 dB
+  denoising, trained on masking 0.5 : error inside the square (root mean square) 0.4354; PSNR of the whole image 14.35 dB
+masking taught the network to guess missing pixels from the rest of the digit, though never a whole square at once
+Actual output from this lesson's run.
+
+saved denoising_results.png
+saved denoising_diagram.png
+
+======================================================================
+7. WHAT COMES NEXT
+======================================================================
+Day 128 is anomaly detection with autoencoders: flagging what the network cannot rebuild, with real thresholds.
