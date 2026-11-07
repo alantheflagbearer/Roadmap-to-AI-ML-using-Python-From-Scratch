@@ -1,0 +1,4 @@
+encode: means (6, 3), log-variances (6, 3); sample_prior: (4, 10), all pixels in (0, 1): True
+interpolate from 0 to (2, 4, 6) in 5 steps, first coordinate: [0.0, 0.5, 1.0, 1.5, 2.0] (by hand 0, 0.5, 1, 1.5, 2)
+nearest_real: an image in the reference set is 0.0000 from it; an all-0.5 image from an all-0 reference: 0.5000 (by hand 0.5)
+an encoder that always outputs N(0, 1): active dimensions 0, KL per dimension [0.0, 0.0, 0.0]

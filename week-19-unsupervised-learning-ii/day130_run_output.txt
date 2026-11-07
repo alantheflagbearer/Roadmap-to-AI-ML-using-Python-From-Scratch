@@ -1,0 +1,57 @@
+======================================================================
+1. TRAINING -- a 16-code VAE against a 16-code plain autoencoder, 20,000 images, 30 epochs each
+======================================================================
+VAE: test loss 109.11 nats per image = reconstruction 85.27 + KL 23.84; trained in 140 s
+error per pixel, rebuilding from the code mean: VAE 0.01236; plain autoencoder 0.01212 (trained in 141 s)
+held-out loss every 10 epochs: [115.14, 110.86, 109.21]
+the VAE rebuilds a little worse: the KL term spends some of its capacity keeping the codes near N(0, 1)
+Actual output from this lesson's run.
+
+======================================================================
+2. BY HAND -- the loss of one test image, term by term (16-code VAE)
+======================================================================
+its 16 code means range from -1.918 to 2.180; its spreads (sigma) from 0.167 to 0.359
+KL by hand, summing 0.5 (sigma^2 + mu^2 - 1 - log sigma^2) over the 16 dimensions: 22.675 nats; vae_loss: 22.675
+reconstruction (cross-entropy, one draw of z): 60.050 nats; loss = 60.050 + 22.675 = 82.725, the negative ELBO
+Actual output from this lesson's run.
+
+======================================================================
+3. THE TWO-DIMENSIONAL CODE SPACE -- a 2-code VAE, 30 epochs
+======================================================================
+test loss 156.96 nats (reconstruction 151.16, KL 5.80) with only 2 numbers per image
+code means of the 10,000 test images: mean (0.492, -0.447), spread (1.180, 1.288); N(0, 1) would give (0, 0) and (1, 1)
+kNN (k = 3) on the 2 code numbers, labels used only to judge: 0.5291
+Actual output from this lesson's run.
+
+======================================================================
+4. GENERATING DIGITS -- 1,000 codes drawn at random, each model's own way
+======================================================================
+  real images (yardstick)           : distance to the nearest real image, per pixel: median 0.1743, 90th percentile 0.2222
+  plain autoencoder, random codes   : distance to the nearest real image, per pixel: median 0.2048, 90th percentile 0.2486
+  VAE, codes from N(0, 1)           : distance to the nearest real image, per pixel: median 0.1857, 90th percentile 0.2197
+Actual output from this lesson's run.
+
+======================================================================
+5. WALKING BETWEEN TWO DIGITS -- 9 evenly spaced codes between two test images, 200 pairs
+======================================================================
+  plain autoencoder   : the 7 in-between images, distance to the nearest real image per pixel: median 0.1644
+  VAE                 : the 7 in-between images, distance to the nearest real image per pixel: median 0.1588
+  pixels (no model)   : the 7 in-between images, distance to the nearest real image per pixel: median 0.1812
+Actual output from this lesson's run.
+
+======================================================================
+6. BETA -- the weight on the KL term; 16-code VAEs, 20 epochs each
+======================================================================
+   beta  reconstruction      KL  active dims   samples: median distance to real
+    0.5           83.15   29.50           16                             0.1907
+    1.0           87.80   22.79           16                             0.1862
+    4.0          116.77    9.38           14                             0.1695
+Actual output from this lesson's run.
+
+saved vae_latent_results.png
+saved vae_latent_diagram.png
+
+======================================================================
+7. WHAT COMES NEXT
+======================================================================
+Day 131 is contrastive learning: pulling two views of the same image together and pushing different images apart.

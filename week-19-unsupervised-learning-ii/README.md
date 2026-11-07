@@ -65,5 +65,20 @@ Exercise: [`day129_exercise.py`](day129_exercise.py) is the trick, the KL term, 
 ![The reparameterization trick](vae_trick_diagram.png)
 ![Gradient noise, learning a Gaussian, and a first MNIST VAE](vae_trick_results.png)
 
+## Day 130 — Training a VAE, and a real latent-space visualisation
+[`day130_vae_latent_space.py`](day130_vae_latent_space.py) — Day 129's VAE trained for 30 epochs on MNIST and compared with Day 126's plain autoencoder: encoding, decoding, sampling from N(0, 1), interpolation, a two-dimensional code map, active dimensions and a β sweep.
+
+- **Almost the same reconstructions:** VAE 0.01236 per pixel, plain autoencoder 0.01212; test loss 109.11 nats = reconstruction 85.27 + KL 23.84.
+- **A code space you can sample:** decoded N(0, 1) codes sit 0.1857 from the nearest real digit, against 0.2048 for the plain autoencoder's random codes and 0.1743 for real images.
+- **The whole digit space on one page:** a 2-code VAE maps the test digits into regions; kNN on just those two numbers scores 0.5291.
+- **β trades reconstruction for a smaller KL:** β = 4 gives KL 9.38 and reconstruction 116.77; its blurrier samples score 0.1695, which shows that nearest-image distance rewards blur.
+
+Study guide: [`day130_vae_latent_space_complete_guide.pdf`](day130_vae_latent_space_complete_guide.pdf) · Syntax walkthrough: [`day130_syntax_line_by_line.pdf`](day130_syntax_line_by_line.pdf) · [Run output](day130_run_output.txt)
+
+Exercise: [`day130_exercise.py`](day130_exercise.py) is encoding, decoding, sampling, interpolation and the two judging tools, checked by hand — the fifth part of Day 132's build ([run output](day130_exercise_run_output.txt)).
+
+![A trained VAE, used three ways](vae_latent_diagram.png)
+![The 2-code map, a decoded grid, samples, interpolation and the beta trade-off](vae_latent_results.png)
+
 ---
 [← Back to main README](../README.md)
