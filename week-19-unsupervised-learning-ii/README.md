@@ -96,5 +96,21 @@ Exercise: [`day131_exercise.py`](day131_exercise.py) is the views, the loss, tra
 ![Two views, one shared network, one loss](contrastive_diagram.png)
 ![Views, training, probes, the representation and temperature](contrastive_results.png)
 
+## Day 132 — The Week 19 build: a self-supervised pretext task, and every representation of the week
+[`day132_self_supervised_build.py`](day132_self_supervised_build.py) — the week's six exercise parts, pasted in verbatim under banners (a run-time check confirms all 34 of 34 match), with a rotation pretext task written today: every image turned by 0, 90, 180 and 270 degrees, and a network trained to name the turn. Five self-supervised representations (autoencoder, denoising autoencoder, VAE means, contrastive, rotation), all learned from the same 20,000 unlabelled MNIST images, are judged the same way: linear probes with few labels, kNN, k-means, damaged test images and upside-down digits as anomalies.
+
+- **An easy pretext task, a useless representation:** the turn is named correctly 0.9927 of the time, yet the rotation representation scores 0.5488 with 10 labels per digit, below raw pixels (0.6078) and close to the same network's untrained starting weights (0.5382). Its first layer is better (0.6026), and training longer made the last hidden layer worse for digits (0.6308 after 1 epoch).
+- **A prediction proved wrong:** 0, 1 and 8 were expected to be hardest to turn the right way up; only 0 is (0.9737), while 1 and 8 score 0.9976 and 0.9954.
+- **Few labels:** contrastive learning is best (0.8157 with 10 labels per digit, 0.9311 with 100); the VAE means are best for neighbours and clusters (kNN 0.9205, ARI 0.4331).
+- **Damage:** no representation wins everywhere; strong noise breaks raw pixels (0.1396) and the contrastive representation (0.2943).
+- **Upside-down digits:** here the rotation representation is far ahead (AUC 0.9951; its head 0.9999). A representation is good for something.
+
+Study guide: [`day132_self_supervised_build_complete_guide.pdf`](day132_self_supervised_build_complete_guide.pdf) · Syntax walkthrough: [`day132_syntax_line_by_line.pdf`](day132_syntax_line_by_line.pdf) · [Run output](day132_run_output.txt)
+
+Day 132 is the week's build, so it has no exercise script of its own.
+
+![Five self-supervised representations, one set of judges](self_supervised_diagram.png)
+![Rotation accuracy, probes, damage and upside-down detection](self_supervised_results.png)
+
 ---
 [← Back to main README](../README.md)

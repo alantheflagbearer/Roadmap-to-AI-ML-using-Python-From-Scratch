@@ -1,0 +1,104 @@
+======================================================================
+1. CHECKS -- the parts are verbatim, and the new pieces are right
+======================================================================
+functions and classes from day126_exercise.py to day131_exercise.py found here, character for character: 34 of 34
+rotate4: labels [0, 1, 2, 3]; turning the 270-degree copy a further 90 degrees gives the original back: True
+softmax_ce for scores (2, 0, 0, 0), answer 0: 0.3408; by hand -log(e^2 / (e^2 + 3)) = 0.3408
+its gradient against finite differences: largest gap 4.0e-10
+Actual output from this lesson's run.
+
+======================================================================
+2. THE PRETEXT TASK -- which way was this digit turned?
+======================================================================
+network 784 -> 256 -> 128 -> 4, trained on 20,000 images x 4 turns, 10 epochs (35 s); no digit labels used
+training loss by epoch: 0.102, 0.030, 0.024, 0.017, 0.017, 0.012, 0.012, 0.010, 0.011, 0.009 (guessing among 4 turns: 1.386)
+10,000 test digits x 4 turns: the turn named correctly 0.9927 of the time
+   digit  correct  most common mistake
+       0  0.9737    90 called 180 (0.006 of this digit's turned copies)
+       1  0.9976   270 called  90 (0.002 of this digit's turned copies)
+       2  0.9910    90 called   0 (0.002 of this digit's turned copies)
+       3  0.9990     0 called 180 (0.000 of this digit's turned copies)
+       4  0.9959     0 called  90 (0.001 of this digit's turned copies)
+       5  0.9922   270 called   0 (0.001 of this digit's turned copies)
+       6  0.9893     0 called 180 (0.002 of this digit's turned copies)
+       7  0.9925   270 called   0 (0.003 of this digit's turned copies)
+       8  0.9954   270 called 180 (0.001 of this digit's turned copies)
+       9  0.9995   180 called 270 (0.000 of this digit's turned copies)
+hardest digits: 0 (0.974), 6 (0.989), 2 (0.991)
+a 6 turned 180 degrees looks like an upright 9: named 'no turn' 0.006 of the time; a 9 turned 180, 0.000
+Actual output from this lesson's run.
+
+======================================================================
+3. FIVE SELF-SUPERVISED REPRESENTATIONS, JUDGED WITH FEW LABELS
+======================================================================
+all learned from the same 20,000 unlabelled images; tests use images 60,000-69,999, never trained on
+kNN: 3 neighbours among 5,000 labelled images (20,000-24,999), 2,000 test images
+probes: a linear classifier (Day 116) on 10 or 100 labelled images per digit, tested on 10,000
+k-means: 10 clusters of the 2,000 test images, ARI with the true digits (Day 119)
+baselines: raw pixels, PCA, and an untrained network of the rotation network's shape (its starting weights)
+   representation        kNN     probe 10/digit (3 draws)  probe 100  k-means ARI  train s
+   raw pixels 784        0.9085  0.6078 (0.587-0.629)     0.8059      0.3867      -
+   PCA 16                0.9095  0.7029 (0.671-0.728)     0.8297      0.3870      -
+   PCA 128               0.9155  0.5356 (0.532-0.538)     0.8217      0.3975      -
+   autoencoder 128       0.9110  0.7100 (0.692-0.744)     0.8824      0.4039      47
+   denoising AE 128      0.9190  0.7693 (0.747-0.783)     0.8779      0.4112      49
+   VAE means 16          0.9205  0.7520 (0.711-0.785)     0.8575      0.4331      68
+   contrastive 128       0.9135  0.8157 (0.765-0.853)     0.9311      0.3773      114
+   rotation 128          0.7065  0.5488 (0.509-0.594)     0.7754      0.0407      sec. 2
+   rotation, layer 1     0.8760  0.6026 (0.598-0.610)     0.8664      0.3472      sec. 2
+   rotation, 1 epoch     0.7380  0.6308 (0.606-0.669)     0.7887      0.0720      3
+   untrained net 128     0.8000  0.5382 (0.463-0.590)     0.7714      0.1976      -
+best by 10 labels per digit: contrastive 128 (0.8157); raw pixels 0.6078
+best by 100 labels per digit: contrastive 128 (0.9311); raw pixels 0.8059
+best by kNN: VAE means 16 (0.9205); raw pixels 0.9085
+best by k-means ARI: VAE means 16 (0.4331); raw pixels 0.3867
+Actual output from this lesson's run.
+
+======================================================================
+4. ROBUSTNESS -- the 100-per-digit probes, tested on damaged images (Day 127's damage)
+======================================================================
+   representation                      clean            noise 0.3     half pixels gone  10x10 square hidden
+   raw pixels 784                     0.8059               0.1396               0.6973               0.5318
+   PCA 16                             0.8297               0.8034               0.6557               0.5237
+   PCA 128                            0.8217               0.6918               0.5862               0.4524
+   autoencoder 128                    0.8824               0.6888               0.6745               0.5137
+   denoising AE 128                   0.8779               0.5264               0.7780               0.6634
+   VAE means 16                       0.8575               0.4625               0.7700               0.6144
+   contrastive 128                    0.9311               0.2943               0.7991               0.6503
+   rotation 128                       0.7754               0.4136               0.5089               0.2985
+   rotation, layer 1                  0.8664               0.5017               0.6742               0.4118
+   rotation, 1 epoch                  0.7887               0.5144               0.4531               0.3494
+   untrained net 128                  0.7714               0.5240               0.4457               0.4449
+best under noise 0.3: PCA 16 (0.8034)
+best under half pixels gone: contrastive 128 (0.7991)
+best under 10x10 square hidden: denoising AE 128 (0.6634)
+caution: the contrastive network trained on views with noise and erased patches (Day 131's augment), and the
+denoising autoencoder on dropped pixels; the others never saw damage
+Actual output from this lesson's run.
+
+======================================================================
+5. ANOMALIES -- which representation notices a digit turned upside down?
+======================================================================
+normal: 2,000 upright test digits; anomalies: the same digits turned 180 degrees
+score: distance to the nearest of 5,000 upright training images, in each representation (Day 128's nn_score)
+   score                   AUC all digits  AUC without 0, 1, 8
+   raw pixels 784          0.8019          0.8632
+   PCA 16                  0.7619          0.8030
+   PCA 128                 0.8068          0.8680
+   autoencoder 128         0.8191          0.8737
+   denoising AE 128        0.8116          0.8524
+   VAE means 16            0.8281          0.8637
+   contrastive 128         0.7290          0.7713
+   rotation 128            0.9951          0.9983
+   rotation, layer 1       0.9405          0.9757
+   rotation, 1 epoch       0.9809          0.9914
+   untrained net 128       0.7353          0.7795
+   AE rebuild error        0.6737          0.7198
+   rotation head 1-P(0)    0.9999          0.9999
+Actual output from this lesson's run.
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Week 19 learned representations; Week 20 turns to generating new data.
+Day 133 is generative versus discriminative models: modelling how the data is made, against drawing the boundary directly.
