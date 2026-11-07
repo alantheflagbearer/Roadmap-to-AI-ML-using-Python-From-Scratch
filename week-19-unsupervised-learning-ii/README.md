@@ -34,5 +34,21 @@ Exercise: [`day127_exercise.py`](day127_exercise.py) is the three kinds of damag
 ![A denoising autoencoder](denoising_diagram.png)
 ![Repairs, training against test noise, masking and hidden squares](denoising_results.png)
 
+## Day 128 — Anomaly detection with autoencoders: real reconstruction-error thresholds
+[`day128_anomaly_detection.py`](day128_anomaly_detection.py) — Day 126's network trained on normal data only; reconstruction error, PCA error and nearest-neighbour distance as anomaly scores; thresholds set on held-out normal data at a chosen false-alarm rate; Day 117's ROC AUC and average precision. Data, all real: MNIST with one digit held out as the anomaly, and breast-cancer measurements with the model trained on benign tumours only.
+
+- **9s held out: barely better than chance** (ROC AUC 0.5490); PCA 0.4825; the plain nearest-neighbour distance does best (0.6754).
+- **It depends on the digit:** from 0.9123 (2s held out) to 0.2375 (1s, rebuilt better than the normal digits).
+- **Thresholds keep their promise on held-out normal data:** 5% aimed, 0.0409 delivered; set on training images instead, 0.0858.
+- **Contamination ruins it:** with 5% of 9s hidden in the training data the AUC falls to 0.4368.
+- **Tumours, where it works:** autoencoder 0.9288, but PCA 0.9366 and nearest neighbour 0.9450 do as well.
+
+Study guide: [`day128_anomaly_detection_complete_guide.pdf`](day128_anomaly_detection_complete_guide.pdf) · Syntax walkthrough: [`day128_syntax_line_by_line.pdf`](day128_syntax_line_by_line.pdf) · [Run output](day128_run_output.txt)
+
+Exercise: [`day128_exercise.py`](day128_exercise.py) is the three scores, the threshold and its rates, checked by hand — the third part of Day 132's build ([run output](day128_exercise_run_output.txt)).
+
+![Anomaly detection by reconstruction](anomaly_diagram.png)
+![Scores, ROC curves, every digit held out, and contamination](anomaly_results.png)
+
 ---
 [← Back to main README](../README.md)

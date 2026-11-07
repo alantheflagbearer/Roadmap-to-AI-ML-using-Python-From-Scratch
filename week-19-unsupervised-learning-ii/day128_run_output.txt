@@ -1,0 +1,72 @@
+======================================================================
+1. BY HAND -- a score, a threshold, and what it costs
+======================================================================
+scores [1.0, 2.0, 2.5, 3.0, 4.0, 9.0, 3.5, 8.0], anomalies at 9.0 and 8.0; threshold for a 20% false-alarm rate on the six normal scores: 3.50
+flagged: [4.0, 9.0, 8.0]; recall 1.000, false alarms 0.167, precision 0.667
+ROC AUC 1.0000: by hand, both anomalies score above all six normal examples, so 12 of 12 pairs are ordered right
+Actual output from this lesson's run.
+
+======================================================================
+2. ONE DIGIT HELD OUT -- train on 20,000 images of 0-8; the test set's 9s are the anomalies
+======================================================================
+anomalies: 1009 of 10000 test images (0.101); the autoencoder trained in 84 s
+  score                         ROC AUC  average precision
+  autoencoder error              0.5490             0.1053
+  PCA error, 32 components       0.4825             0.0958
+  nearest normal image           0.6754             0.1519
+Actual output from this lesson's run.
+
+======================================================================
+3. EVERY DIGIT HELD OUT IN TURN -- 10,000 normal training images and 10 epochs each, to keep the run short
+======================================================================
+   held out   AE AUC  PCA AUC  mean error, normal  mean error, held out
+          0   0.8701   0.7846                8.37                 16.85
+          1   0.2375   0.3126                9.37                  5.93
+          2   0.9123   0.8755                7.87                 18.06
+          3   0.7368   0.6816                8.34                 12.48
+          4   0.7773   0.6189                8.18                 12.69
+          5   0.8320   0.7803                8.17                 14.39
+          6   0.8486   0.8143                8.18                 15.88
+          7   0.6239   0.6286                8.55                 10.81
+          8   0.8820   0.7883                8.00                 15.90
+          9   0.5832   0.4860                8.61                  9.67
+an AUC below 0.5 means the held-out digit is rebuilt BETTER than the normal ones on average
+Actual output from this lesson's run.
+
+======================================================================
+4. THRESHOLDS FROM NORMAL DATA -- set on 5,000 normal images the network never trained on; judged on the test set
+======================================================================
+   false alarms aimed at  threshold  false alarms got   recall  precision
+                    0.01      17.84            0.0065   0.0079     0.1212
+                    0.05      12.93            0.0409   0.0327     0.0823
+                    0.10      10.84            0.0863   0.0614     0.0740
+                    0.20       8.63            0.1786   0.1427     0.0823
+  the same 5% target set on the network's own training images instead: threshold 10.86, false alarms got 0.0858
+Actual output from this lesson's run.
+
+======================================================================
+5. CONTAMINATED TRAINING DATA -- the 'normal' training set secretly contains some 9s
+======================================================================
+     0% of the 10,000 training images are 9s (   0): ROC AUC 0.5832
+     1% of the 10,000 training images are 9s ( 100): ROC AUC 0.5300
+     5% of the 10,000 training images are 9s ( 500): ROC AUC 0.4368
+    10% of the 10,000 training images are 9s (1000): ROC AUC 0.3884
+Actual output from this lesson's run.
+
+======================================================================
+6. TUMOURS -- trained on benign tumours only; malignant ones are the anomalies (30 measurements, standardised)
+======================================================================
+training: 200 benign; test: 157 benign and 212 malignant
+  autoencoder 30-16-4-16-30, 5 seeds: ROC AUC 0.9288 (from 0.9137 to 0.9436)
+  PCA error, 4 components:         ROC AUC 0.9366
+  nearest benign training tumour:  ROC AUC 0.9450
+no malignant tumour was used to train any of the three; labels are used only to judge
+Actual output from this lesson's run.
+
+saved anomaly_results.png
+saved anomaly_diagram.png
+
+======================================================================
+7. WHAT COMES NEXT
+======================================================================
+Day 129 is the variational autoencoder: codes that are random draws, and the reparameterization trick that lets gradients through them.

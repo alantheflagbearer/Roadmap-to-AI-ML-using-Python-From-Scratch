@@ -1,0 +1,4 @@
+threshold for 20% false alarms on [1, 2, 2.5, 3, 4, 3.5]: 3.50 (by hand: the 80th percentile, 3.5)
+recall 1.000 (2 of 2), false alarms 0.167 (1 of 6), precision 0.667 (2 of 3)
+distance from (3, 0) to the nearest of (0, 0) and (3, 4): 3.0000 (by hand 3)
+PCA score, 1 component, of a point on the line: 0.00e+00; of (1, 0): 0.8000 (by hand 4/5 = 0.8)
