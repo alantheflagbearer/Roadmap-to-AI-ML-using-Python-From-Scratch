@@ -1,0 +1,5 @@
+at D = 0.5: discriminator loss 1.386294 (2 log 2 = 1.386294); generator loss 0.693147 (log 2 = 0.693147)
+softplus(1000) = 1000.0; softplus(-1000) = 0.0 (no overflow)
+d loss / d G[0][0][0, 0]: backward 0.07097488; finite difference 0.07097488
+G [2, 16, 1], D [1, 16, 1], 3,000 steps on N(3, 0.5): generated mean 3.023, spread 2.292; D at x = 1, 3, 7: 0.50 0.49 0.49
+G [2, 32, 32, 1], D [1, 32, 32, 1], 3,000 steps on N(3, 0.5): generated mean 3.090, spread 0.526; D at x = 1, 3, 7: 0.47 0.51 0.52
