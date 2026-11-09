@@ -33,5 +33,19 @@ Exercise: [`day134_exercise.py`](day134_exercise.py) is the GAN's parts (Adam wi
 ![A GAN: two networks in one minimax game](gan_diagram.png)
 ![The 1-D game, the optimal discriminator, and MNIST samples](gan_results.png)
 
+## Day 135 — GAN training instability: a real, honest mode-collapse demonstration
+[`day135_gan_instability.py`](day135_gan_instability.py) — Day 134's GAN on eight tight Gaussians on a circle, where every mode is known, watched every 250 steps: how many modes the generator covers and how many of its samples are good, over five seeds, two generator losses, a discriminator head start and three imbalances between the players.
+
+- **Collapse with the usual settings:** the non-saturating loss covered all 8 modes in 1 of 5 seeds; the others missed 1 to 3 modes while their samples stayed good (good share 0.91 to 0.95).
+- **The textbook loss lost:** with equal learning rates the minimax loss covered all 8 modes in 5 of 5 seeds. Its known weakness (a gradient of about D(fake), 999 times smaller than the non-saturating one at D(fake) = 0.001) appears once the discriminator gets a 1,000-step head start: good share down to 0.06, modes lost up to 25 times; the non-saturating loss then collapses onto 3 modes in three seeds.
+- **Balance matters:** a discriminator ten times slower than the generator gave good shares of 0.07 to 0.08; none of the nine imbalanced runs covered all 8 modes.
+
+Study guide: [`day135_gan_instability_complete_guide.pdf`](day135_gan_instability_complete_guide.pdf) · Syntax walkthrough: [`day135_syntax_line_by_line.pdf`](day135_syntax_line_by_line.pdf) · [Run output](day135_run_output.txt)
+
+Exercise: [`day135_exercise.py`](day135_exercise.py) is the ring, the mode count and the watched training loop, checked by hand — the third part of Day 139's build ([run output](day135_exercise_run_output.txt)).
+
+![Three ways GAN training goes wrong](gan_instability_diagram.png)
+![Mode coverage over training, by loss, seed and balance](gan_instability_results.png)
+
 ---
 [← Back to main README](../README.md)

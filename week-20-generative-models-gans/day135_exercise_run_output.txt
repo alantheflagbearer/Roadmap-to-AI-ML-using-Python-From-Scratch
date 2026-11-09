@@ -1,0 +1,4 @@
+100,000 real samples: 8 of 8 modes covered; good share 0.9891; by hand 1 - e^(-4.5) = 0.9889
+radius of the real samples: average 2.0007 (centres at 2.0)
+3,000 samples from modes 0, 1 and 2 only: 3 modes covered; counts [1006, 986, 976, 0, 0, 0, 0, 0]
+a 2,000-step GAN, watched: step 500: 1 modes, good 0.01; step 1000: 0 modes, good 0.01; step 1500: 4 modes, good 0.12; step 2000: 7 modes, good 0.39
