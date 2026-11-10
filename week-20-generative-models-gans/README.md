@@ -76,5 +76,20 @@ Exercise: [`day137_exercise.py`](day137_exercise.py) holds the label's parts (th
 ![The label goes to both players](conditional_gan_diagram.png)
 ![Conditional GAN results](conditional_gan_results.png)
 
+## Day 138 — Evaluating generative models: real FID/IS-style metric computation
+[`day138_evaluating_generative_models.py`](day138_evaluating_generative_models.py) — the Inception Score, the Frechet distance (FID) and k-nearest-neighbour precision and recall, written from scratch on a small convolutional digit classifier (test accuracy 0.9829), checked on cases with known answers, then tested on damage done on purpose and on three of the week's GANs during training. The classifier is not Inception, so these are FID/IS-style numbers, not comparable with published ones.
+
+- **Sample size:** real test digits in random order score FID 6.478 at 500 images and 2.060 at 10,000, so FIDs are compared at a fixed 2,000.
+- **Sample order:** a first draft scored the first n test images; MNIST's test set is not stored in random order (its halves alone score FID 12.006 and 6.146; a random 5,000 scores 2.250), so the draft's explanation was wrong and was replaced.
+- **Blind spots:** ten images repeated 200 times scored a higher Inception Score than real digits (9.598 against 9.407); FID (205.857) and recall (0.000) caught it. Precision rose with noise (0.903) and blur (0.933). Exact copies of training images scored like real digits (FID 3.161 against 2.996); only the pixel distance to the nearest training image caught them (0.00).
+- **The GANs:** at epoch 20 the dense GAN and the DCGAN have similar FIDs (53.291 and 51.747) but the DCGAN has higher recall (0.518 against 0.355) and lower precision (0.383 against 0.582); with Adam's b1 at 0.9 the dense GAN never left collapse.
+
+Study guide: [`day138_evaluating_generative_models_complete_guide.pdf`](day138_evaluating_generative_models_complete_guide.pdf) · Syntax walkthrough: [`day138_syntax_line_by_line.pdf`](day138_syntax_line_by_line.pdf) · [Run output](day138_run_output.txt)
+
+Exercise: [`day138_exercise.py`](day138_exercise.py) is the scoring kit (matrix square root, FID, Inception Score, precision and recall, the feature network and the Scorer), checked by hand — the sixth part of Day 139's build ([run output](day138_exercise_run_output.txt)).
+
+![How each score sees the images](generative_metrics_diagram.png)
+![Scores against sample size, damage, and GAN training](generative_metrics_results.png)
+
 ---
 [← Back to main README](../README.md)
