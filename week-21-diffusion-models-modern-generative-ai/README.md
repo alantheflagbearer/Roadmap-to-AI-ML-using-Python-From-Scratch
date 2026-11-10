@@ -49,5 +49,21 @@ Exercise: [`day142_exercise.py`](day142_exercise.py) is the averaged copy, DDIM,
 ![Three generative models, and the cost of sampling](generative_tradeoffs_diagram.png)
 ![Samples, quality while training, and DDIM's speed against quality](generative_tradeoffs_results.png)
 
+## Day 143 — Text-to-image models conceptually: CLIP-style joint embeddings, a real demo
+[`day143_clip_joint_embeddings.py`](day143_clip_joint_embeddings.py) — an image encoder and a bag-of-words text encoder (Day 126's networks) trained with CLIP's symmetric contrastive loss, its gradient written out by hand, so that a digit and its caption land close together. MNIST has no captions, so they are written by program from each digit's label and two measured attributes: thickness and lean.
+
+- **Zero-shot:** with no classifier trained, test digits named from words alone with accuracy 0.9805 after 45 s of training, against 0.9829 for Day 138's trained classifier.
+- **The prompt barely matters here:** nine templates scored 0.9745 to 0.9805; reordered words and unknown words give exactly the same embedding (cosine 1.000000), and 'not a {}' scores 0.9805 too — a bag of words sees neither order nor negation.
+- **Search by description:** 'a thick three' found threes with mean ink 0.2181 and 'a thin three' 0.0842, against 0.1433 for all test threes.
+- **A combination never seen in training:** encoders trained without ever calling a seven thick still retrieved thick sevens (top-50 ink 0.1728 against 0.1149 for all sevens).
+- A first draft of the retrieval check found 'right' inside 'upright' and reported 0.00 for 'a thin eight upright'; matching whole words fixed it.
+
+Study guide: [`day143_clip_joint_embeddings_complete_guide.pdf`](day143_clip_joint_embeddings_complete_guide.pdf) · Syntax walkthrough: [`day143_syntax_line_by_line.pdf`](day143_syntax_line_by_line.pdf) · [Run output](day143_run_output.txt)
+
+Exercise: [`day143_exercise.py`](day143_exercise.py) is the measurements, captions, bag of words, contrastive loss, training loop, embeddings and zero-shot naming, checked by hand — the fourth part of Day 146's capstone ([run output](day143_exercise_run_output.txt)).
+
+![A CLIP-style pair of encoders](clip_joint_embeddings_diagram.png)
+![Training, the shared space, retrieval and the held-out combination](clip_joint_embeddings_results.png)
+
 ---
 [← Back to main README](../README.md)

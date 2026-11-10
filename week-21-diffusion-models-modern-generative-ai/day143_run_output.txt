@@ -1,0 +1,116 @@
+======================================================================
+1. BY HAND -- the contrastive loss on three image-caption pairs
+======================================================================
+three images and three captions, unit vectors in 2-D; pair i is image i with caption i; temperature 1
+similarities (rows images, columns captions):
+    0.80  0.00  1.00
+    0.60  1.00  0.00
+    0.96  0.80  0.60
+image 0 picks caption 0 with probability e^0.8 / (e^0.8 + e^0 + e^1) = 0.3744; caption 0 picks image 0 with 0.3342
+loss: code 0.996814, by hand 0.996814 (the average of the six -log probabilities)
+gradient against finite differences, all 48 entries of two random 6 x 4 batches, temperature 0.1: largest gap 9.93e-10
+Actual output from this lesson's run.
+
+======================================================================
+2. CAPTIONS FROM MEASUREMENTS -- no human wrote any of them
+======================================================================
+thickness: the average pixel; lean: how far the ink's column moves per row (positive: leans right); each cut into
+thirds within its own digit, from the 60,000 training digits, so 'thick' means thick for that digit
+ digit  ink: thin below  thick above  lean: left below  right above
+  zero           0.1539       0.1890            0.1194       0.3122
+   one           0.0646       0.0829            0.0842       0.3561
+   two           0.1310       0.1635           -0.0214       0.2078
+ three           0.1230       0.1560           -0.0511       0.1589
+  four           0.1051       0.1328           -0.0811       0.1905
+  five           0.1104       0.1416            0.0632       0.3516
+   six           0.1185       0.1506           -0.0688       0.1213
+ seven           0.0988       0.1256           -0.0803       0.1444
+ eight           0.1311       0.1636            0.0662       0.2881
+  nine           0.1062       0.1325           -0.1079       0.1099
+vocabulary: 22 words; six random captions for training digit 0 (five, thickness 0, lean 0):
+   five the digit | five a | five written | five the digit | five upright a | five a
+share of training digits that are thick, by the measure: 0.333; leaning right 0.333
+Actual output from this lesson's run.
+
+======================================================================
+3. TRAINING THE TWO ENCODERS
+======================================================================
+image encoder 784 -> 256 -> 64; text encoder 22 (bag of words) -> 256 -> 64; both Day 126's networks and Adam (lr 0.001);
+batches of 256 digits with a fresh random caption each; temperature 0.1; 10 epochs over the 60,000 training digits;
+zero-shot accuracy after each epoch: 2,000 test digits named by the prompt 'the digit <word>'; a loss of log 256 = 5.545 would mean no better than chance
+ epoch     loss  zero-shot accuracy
+     1   3.1678              0.9615
+     2   2.8015              0.9705
+     3   2.7381              0.9730
+     4   2.6952              0.9785
+     5   2.6705              0.9780
+     6   2.6447              0.9785
+     7   2.6276              0.9775
+     8   2.6184              0.9800
+     9   2.6071              0.9825
+    10   2.5990              0.9805
+(45 s, including the checks)
+image -> caption among the same 2,000 test digits' captions: the exact caption ranked first 0.0325 (chance 0.0005); a caption of the right digit first 0.9790
+Actual output from this lesson's run.
+
+======================================================================
+4. ZERO-SHOT CLASSIFICATION -- and what the prompt changes
+======================================================================
+2,000 test digits; each prompt is filled with the ten digit words and each image takes the most similar one.
+For comparison, Day 138's trained classifier scored 0.9829 on the full test set.
+                              prompt  accuracy   words the encoder does not know
+                                '{}'    0.9800   -
+                              'a {}'    0.9805   -
+                      'the digit {}'    0.9805   -
+                    'handwritten {}'    0.9795   -
+          'a photo of the number {}'    0.9790   photo of number
+                        'a thick {}'    0.9785   -
+            'a thin {} leaning left'    0.9765   -
+              '{} upright and thick'    0.9745   -
+                          'not a {}'    0.9805   not
+         ensemble of 5 plain prompts    0.9795
+word order: 'a thin seven leaning left' against 'left seven thin leaning a': cosine 1.000000
+unknown words: 'a seven' against 'a seven purple elephant': cosine 1.000000
+Actual output from this lesson's run.
+
+======================================================================
+5. FINDING DIGITS BY DESCRIPTION -- text -> image retrieval over the 10,000 test digits
+======================================================================
+top 50 for each query; 'right digit': share of them with that label; then the share whose measured attribute matches
+the query (each attribute covers about a third of each digit, so 0.33 is what chance gives)
+                     query  right digit  attribute matches  mean ink  mean lean
+                     three         1.00                  -    0.1488     0.0672
+             a thick three         1.00               1.00    0.2181     0.0673
+              a thin three         1.00               1.00    0.0842     0.0095
+        four leaning right         1.00               1.00    0.1177     0.4324
+         four leaning left         1.00               1.00    0.1140    -0.3080
+               a thick one         1.00               1.00    0.1022     0.2182
+      a thin eight upright         1.00               1.00    0.1058     0.1743
+all test threes: mean ink 0.1433, mean lean 0.0362
+Actual output from this lesson's run.
+
+======================================================================
+6. A COMBINATION NEVER SEEN IN TRAINING -- 'thick' about a seven
+======================================================================
+a second pair of encoders, trained exactly as in section 3 except that a thick seven's caption never says 'thick'
+(it still says 'seven', and other digits are still called thick). Section 3's encoders, which saw the combination,
+are the control. Queries rank the 1,028 test sevens; thick share 0.33 is chance
+(training sevens measured thick, never called thick: 2088; zero-shot accuracy of the held-out encoders 0.9785)
+      encoders            query  thick share, top 50  mean ink, top 50
+        saw it    a thick seven                 1.00            0.1620
+        saw it     a thin seven                 1.00            0.0730
+        saw it    a thick three                 1.00            0.2181
+      held out    a thick seven                 1.00            0.1728
+      held out     a thin seven                 1.00            0.0692
+      held out    a thick three                 1.00            0.2164
+all test sevens: mean ink 0.1149
+Actual output from this lesson's run.
+
+saved clip_joint_embeddings_results.png
+saved clip_joint_embeddings_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+The text encoder now turns a caption into 64 numbers that line up with images. Day 144 feeds those numbers into
+Day 141's diffusion model, so a prompt chooses what it draws, and experiments with the prompts themselves.
