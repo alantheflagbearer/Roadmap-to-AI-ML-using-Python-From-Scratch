@@ -81,5 +81,21 @@ Exercise: [`day144_exercise.py`](day144_exercise.py) is the captioned guess, tra
 ![Classifier-free guidance](prompt_engineering_diagram.png)
 ![Training, the guidance scale, and drawings for each prompt](prompt_engineering_results.png)
 
+## Day 145 — Ethical considerations in generative AI: bias, deepfakes, real case studies
+[`day145_generative_ai_ethics.py`](day145_generative_ai_ethics.py) — three risks of generative models, each measured on digits with this week's models and set beside a documented real case: a model copying or exaggerating a skew in its training data, generated images passed off as real, and training images reproduced.
+
+- **Bias needs a control:** ones were skewed so 75% leaned right. Against the data alone the model seemed not to copy the skew (0.414 leaning right against 0.750), but a control trained without the skew drew right-leaning ones only 0.110 of the time. Against the control the skew grew: left-leaning ones, cut to 0.131 of the data, fell from 0.217 to 0.024 in the model and to 0.003 with guidance. A first draft had no control and could not tell these apart.
+- **Asking overrides the skew:** 'a one leaning left' drew ones leaning left 0.870 of the time at w = 1.
+- **A detector is narrow:** trained on one diffusion model's digits it caught 0.924 of held-out fakes, but only 0.041 of a VAE's and 0.061 of a GAN's; black and white lowered detection to 0.219 and a little noise flagged every real digit (1.000). If 1 image in 100 were generated, only 0.163 of its flags would be right.
+- **Memorisation:** trained on 10 digits the model copied them (near copies 0.806); on 1,000, near copies were 0.028, close to the 0.022 of real test digits.
+- **Real cases:** the Bloomberg study of Stable Diffusion bias (2023), the Arup deepfake video call (HK$200 million, 2024), the New Hampshire AI robocall ($6 million FCC fine, 2024) and the extraction of training images from diffusion models (Carlini et al., 2023).
+
+Study guide: [`day145_generative_ai_ethics_complete_guide.pdf`](day145_generative_ai_ethics_complete_guide.pdf) · Syntax walkthrough: [`day145_syntax_line_by_line.pdf`](day145_syntax_line_by_line.pdf) · [Run output](day145_run_output.txt)
+
+Exercise: [`day145_exercise.py`](day145_exercise.py) is skewing a training set, a detector, its probability, a 3 x 3 blur and the share of flagged images that are really generated, checked by hand — the sixth part of Day 146's capstone ([run output](day145_exercise_run_output.txt)).
+
+![Three risks of generative models](generative_ai_ethics_diagram.png)
+![Bias with a control, detection, and memorisation](generative_ai_ethics_results.png)
+
 ---
 [← Back to main README](../README.md)

@@ -1,0 +1,4 @@
+flagged precision at 1% prevalence: 0.1610 (by hand: 0.0095 / (0.0095 + 0.0495) = 0.1610)
+skew on 12 made-up ones (3 leaning right): 4 ones kept, 3 leaning right (share 0.75); threes kept 5 of 5
+blur of one middle pixel: 9 pixels of 0.1111 (1/9 = 0.1111), total ink 1.0000; corner pixel: 4 pixels, total 0.4444 (4/9 = 0.4444)
+detector, real against blurred digits, 3 epochs: held-out real called generated 0.139, blurred called generated 0.806
