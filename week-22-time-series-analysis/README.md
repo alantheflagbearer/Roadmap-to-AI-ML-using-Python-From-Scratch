@@ -52,5 +52,22 @@ Exercise: [`day149_exercise.py`](day149_exercise.py) is the partial autocorrelat
 ![The ARIMA workflow](arima_from_scratch_diagram.png)
 ![ACF and PACF signatures, CO2 forecasts, rolling-origin accuracy and coverage, and the orders' crash](arima_from_scratch_results.png)
 
+## Day 150 — Exponential smoothing from scratch: Holt-Winters against ARIMA on real data
+[`day150_exponential_smoothing.py`](day150_exponential_smoothing.py) — simple, Holt and Holt-Winters exponential smoothing written from scratch in NumPy: the smoothing equations (additive or multiplicative season, optional damped trend), starting values from the first two years, a least-squares fit of the weights from four starting points (Day 149's Levenberg-Marquardt solver), forecasts and intervals. statsmodels' ExponentialSmoothing is the reference.
+
+- **Checked:** with fixed weights our one-step forecasts match statsmodels' (1.1e-13 additive, 0.0e+00 multiplicative), and the fitted sums of squares are the same (60.7544 and 60.5428). Simple smoothing equals Day 149's ARIMA(0,1,1) with theta = alpha - 1 (4.4e-15).
+- **A difference in statsmodels:** the forecasts agree at 22 of 24 steps; at steps 12 and 24 statsmodels 0.15.0 uses the seasonal value from before the last update. Feeding the forecasts back in as data, ours reproduce themselves (1.1e-13) and statsmodels' do not (4.7e-02).
+- **A first-draft failure:** with three starting points, Holt stopped at a sum of squares of 704.7799; a fourth start found 415.0547. Every fit now uses four starts, which is still no guarantee.
+- **Forecasting CO2 in 2000–2001:** AIC on the training years chose multiplicative Holt-Winters (mean error 0.329 ppm), against the airline ARIMA's 0.412 and the additive version's 0.290 (not chosen: that would be choosing on the test). Without a season, SES (2.420) and Holt (13.418) fail.
+- **Rolling origins:** over 97 forecasts, Holt-Winters is more accurate than the airline model at 18 of 24 horizons (1.035 against 1.099 at 24 months), but its 95% intervals are too narrow (coverage as low as 0.835), where the airline model's are not.
+- **Electrical-equipment orders:** the airline model beats Holt-Winters in the ordinary years (6.26% against 7.33% a year ahead). Through the 2008–09 crash damped Holt-Winters was closer (18.81% against 23.86%), but neither beat the same month last year (18.04%).
+
+Study guide: [`day150_exponential_smoothing_complete_guide.pdf`](day150_exponential_smoothing_complete_guide.pdf) · Syntax walkthrough: [`day150_syntax_line_by_line.pdf`](day150_syntax_line_by_line.pdf) · [Run output](day150_run_output.txt)
+
+Exercise: [`day150_exercise.py`](day150_exercise.py) is the smoothing equations, the starting values, the fit, forecasts and the interval formula, checked by hand — the fourth part of Day 153's forecaster ([run output](day150_exercise_run_output.txt)).
+
+![One month of Holt-Winters](exponential_smoothing_diagram.png)
+![Smoothing weights, CO2 forecasts, the seasonal values over time, rolling-origin accuracy and coverage, and the orders' crash](exponential_smoothing_results.png)
+
 ---
 [← Back to main README](../README.md)

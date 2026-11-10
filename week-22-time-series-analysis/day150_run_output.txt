@@ -1,0 +1,99 @@
+======================================================================
+1. SIMPLE EXPONENTIAL SMOOTHING -- a weighted average, and the same model as ARIMA(0,1,1)
+======================================================================
+the level after each month: level = alpha x this month + (1 - alpha) x the old level; unrolled, month k back gets
+weight alpha (1 - alpha)^k
+  alpha 0.2: weights of this month and the 3 before [0.2, 0.16, 0.128, 0.102]; last 12 months together 0.931
+  alpha 0.5: weights of this month and the 3 before [0.5, 0.25, 0.125, 0.062]; last 12 months together 1.000
+  alpha 0.8: weights of this month and the 3 before [0.8, 0.16, 0.032, 0.006]; last 12 months together 1.000
+a wandering level plus noise (300 values): fitted alpha 0.4273; SES's one-step errors against ARIMA(0,1,1) with theta = alpha - 1 = -0.5727: largest difference 4.4e-15
+so SES is a special case of Day 149's model: both say the series is a random walk seen through noise
+Actual output from this lesson's run.
+
+======================================================================
+2. CHECKED AGAINST STATSMODELS -- and the two steps where its forecasts differ
+======================================================================
+  fixed weights, add           one-step forecasts: largest difference 1.1e-13
+  fixed weights, mul           one-step forecasts: largest difference 0.0e+00
+  fixed weights, add, damped   one-step forecasts: largest difference 1.1e-13
+  fitted, add: ours alpha 0.4646 beta 0.0116 gamma 0.3066, sum of squares 60.7544; statsmodels 0.4646 0.0116 0.3066, 60.7544
+  fitted, mul: ours alpha 0.4630 beta 0.0116 gamma 0.2949, sum of squares 60.5428; statsmodels 0.4630 0.0116 0.2949, 60.5428
+  forecasts with the same weights: equal at 22 of 24 steps; steps [12, 24] differ by -0.0468
+  at step 12 statsmodels used -0.3778 as the seasonal value: the value before the last update (-0.3778), not the latest (-0.4246)
+  self-check: feed the 12 forecasts back in as data (every error 0); each one-step forecast should equal the forecast:
+    ours 1.1e-13; statsmodels' 4.7e-02 (statsmodels 0.15.0)
+Actual output from this lesson's run.
+
+======================================================================
+3. CHOOSING THE VARIANT FOR CO2 -- AIC on the training years only
+======================================================================
+                       variant   alpha    beta   gamma    phi  sum of sq.       AIC
+                           SES  1.0000  0.0000  0.0000  1.000    709.0739    175.37
+                          Holt  1.0000  1.0000  0.0000  1.000    415.0547    -91.48
+                  Holt, damped  1.0000  1.0000  0.0000  0.800    360.6563   -160.00
+        Holt-Winters, additive  0.4646  0.0116  0.3066  1.000     60.7544  -1054.10
+  Holt-Winters, multiplicative  0.4630  0.0116  0.2949  1.000     60.5428  -1055.86
+           HW additive, damped  0.4811  0.0492  0.2916  0.980     64.7418  -1020.19
+     HW multiplicative, damped  0.4776  0.0508  0.2807  0.980     64.5628  -1021.58
+(6.5 s) AIC's choice: Holt-Winters, multiplicative
+first draft, three starts: Holt stopped at a sum of squares of 704.7799 (alpha 1.0000, beta 0.0000);
+the fourth start (alpha 0.9, beta 0.9) finds 415.0547 (alpha 1.0000, beta 1.0000): a local minimum, and several starts are no guarantee
+Actual output from this lesson's run.
+
+======================================================================
+4. FORECASTING 2000-2001 -- against Day 147's forecasts and Day 149's ARIMA
+======================================================================
+2000-01 to 2001-12, 24 months              MAE (ppm)   bias
+  same month last year (Day 147)            1.882  -1.882
+  airline ARIMA, CSS (Day 149)              0.412  +0.405
+  airline ARIMA, MLE (Day 149)              0.359  +0.359
+  SES                                       2.420  -2.207
+  Holt                                     13.418 +13.418
+  Holt, damped                              2.178  +1.963
+  Holt-Winters, additive                    0.290  +0.273
+  Holt-Winters, multiplicative <- AIC       0.329  +0.314
+  HW additive, damped                       0.523  -0.423
+  HW multiplicative, damped                 0.489  -0.361
+Holt-Winters additive 95% interval: half-width 0.68 one month ahead, 1.92 at 24; 24 of 24 months inside (the airline model's: 2.40 at 24)
+AIC's choice and the additive version are close on the training data; on these 24 test months the additive one did
+better -- picking it now would be choosing on the test, so the comparison stands as AIC chose
+Actual output from this lesson's run.
+
+======================================================================
+5. ROLLING ORIGINS -- 97 forecasts, 24 months ahead, 1990-1998, against ARIMA
+======================================================================
+97 origins (186.5 s); all forecasts end by 1999-12
+             MAE (ppm), months ahead       1       6      12      24
+  Holt-Winters, multiplicative (AIC)   0.274   0.453   0.681   1.035
+              Holt-Winters, additive   0.277   0.453   0.682   1.035
+                  airline ARIMA, CSS   0.264   0.451   0.715   1.099
+                same month last year   1.362   1.428   1.560   3.137
+           95% coverage, HW additive   0.959   0.887   0.907   0.897   lowest 0.835
+               95% coverage, airline   0.959   0.969   0.938   0.979   lowest 0.897
+Holt-Winters (multiplicative) is more accurate than the airline model at 18 of 24 horizons (from 7 months ahead on); its intervals are too narrow, the airline model's are not
+Actual output from this lesson's run.
+
+======================================================================
+6. ELECTRICAL-EQUIPMENT ORDERS -- log scale, so the season adds
+======================================================================
+rolling origins 2001-01 to 2007-01 (73), mean absolute % error by months ahead:
+                               1       6      12
+  Holt-Winters, additive   2.05%   4.74%   7.33%
+      airline ARIMA, CSS   1.92%   4.39%   6.26%
+    same month last year   5.31%   5.13%   4.83%
+the crash: train up to 2007-12; AIC chose damped (alpha 0.328, beta 0.241, gamma 0.525, phi 0.916)
+  MAE: Holt-Winters 18.81%, airline ARIMA 23.86%, same month last year 18.04%
+the last 24 months: train up to 2014-05; AIC chose damped (alpha 0.668, beta 0.000, gamma 0.439, phi 0.980)
+  MAE: Holt-Winters 4.65%, airline ARIMA 6.41%, same month last year 3.75%
+in the ordinary period the airline model beats Holt-Winters at every horizon shown; through the crash Holt-Winters (damped,
+as AIC chose) was much closer than the airline model, but neither beat last year's value in the crash or in the last two years
+Actual output from this lesson's run.
+
+saved exponential_smoothing_results.png
+saved exponential_smoothing_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 151: feature engineering for time series -- lags, rolling statistics and calendar features turn forecasting
+into ordinary regression, with a demonstration of how easily future information leaks into the features.

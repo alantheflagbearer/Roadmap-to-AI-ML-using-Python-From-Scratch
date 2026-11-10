@@ -1,0 +1,5 @@
+SES, alpha 0.5, start 10, data 10, 12, 11: forecasts 10, 10, 0.5 x 12 + 0.5 x 10 = 11; final level 0.5 x 11 + 0.5 x 11 = 11; ets_filter gives [10.0, 10.0, 11.0], level 11.0
+Holt, alpha 1 and beta 1, on the line 1, 2, 3, 4 (start level 0, trend 1): forecasts [1.0, 2.0, 3.0, 4.0], then [5.0, 6.0, 7.0]
+ets_init on 11, 9, 13, 11 with a season of 2: level (11 + 9) / 2 = 10, trend (12 - 10) / 2 = 1, season 1 and -1; gives [10.0, 1.0], [1.0, -1.0]
+SES alpha on 200 simulated values: brute force over 999 values 0.556, fit_ets 0.556
+interval for SES, alpha 0.5, error variance 1: sd 3 steps ahead = sqrt(1 + 2 x 0.25) = 1.2247; ets_sd gives 1.2247
