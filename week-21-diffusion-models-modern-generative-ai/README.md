@@ -97,5 +97,21 @@ Exercise: [`day145_exercise.py`](day145_exercise.py) is skewing a training set, 
 ![Three risks of generative models](generative_ai_ethics_diagram.png)
 ![Bias with a control, detection, and memorisation](generative_ai_ethics_results.png)
 
+## Day 146 — Week 21 build: a text-to-digit generator, end to end
+[`day146_text_to_digit_capstone.py`](day146_text_to_digit_capstone.py) — the week's parts joined into one generator: type a prompt, get handwritten digits. Day 143's text encoder embeds the prompt, Day 144's text-conditioned diffusion model (Day 141's network, Day 140's schedule) draws with classifier-free guidance, Day 142's DDIM sets the number of steps, and Day 145's checks measure what comes out. Only a small front end is new code.
+
+- **Imported, not pasted:** earlier builds pasted their week's parts into one file. Here two constants clash across the exercise files, and pasting would leave Day 144's 3-entry ACTS in force for Day 143's 2-layer encoders. Nothing fails, because the forward pass zips layers with activations, but 0.488 of the embedding entries become exactly 0 while zero-shot accuracy barely moves (0.9785 to 0.9755). So the parts are imported as modules.
+- **Checked against the week:** the encoders' zero-shot accuracy is Day 143's 0.9785, and the w = 2 row (right digit 1.000, FID 25.06, recall 0.464) matches Day 144's printed row exactly.
+- **The front end:** typed raw, '7', 'Seven!' and 'SEVEN' were never sevens (0.000; the model drew eight 84, five 24). Normalised, they were sevens 1.000 of the time, and 'draw me a 9 please' 0.995. 'three seven', 'a picture of a cat' and 'sept' are refused with the reason.
+- **Speed:** 10 DDIM steps took 1.14 ms per digit against 9.70 for 100, with FID 24.02 against 25.06; fewer steps cost variety (recall 0.342 against 0.464).
+- **A model card:** every digit was drawn with more ink than real ones (0.150 against 0.131), 0.603 in the thickest third and 0.051 in the thinnest. Near copies were 0.092, about the same as real test digits (0.090).
+
+Study guide: [`day146_text_to_digit_capstone_complete_guide.pdf`](day146_text_to_digit_capstone_complete_guide.pdf) · Syntax walkthrough: [`day146_syntax_line_by_line.pdf`](day146_syntax_line_by_line.pdf) · [Run output](day146_run_output.txt)
+
+Day 146 is the week's build, so it has no exercise script of its own.
+
+![The week's parts as one text-to-digit generator](text_to_digit_capstone_diagram.png)
+![Training, speed, the front end and the model card](text_to_digit_capstone_results.png)
+
 ---
 [← Back to main README](../README.md)

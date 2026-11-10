@@ -1,0 +1,85 @@
+(feature network for the scores: 34 s; text and image encoders: 31 s)
+
+======================================================================
+1. THE PARTS -- imported, not pasted: what pasting would break
+======================================================================
+constants given different values in this week's exercise files (in a single file, only the last would survive):
+  SIZES: Day 141: [816, 512, 512, 784]; Day 144: [784 + 32 + 64, 512, 512, 784]
+  ACTS: Day 141: ["relu", "relu", "linear"]; Day 143: ["relu", "linear"]; Day 144: ["relu", "relu", "linear"]
+Day 143's encoders (2 layers) run with Day 143's ACTS ['relu', 'linear']: zero-shot accuracy 0.9785, embedding entries exactly 0: 0.000
+the same encoders run with Day 144's ACTS ['relu', 'relu', 'linear'], as a pasted file would: zero-shot accuracy 0.9755, entries exactly 0: 0.488
+no error either way: Day 126's forward pairs layers with activations using zip, which stops at the shorter list,
+so the encoder's last layer quietly becomes a ReLU
+Actual output from this lesson's run.
+
+======================================================================
+2. THE MODEL -- trained end to end, and checked against Days 143 and 144
+======================================================================
+text encoder (Day 143's train_clip, the held-out pair): zero-shot accuracy 0.9785; Day 143's run printed 0.9785: the same
+text-conditioned diffusion model (Day 144's train_cond, 20,000 steps): loss 0.1620 -> 0.1320, 886 s
+prompts 'zero' ... 'nine', 200 samples each, w = 2, DDIM 100 steps, the same starting noise as Day 144:
+             w  right digit     IS      FID  precision  recall  grey share    ink
+    today  2.0        1.000   9.90    25.06      0.930   0.464      0.0848  0.150   (19 s)
+  Day 144  2.0        1.000   9.90    25.06      0.930   0.464      0.0848  0.150
+every printed digit the same as Day 144's run: True
+Actual output from this lesson's run.
+
+======================================================================
+3. THE FRONT END -- prompts as the encoder can read them, and refusals
+======================================================================
+200 samples per prompt, w = 2, the same starting noise (seed 1); 'raw': the prompt split on spaces and embedded as typed,
+as on Day 144; 'front end': normalise, then refuse unless exactly one digit word is left; 'right': named as the intended digit
+                  prompt  raw: right          raw: named as   front end                                 right
+                 'seven'       1.000      seven 200, zero 0   drawn                                     1.000
+                     '7'       0.000      eight 84, five 24   drawn                                     1.000
+                'Seven!'       0.000      eight 84, five 24   drawn                                     1.000
+                 'SEVEN'       0.000      eight 84, five 24   drawn                                     1.000
+             'a thick 3'       0.025     eight 128, zero 28   drawn                                     1.000
+       '4 leaning right'       0.510      four 102, nine 36   drawn                                     1.000
+    'draw me a 9 please'       0.040     eight 115, five 29   drawn; ignored 'draw', 'me', 'please'     0.995
+                  'sept'       0.000      eight 84, five 24   refused: no digit word it knows               -
+    'a picture of a cat'           -     eight 115, five 29   refused: no digit word it knows               -
+           'three seven'           -    three 112, seven 86   refused: two digits (three and seven)         -
+Actual output from this lesson's run.
+
+======================================================================
+4. SPEED -- how many sampling steps a request needs
+======================================================================
+prompts 'zero' ... 'nine', 200 samples each, w = 2 (two network calls per step), DDIM with no fresh noise, the same starting noise;
+time for all 2,000 samples on this machine (timings vary from run to run here; compare within this table)
+ steps  right digit      FID  recall  grey share    time  ms per digit
+    10        1.000    24.02   0.342      0.1004    2.3s          1.14
+    25        1.000    22.46   0.418      0.0924    5.0s          2.48
+    50        1.000    23.47   0.450      0.0880   10.6s          5.29
+   100        1.000    25.06   0.464      0.0848   19.4s          9.70
+Actual output from this lesson's run.
+
+======================================================================
+5. A MODEL CARD -- what this generator does to each digit
+======================================================================
+section 2's samples (200 per prompt, w = 2); 'thick', 'thin', 'lean R' and 'lean L' use Day 143's cut points for that digit,
+so real training digits score a third on each; ink: the average pixel; nearest: median pixel distance to the nearest
+training digit, for the samples and for real test digits of the same kind; near copies: closer than 2.0
+named: the share Day 138's classifier names as the prompted digit; lean R / lean L: leaning right / left
+ prompt  named    ink   real  thick   thin lean R lean L  nearest   test  near copies
+   zero  1.000  0.197  0.173  0.580  0.045  0.215  0.250     3.64   4.37        0.005
+    one  1.000  0.083  0.076  0.570  0.010  0.150  0.140     1.66   1.67        0.900
+    two  1.000  0.177  0.149  0.750  0.030  0.305  0.215     4.69   5.01        0.000
+  three  1.000  0.162  0.142  0.590  0.075  0.265  0.220     3.99   4.71        0.000
+   four  1.000  0.137  0.121  0.640  0.015  0.215  0.205     3.71   4.30        0.000
+   five  1.000  0.148  0.129  0.645  0.055  0.395  0.115     4.25   4.85        0.000
+    six  1.000  0.148  0.137  0.450  0.100  0.150  0.225     3.43   4.16        0.000
+  seven  0.995  0.147  0.115  0.755  0.045  0.225  0.300     2.99   3.68        0.015
+  eight  1.000  0.171  0.150  0.685  0.040  0.270  0.130     3.99   4.98        0.000
+   nine  1.000  0.129  0.123  0.365  0.095  0.315  0.190     3.00   3.89        0.000
+    all  1.000  0.150  0.131  0.603  0.051  0.251  0.199     3.64   4.32        0.092
+closest sample to any training digit: 1.22; real test digits closer than 2.0: 0.090
+Actual output from this lesson's run.
+
+saved text_to_digit_capstone_results.png
+saved text_to_digit_capstone_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Week 22 turns to time series: Day 147 decomposes a real series into trend, seasonality and what is left over.
