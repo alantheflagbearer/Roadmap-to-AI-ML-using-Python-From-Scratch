@@ -1,0 +1,5 @@
+onehot([3, 7]): the 1s sit in columns [3, 7]; row sums [1.0, 1.0]
+g_input: (2, 74); d_input: (2, 8624) = 11 x 784
+d loss / d (weight from label 5's input to unit 5): backward -0.0001119173; finite difference -0.0001119173
+after 300 rounds, D on 1,000 real test digits: 0.844 with the true label, 0.797 with the label plus 1
+spread of 200 real 1s 6.61; of 200 real 8s 9.18

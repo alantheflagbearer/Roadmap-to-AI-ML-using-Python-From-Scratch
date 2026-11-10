@@ -61,5 +61,20 @@ Exercise: [`day136_exercise.py`](day136_exercise.py) is the convolutional machin
 ![The two convolutional players](dcgan_diagram.png)
 ![DCGAN results on MNIST and junctions](dcgan_results.png)
 
+## Day 137 — Conditional GANs: real class-conditional generation
+[`day137_conditional_gan.py`](day137_conditional_gan.py) — Day 136's DCGAN given the label as well as the noise: the generator reads 64 noise numbers and a one-hot label (74 inputs), and the discriminator reads the image with ten label planes (11 channels), so a good image with the wrong label counts as fake. The gradient through the joined input is checked by finite differences (worst relative error 3.9e-08).
+
+- **Does it draw the digit it is asked for?** After 20 epochs a softmax-regression judge names the asked-for digit in 0.793 and 0.788 of the generated images (two seeds), against 0.864 for real test digits (the first 2,000 test images, which Day 138 later found are not a random sample). 9 is drawn as 7 or 4 most often.
+- **The discriminator checks the label:** real test digits score 0.634 with their true label and 0.373 with a wrong one.
+- **The label given to the generator only:** the share drawn as asked stays at chance (0.105 at epoch 20): nothing in the game rewards obeying the label.
+- **The noise carries the style:** one noise vector drawn as all ten digits keeps its ink and slant (correlations 0.828 and 0.669 across digits, against -0.014 and 0.032 with the noise shuffled).
+
+Study guide: [`day137_conditional_gan_complete_guide.pdf`](day137_conditional_gan_complete_guide.pdf) · Syntax walkthrough: [`day137_syntax_line_by_line.pdf`](day137_syntax_line_by_line.pdf) · [Run output](day137_run_output.txt)
+
+Exercise: [`day137_exercise.py`](day137_exercise.py) holds the label's parts (the one-hot label, the two joined inputs, the players with room for the label, the conditional round and the variety measure), checked by hand — the fifth part of Day 139's build ([run output](day137_exercise_run_output.txt)).
+
+![The label goes to both players](conditional_gan_diagram.png)
+![Conditional GAN results](conditional_gan_results.png)
+
 ---
 [← Back to main README](../README.md)

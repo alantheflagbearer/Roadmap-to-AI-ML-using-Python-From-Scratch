@@ -1,0 +1,89 @@
+======================================================================
+1. BY HAND -- how the label enters each player, and the gradient checked
+======================================================================
+one-hot of [3, 7]:
+[[0 0 0 1 0 0 0 0 0 0]
+ [0 0 0 0 0 0 0 1 0 0]]
+generator input (2, 74): 64 noise numbers then the 10 label numbers
+discriminator input (2, 8624) = 784 x 11: the image, then ten 28 x 28 planes; plane sums for the first image: [0, 0, 0, 784, 0, 0, 0, 0, 0, 0]
+generator weights (18 entries, through the joined input and back off it): worst relative error 3.9e-08
+the label weights of the first layer (rows 8-17 of its weight matrix) get gradient too: largest 4.07e-03
+Actual output from this lesson's run.
+
+======================================================================
+2. A CONDITIONAL DCGAN ON MNIST -- does it draw the digit it is asked for?
+======================================================================
+the judge on 2,000 real test digits: names the right digit 0.864 (worst digit 0.715), confidence 0.8757,
+nearest training image 4.49, variety within a digit (average distance between two images of it) 8.77
+generator: 64 noise + 10 label numbers -> Day 136's DCGAN generator (274,849 numbers)
+discriminator: 11 channels (image + ten label planes) -> Day 136's DCGAN discriminator (41,633 numbers)
+20,000 training images with their labels, batches of 128, 20 epochs, AdamGAN (lr 0.0002, b1 0.5); fakes get random labels.
+each epoch, 2,000 fixed noise vectors, 200 asked for each digit: the share the judge names as the asked-for digit,
+the worst digit's share, the judge's confidence, the distance to the nearest training image, and the variety within a digit
+conditional, seed 0:  epoch  D(real)  D(fake)  asked digit drawn  worst digit  confidence  nearest  variety
+                          1    0.880    0.103              0.100        0.000      0.8096     5.78     2.15
+                          2    0.934    0.064              0.101        0.000      0.4178     5.64     3.24
+                          3    0.803    0.196              0.135        0.010      0.4599     5.60     3.19
+                          5    0.742    0.257              0.127        0.015      0.7264     6.15     7.70
+                         10    0.697    0.301              0.272        0.070      0.7694     6.12     9.06
+                         15    0.602    0.402              0.551        0.200      0.8031     6.50     9.24
+                         20    0.557    0.443              0.793        0.520      0.8731     6.36     8.96
+                      (2499 s); per digit 0-9: 0.89 0.92 0.74 0.83 0.81 0.56 0.94 0.95 0.78 0.52
+conditional, seed 1:  epoch  D(real)  D(fake)  asked digit drawn  worst digit  confidence  nearest  variety
+                          1    0.865    0.120              0.101        0.000      0.6369     5.53     2.29
+                          2    0.925    0.074              0.106        0.005      0.4726     5.88     3.78
+                          3    0.799    0.199              0.131        0.010      0.6533     5.61     4.97
+                          5    0.740    0.259              0.153        0.015      0.7649     6.24     8.04
+                         10    0.691    0.308              0.295        0.075      0.7779     6.14     9.08
+                         15    0.614    0.384              0.593        0.365      0.8195     6.38     9.16
+                         20    0.568    0.433              0.788        0.575      0.8653     6.29     9.00
+                      (2549 s); per digit 0-9: 0.97 0.77 0.73 0.79 0.86 0.70 0.90 0.97 0.62 0.57
+seed 0's discriminator on 2,000 real test digits: D = 0.634 with the true label, 0.373 with a wrong one
+seed 0, epoch 20: rows = digit asked for, columns = digit the judge sees (of 200 each)
+           0    1    2    3    4    5    6    7    8    9
+      0  178    0    4    1    0   12    0    1    0    4
+      1    0  183    0    5    0    5    5    0    2    0
+      2    0    0  149   34    1    1    6    0    6    3
+      3    3    1    5  167    4    4    0    7    1    8
+      4    1    0    0    0  161    2    6    6    1   23
+      5   26    0    2   12    6  111    1    7   17   18
+      6    0    0    2    1    8    0  188    0    1    0
+      7    0    0    0    0    4    0    0  190    0    6
+      8    0    1    5    3   10   10    7    1  156    7
+      9    0    0    0    3   40    1    0   51    1  104
+Actual output from this lesson's run.
+
+======================================================================
+3. THE LABEL GIVEN TO THE GENERATOR ONLY -- the discriminator sees the image, never the label
+======================================================================
+generator-only label, seed 0:  epoch  D(real)  D(fake)  asked digit drawn  worst digit  confidence  nearest  variety
+                                   1    0.906    0.059              0.103        0.000      0.5888     7.50     4.61
+                                   2    0.974    0.038              0.101        0.000      0.5275     4.31     3.05
+                                   3    0.962    0.044              0.084        0.000      0.5481     5.55     4.83
+                                   5    0.859    0.139              0.105        0.045      0.6990     6.34     8.61
+                                  10    0.726    0.275              0.102        0.070      0.7504     6.43     9.58
+                                  15    0.678    0.320              0.098        0.055      0.7634     6.48    10.05
+                                  20    0.668    0.328              0.105        0.025      0.7465     6.63    10.29
+                               (3150 s); per digit 0-9: 0.03 0.06 0.05 0.14 0.13 0.12 0.12 0.15 0.10 0.17
+size of the first layer's weights: noise rows 0.1311 on average, label rows 0.1265
+Actual output from this lesson's run.
+
+======================================================================
+4. SAME NOISE, TEN LABELS -- does the noise carry the style?
+======================================================================
+500 noise vectors, each drawn as all ten digits (seed 0's generator at epoch 20);
+correlation, across the 500 noise vectors, of a measure on digit a with the same measure on digit b, averaged over the 45 pairs:
+   ink (average pixel):            same noise 0.828;  noise shuffled for one digit -0.014
+   slant (column change per row):  same noise 0.669;  noise shuffled for one digit 0.032
+the same 500 noise vectors asked for each digit in turn: the judge names the asked-for digit 0.814 of the time
+Actual output from this lesson's run.
+
+saved conditional_gan_results.png
+saved conditional_gan_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+So far each GAN was judged with a few hand-made measures: the judge's digit shares, the nearest training image, the
+variety within a digit. Day 138 builds the standard scores, a Frechet distance and an Inception-style score, and
+tests what each one can and cannot see.
