@@ -1,0 +1,5 @@
+posterior at t = 1: x_0 weight 1.0000, x_t weight 0.0000, variance 0.000000 (step 1 starts from x_0 itself)
+posterior at t = 1,000: x_0 weight 0.000128, x_t weight 0.9899, variance 0.020000
+one exact step from t = 20: distance to the true x_0 0.0512; modes 8
+reverse process, exact denoiser, noise beta_t: 8 modes, good share 0.989, spread 0.0497 (real 0.05)
+after 3,000 training steps, the learned denoiser: 8 modes, good share 0.636, spread 0.1490

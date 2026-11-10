@@ -1,0 +1,99 @@
+======================================================================
+1. BY HAND -- one reverse step's formula, against simulation
+======================================================================
+x_0 = 1.0; a million runs of the forward process to step t - 1, then one more step; x_(t-1) regressed on x_t
+     t    c0 x_0  simulated        ct  simulated  beta-tilde  simulated
+     2   0.54529    0.54476   0.45471    0.45525    0.000055   0.000054
+    50   0.03660    0.03634   0.96339    0.96362    0.001037   0.001035
+   300   0.00634    0.00619   0.99298    0.99305    0.006032   0.006029
+   900   0.00030    0.00033   0.99095    0.99095    0.018008   0.017987
+given x_0, x_(t-1) and x_t are jointly Gaussian, so a straight-line fit recovers the posterior exactly (up to sampling error)
+Actual output from this lesson's run.
+
+======================================================================
+2. ONE DENOISING STEP -- the exact E[x_0 | x_t] on Day 135's ring, at each t
+======================================================================
+2,000 ring points noised to step t, then the exact guess of x_0 from x_t alone; Day 135's mode_stats on the guesses
+     t  noise sd  modes  good share  guess radius  |guess - x_0|  right mode
+     1    0.0100      8       0.992        1.9990         0.0123       1.000
+    10    0.0435      8       1.000        1.9995         0.0408       1.000
+    50    0.1702      8       1.000        1.9996         0.0602       1.000
+   100    0.3209      8       0.916        1.9883         0.1100       0.978
+   200    0.5839      8       0.203        1.8526         0.5673       0.722
+   300    0.7769      0       0.003        1.5366         1.0436       0.475
+   500    0.9599      0       0.000        0.7022         1.7823       0.231
+   700    0.9965      0       0.000        0.2101         1.9771       0.148
+  1000    1.0000      0       0.000        0.0160         1.9993       0.123
+Actual output from this lesson's run.
+
+======================================================================
+3. THE WHOLE REVERSE PROCESS WITH THE EXACT DENOISER -- are all eight modes recovered?
+======================================================================
+real ring, 2,000 points: 8 modes, good share 0.982, spread around its centre 0.0509, counts 237 268 229 234 233 244 270 249
+2,000 samples, 1,000 steps from N(0, I), the exact eps at every step, fresh noise of variance beta-tilde_t:
+   seed 0: 8 modes, good share 0.998, spread 0.0455, counts 232 239 266 244 250 261 263 240 (0.8 s)
+   seed 1: 8 modes, good share 0.995, spread 0.0457, counts 247 231 252 252 236 268 237 266 (0.8 s)
+   seed 2: 8 modes, good share 0.997, spread 0.0460, counts 241 219 226 285 240 253 256 273 (1.0 s)
+Actual output from this lesson's run.
+
+======================================================================
+4. A LEARNED DENOISER -- its error against the lowest possible error
+======================================================================
+network: [x_t (2 numbers), time embedding (32)] -> 256 -> 256 -> 2 (ReLU), Day 126's init_net, forward, backward and Adam;
+loss: mean squared error between the true and the guessed eps; batches of 512 fresh ring points, t uniform on 1-1,000
+evaluation: 20,000 fixed (x_0, t, eps) triples, t in 9 levels; the exact denoiser's error there is 0.3290, the floor
+    step    error  above the floor
+   2,000   0.4102           0.0813
+   4,000   0.3625           0.0335
+   8,000   0.3645           0.0355
+  12,000   0.3468           0.0178
+  16,000   0.3585           0.0295
+  20,000   0.3477           0.0187
+  30,000   0.3419           0.0129
+(196 s)
+by t: error of the learned denoiser, and of the exact one (the floor), on the same triples
+     t   learned     exact
+     1    1.0044    0.9716
+    10    0.5904    0.5645
+    50    0.1029    0.0751
+   100    0.1979    0.1761
+   200    0.5094    0.5041
+   300    0.5119    0.5104
+   500    0.1440    0.1441
+   700    0.0143    0.0138
+  1000    0.0006    0.0001
+Actual output from this lesson's run.
+
+======================================================================
+5. SAMPLING WITH THE LEARNED DENOISER, and how much fresh noise each step adds
+======================================================================
+2,000 samples each, seeds 0-2; fresh noise per step: beta-tilde_t (the posterior's own), beta_t (a little more), or none
+ denoiser      noise  seed  modes  good share  spread   counts (the real ring's spread is 0.05)
+  learned  posterior     0      8       0.976  0.0607   213 254 264 243 242 233 239 263
+  learned  posterior     1      8       0.971  0.0592   224 248 263 235 234 237 214 287
+  learned  posterior     2      8       0.976  0.0604   218 215 229 287 246 223 224 309
+  learned       beta     0      8       0.963  0.0648   211 248 261 238 240 228 238 262
+  learned       beta     1      8       0.964  0.0601   224 247 260 233 227 236 212 288
+  learned       beta     2      8       0.966  0.0606   216 211 223 285 247 222 220 307
+  learned       none     0      3       0.998  0.0228   1059 366 0 0 0 0 0 571
+  learned       none     1      3       0.999  0.0202   1085 366 0 0 0 0 0 546
+  learned       none     2      3       0.998  0.0231   1094 313 0 0 0 0 0 589
+    exact  posterior     0      8       0.998  0.0455   232 239 266 244 250 261 263 240
+    exact  posterior     1      8       0.995  0.0457   247 231 252 252 236 268 237 266
+    exact  posterior     2      8       0.997  0.0460   241 219 226 285 240 253 256 273
+    exact       beta     0      8       0.993  0.0496   232 239 267 240 247 259 264 238
+    exact       beta     1      8       0.989  0.0497   246 229 250 251 236 265 236 264
+    exact       beta     2      8       0.992  0.0501   239 212 230 283 238 252 254 276
+    exact       none     0      8       1.000  0.0099   238 227 264 237 250 288 265 231
+    exact       none     1      8       1.000  0.0099   265 234 262 245 231 241 247 275
+    exact       none     2      8       1.000  0.0099   270 217 233 233 240 260 257 290
+Actual output from this lesson's run.
+
+saved reverse_diffusion_results.png
+saved reverse_diffusion_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+The ring has two numbers per point and a denoiser that can be written down. Day 141 trains a tiny diffusion model on
+images, where no exact denoiser exists, and generates new ones.
