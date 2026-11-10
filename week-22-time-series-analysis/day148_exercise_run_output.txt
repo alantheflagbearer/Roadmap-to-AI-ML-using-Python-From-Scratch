@@ -1,0 +1,6 @@
+acf of 1, 2, 3, 4, 5: centred -2 -1 0 1 2, sum of squares 10; lag 1 = 4 / 10 = 0.4, lag 2 = -1 / 10 = -0.1; acf() gives 0.4, -0.1
+difference of 1, 4, 9, 16: [3, 5, 7] (lag 1), [8, 12] (lag 2)
+Dickey-Fuller statistic of one random walk: plain least squares -1.390251, df_stats -1.390251, adf with no extra lags -1.390251
+simulated table, length 100, 5,000 walks: 5% point -2.919 (MacKinnon's published value for 100: about -2.89)
+mc_pvalue(2.5, table 1 2 3 4) = 0.50 (two of four values are at or below 2.5)
+KPSS: white noise 0.104, a random walk 1.776 (5% critical value 0.463: the walk is rejected as stationary)

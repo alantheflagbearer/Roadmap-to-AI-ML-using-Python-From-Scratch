@@ -1,0 +1,101 @@
+======================================================================
+1. WHAT STATIONARY MEANS -- four simulated series and the two real ones
+======================================================================
+a stationary series has the same mean and spread in every stretch; compare the first and second halves
+                series  mean, 1st half  2nd half  std, 1st half  2nd half  acf lag 1  lag 12
+           white noise           0.032    -0.082          0.996     0.997     -0.011   0.022
+        AR(1), phi 0.9          -1.539     0.231          1.829     2.338      0.904   0.440
+           random walk           9.031    15.909          8.113     3.877      0.988   0.868
+         trend + noise           2.515     7.461          1.744     1.743      0.887   0.826
+                   CO2         324.770   354.468          6.728     9.928      0.993   0.935
+            log orders           4.547     4.650          0.176     0.125      0.659   0.744
+white noise keeps its mean and spread; the AR(1) is stationary too, but with phi 0.9 it has long memory, so 250 steps
+are a short sample and its halves still differ; the random walk, the trend and CO2 drift away
+Actual output from this lesson's run.
+
+======================================================================
+2. THE AUTOCORRELATION FUNCTION -- from scratch, checked against statsmodels
+======================================================================
+largest difference from statsmodels' acf, lags 0-40, five series: 6.7e-16
+AR(1) with phi 0.9: lags 1-5 0.904 0.826 0.763 0.699 0.648; theory phi^k: 0.900 0.810 0.729 0.656 0.590
+random walk: lag 1 0.988, lag 25 0.713, lag 100 0.094 -- it fades slowly, the mark of a unit root
+Actual output from this lesson's run.
+
+======================================================================
+3. WHY THE DICKEY-FULLER TEST NEEDS ITS OWN TABLE -- a simulation
+======================================================================
+20,000 random walks of 500 steps; for each, regress the change on the previous level and take the t statistic
+                  regression       1%       5%      10%   share below -1.645 (a 5% one-sided normal test)
+         constant, simulated   -3.439   -2.874   -2.576   0.452
+         constant, MacKinnon   -3.444   -2.867   -2.570
+ constant + trend, simulated   -3.933   -3.405   -3.135   0.774
+ constant + trend, MacKinnon   -3.977   -3.419   -3.132
+         normal distribution   -2.326   -1.645   -1.282
+(simulation: 0.9 s)
+Actual output from this lesson's run.
+
+======================================================================
+4. THE ADF TEST FROM SCRATCH -- on the real series and their differences
+======================================================================
+ADF: regress the change on the previous level, lagged changes (number chosen by AIC) and a constant; a very negative
+statistic is evidence against a unit root. p: from this lesson's simulated table, and from MacKinnon's (statsmodels)
+              series      ADF  statsmodels  lags  p, simulated  p, MacKinnon  acf 1  acf 12      std
+                 CO2    2.233        2.233    14        1.0000        0.9989  0.993   0.935  17.1002
+             CO2, d1   -4.752       -4.752    13        0.0001        0.0001  0.704   0.922   1.1849
+            CO2, d12   -4.289       -4.289    13        0.0004        0.0005  0.810   0.044   0.6735
+         CO2, d1 d12   -8.398       -8.398    15      < 0.0001        0.0000 -0.297  -0.409   0.4141
+          log orders   -3.187       -3.187    15        0.0228        0.0207  0.659   0.744   0.1612
+      log orders, d1   -3.858       -3.858    16        0.0029        0.0024 -0.391   0.924   0.1309
+     log orders, d12   -2.818       -2.818    15        0.0585        0.0558  0.937   0.018   0.0917
+  log orders, d1 d12   -6.428       -6.428    13      < 0.0001        0.0000 -0.143  -0.439   0.0327
+largest difference from statsmodels' adfuller: 1.0e-11; lags chosen: the same in every row
+d1: each month minus the one before; d12: minus the same month a year before; std: the transformed series' spread
+Actual output from this lesson's run.
+
+======================================================================
+5. OVER-DIFFERENCING -- what one difference too many does
+======================================================================
+white noise, differenced: std 0.998 -> 1.419 (theory: x sqrt(2) = 1.412); acf lag 1 -0.532 (theory -0.5)
+     CO2, d1 d12: std 0.4141, acf lag 1 -0.297, lag 12 -0.409, ADF -8.40
+  CO2, d1 d1 d12: std 0.6676, acf lag 1 -0.613, lag 12 -0.401, ADF -9.25
+ CO2, d1 d12 d12: std 0.6919, acf lag 1 -0.287, lag 12 -0.603, ADF -9.56
+each extra difference raises the spread and makes one lag's autocorrelation more negative; the ADF test still 'passes',
+so it cannot warn about this; the spread and the acf can
+Actual output from this lesson's run.
+
+======================================================================
+6. TWO TESTS, OPPOSITE QUESTIONS -- KPSS beside ADF
+======================================================================
+ADF's null hypothesis: a unit root (reject when the statistic is below -2.87, 5%, MacKinnon);
+KPSS's null hypothesis: stationary around a constant (reject when the statistic is above 0.463, 5%, KPSS's table)
+              series      ADF    KPSS  statsmodels   reading
+                 CO2    2.233   2.716        2.716   both say not stationary
+             CO2, d1   -4.752   0.071        0.071   both say stationary
+            CO2, d12   -4.289   1.060        1.060   conflict: both reject
+         CO2, d1 d12   -8.398   0.017        0.017   both say stationary
+          log orders   -3.187   0.558        0.558   conflict: both reject
+     log orders, d12   -2.818   0.245        0.245   conflict: neither rejects
+  log orders, d1 d12   -6.428   0.027        0.027   both say stationary
+largest difference from statsmodels' kpss: 1.1e-16
+Actual output from this lesson's run.
+
+======================================================================
+7. HOW OFTEN THE ADF TEST IS RIGHT -- its power near a unit root
+======================================================================
+2,000 simulated AR(1) series per cell, y_t = phi y_(t-1) + noise, started from their long-run spread;
+the share the Dickey-Fuller test (constant, no extra lags) calls stationary at 5%, using a simulated table for each length
+ length    phi 0.8    phi 0.9   phi 0.95   phi 0.99    phi 1.0
+    100      0.872      0.306      0.120      0.054      0.052
+    250      1.000      0.976      0.468      0.068      0.052
+    500      1.000      1.000      0.972      0.129      0.052
+phi 1.0 is a random walk: there the share is the false-alarm rate, which should be 0.05
+Actual output from this lesson's run.
+
+saved stationarity_differencing_results.png
+saved stationarity_differencing_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 149: ARIMA from scratch. The differenced CO2 series still has memory (its autocorrelation is not 0);
+autoregressive and moving-average terms model that memory, and forecasts are built back up through the differences.

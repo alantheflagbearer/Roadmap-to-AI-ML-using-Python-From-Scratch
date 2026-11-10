@@ -18,5 +18,22 @@ Exercise: [`day147_exercise.py`](day147_exercise.py) is the two data loaders, th
 ![Classical decomposition, step by step](time_series_decomposition_diagram.png)
 ![CO2 and electrical-equipment orders decomposed](time_series_decomposition_results.png)
 
+## Day 148 — Stationarity and differencing: the ADF and KPSS tests from scratch
+[`day148_stationarity_differencing.py`](day148_stationarity_differencing.py) — what it means for a series to be stationary, the autocorrelation function, differencing at lag 1 and lag 12, and two tests that ask about stationarity from opposite sides (augmented Dickey-Fuller and KPSS), all written from scratch in NumPy and run on Day 147's two real series.
+
+- **Checked:** the autocorrelation function, the ADF statistic (with the same AIC-chosen lags in every row) and the KPSS statistic match statsmodels (6.7e-16, 1.0e-11, 1.1e-16).
+- **Why ADF needs its own table:** 20,000 simulated random walks give a 5% point of -2.874 (MacKinnon's published -2.867). Using the normal table would wrongly reject a unit root in 0.452 of random walks.
+- **On CO2:** the raw series is far from stationary (ADF 2.233). Differencing once and then once at lag 12 passes clearly (-8.398, spread 0.4141). One surprise: the first difference alone passes ADF (-4.752) and KPSS, although its yearly season is intact (lag-12 autocorrelation 0.922), because neither test looks for seasonality.
+- **When the tests disagree:** KPSS beside ADF gave a conflict on three of seven series, e.g. log orders (ADF rejects with p 0.0228, KPSS 0.558 also rejects).
+- **Over-differencing:** one difference too many raised CO2's spread to 0.6676 and pushed the lag-1 autocorrelation to -0.613, and the ADF test still passed (-9.25), so it cannot warn about it.
+- **Power:** with 100 steps the test detected a stationary series with phi 0.95 only 0.120 of the time; with 500 steps, 0.972. On random walks it was wrong 0.052 of the time, close to the 5% it should be.
+
+Study guide: [`day148_stationarity_differencing_complete_guide.pdf`](day148_stationarity_differencing_complete_guide.pdf) · Syntax walkthrough: [`day148_syntax_line_by_line.pdf`](day148_syntax_line_by_line.pdf) · [Run output](day148_run_output.txt)
+
+Exercise: [`day148_exercise.py`](day148_exercise.py) is the autocorrelation function, differencing, the Dickey-Fuller statistic and its simulated table, the ADF test and the KPSS test, checked by hand — the second part of Day 153's forecaster ([run output](day148_exercise_run_output.txt)).
+
+![Test, difference, test again](stationarity_differencing_diagram.png)
+![Simulated series, the Dickey-Fuller table, the test's power, and CO2 differenced](stationarity_differencing_results.png)
+
 ---
 [← Back to main README](../README.md)
