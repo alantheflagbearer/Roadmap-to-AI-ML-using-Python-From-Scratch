@@ -1,0 +1,107 @@
+======================================================================
+1. BY HAND -- DDIM's step, checked against Day 140's sampler
+======================================================================
+DDIM's fresh noise at a jump from t to s: sigma^2 = eta^2 (1 - abar_s) / (1 - abar_t) (1 - abar_t / abar_s);
+with eta = 1 and one step at a time (s = t - 1) it should equal Day 140's beta-tilde_t
+     t  DDIM sigma^2, eta 1  beta-tilde_t
+     2         0.0000545319  0.0000545319
+    10         0.0002381820  0.0002381820
+   100         0.0020345963  0.0020345963
+   500         0.0100313554  0.0100313554
+  1000         0.0199999835  0.0199999835
+Day 140's sampler against DDIM with eta 1 and all 1,000 steps, same guesser, same random numbers: largest difference 3.58e-14
+DDIM with eta 0 uses randomness only for the start: same start, largest difference 0.00e+00; different start, largest difference 1.80
+one eta-0 jump from t = 700 to 300 with the true x_0 lands on sqrt(abar_300) x_0 + sqrt(1 - abar_300) eps, the same eps: largest difference 4.44e-16
+Actual output from this lesson's run.
+
+(feature network for the scores: 37 s)
+
+======================================================================
+2. THREE MODELS, ONE SCORER -- each trained on the 60,000 training digits, 2,000 samples each from seed 1
+======================================================================
+VAE: Day 129's, 16 codes, hidden layers of 256, 30 epochs, samples decoded from N(0, I) codes (Day 130)
+GAN: Day 134's dense players [64, 256, 784] and [784, 256, 1], AdamGAN lr 0.0002 b1 0.5, 30 epochs
+diffusion: Day 141's model (output read as x_0, zero-started), 30,000 steps, sampled from an averaged copy of its weights
+(section 3), Day 140's 1,000-step sampler with fresh noise beta-tilde_t
+GAN while training:
+   epoch      IS      FID  precision  recall  nearest
+       1   1.200  435.586      1.000   0.000     4.72
+       5   4.606   68.793      0.653   0.158     5.80
+      10   4.961   49.446      0.515   0.463     5.88
+      20   5.085   50.378      0.467   0.614     6.17
+      30   5.186   52.781      0.547   0.641     5.82
+     model      IS      FID  precision  recall  nearest
+       VAE   5.405   38.520      0.676   0.736     5.03
+       GAN   5.186   52.781      0.547   0.641     5.82
+ diffusion   5.880   27.778      0.780   0.757     4.48
+Actual output from this lesson's run.
+
+======================================================================
+3. RAW WEIGHTS AGAINST AN AVERAGED COPY -- the diffusion model while it trains (decay 0.999)
+======================================================================
+the averaged copy: after every Adam step, W_avg = 0.999 W_avg + 0.001 W, so it is an average over roughly the last 1,000 steps;
+it is never trained itself. Day 141 saw the raw model's samples get worse after 10,000 steps while its loss kept falling
+    step   weights      IS      FID  precision  recall  nearest  grey share
+   5,000       raw   7.325   48.992      0.617   0.620     4.67      0.0485
+   5,000  averaged   4.266   75.153      0.858   0.653     4.89      0.1192
+  10,000       raw   6.916   36.856      0.739   0.513     4.57      0.0591
+  10,000  averaged   5.660   32.219      0.799   0.699     4.54      0.0907
+  20,000       raw   6.692   56.008      0.629   0.601     5.30      0.0679
+  20,000  averaged   5.982   24.887      0.780   0.755     4.45      0.0855
+  30,000       raw   6.809   63.350      0.652   0.535     5.24      0.0801
+  30,000  averaged   5.880   27.778      0.780   0.757     4.48      0.0851
+Actual output from this lesson's run.
+
+======================================================================
+4. WHAT THE SCORES MISS -- blur
+======================================================================
+grey share: the share of all pixels between 0.25 and 0.75, neither background nor ink; real digits have a little, at
+the edges of strokes; a blurred digit has much more. Ink: the average pixel.
+            images  grey share     ink      FID
+  real test digits      0.0500   0.132    2.996
+               VAE      0.0890   0.116   38.520
+               GAN      0.0313   0.121   52.781
+         diffusion      0.0851   0.122   27.778
+Actual output from this lesson's run.
+
+======================================================================
+5. FEWER STEPS -- DDIM, the same trained model (the averaged copy), from 1,000 steps down to 5
+======================================================================
+2,000 samples each from the same starting noise (seed 1); eta 0: no fresh noise after the start; eta 1: fresh noise as in DDPM
+ steps  eta      IS      FID  precision  recall  grey share    time
+  1000    0   5.770   38.086      0.841   0.683      0.1031  116.4s
+   250    0   5.760   42.073      0.862   0.669      0.1087   30.6s
+   100    0   5.727   45.837      0.869   0.652      0.1133   11.4s
+    50    0   5.663   50.174      0.874   0.634      0.1178    5.8s
+    20    0   5.389   61.201      0.884   0.551      0.1264    2.4s
+    10    0   4.989   76.389      0.903   0.459      0.1361    1.1s
+     5    0   4.248  105.503      0.930   0.309      0.1525    0.7s
+  1000    1   5.880   27.778      0.780   0.757      0.0851  124.5s
+   250    1   5.617   37.743      0.815   0.705      0.0952   50.0s
+   100    1   5.468   49.334      0.851   0.663      0.1035   11.2s
+    50    1   5.315   58.388      0.866   0.604      0.1109    9.7s
+    20    1   4.804   80.382      0.898   0.460      0.1245    4.3s
+    10    1   4.238  106.351      0.931   0.350      0.1384    2.4s
+     5    1   3.431  144.729      0.961   0.165      0.1563    1.2s
+Actual output from this lesson's run.
+
+======================================================================
+6. THE TRADEOFFS IN ONE TABLE -- all on this machine, 4 threads, 2,000 samples
+======================================================================
+                 model   train  sample 2,000  net calls      FID  recall    grey   numbers   sampler
+                   VAE    100s         0.02s          1   38.520   0.736  0.0890   415,024   205,840
+                   GAN    125s         0.01s          1   52.781   0.641  0.0313   419,345   218,128
+diffusion, 1,000 steps   1244s        97.06s      1,000   27.778   0.757  0.0851 1,083,152 1,083,152
+    diffusion, DDIM 20   1244s         2.42s         20   61.201                 1,083,152 1,083,152
+'numbers': every weight trained (VAE: encoder + decoder; GAN: both players); 'sampler': the part needed to generate
+Day 139's conditional DCGAN, for reference (not rerun): 6,387 s for 10 epochs, FID 20.200, recall 0.573
+Actual output from this lesson's run.
+
+saved generative_tradeoffs_results.png
+saved generative_tradeoffs_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Every model so far generates digits it chooses itself. Day 143 builds the piece text-to-image models start from: a
+CLIP-style pair of encoders that puts images and short captions in one shared space.

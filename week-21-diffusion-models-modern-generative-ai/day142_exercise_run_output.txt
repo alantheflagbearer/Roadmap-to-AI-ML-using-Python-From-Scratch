@@ -1,0 +1,4 @@
+one averaging step, decay 0.9: weights 0 -> 0.10 (0.9 x 0 + 0.1 x 1), biases 1 -> 0.90 (0.9 x 1 + 0.1 x 0)
+DDIM, eta 1, 1,000 steps against Day 140's sampler: largest difference 2.9e-14
+an image with 100 ink pixels and 50 at 0.5: grey share 0.0638 (50 / 784 = 0.0638)
+a model trained 1,000 steps (1,083,152 numbers), 100 samples in 20 DDIM steps: ink 0.185, grey share 0.1846

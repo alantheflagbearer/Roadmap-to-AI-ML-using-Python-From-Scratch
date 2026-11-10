@@ -32,5 +32,22 @@ Exercise: [`day141_exercise.py`](day141_exercise.py) is the straight-line guess,
 ![A tiny diffusion model: training and sampling](tiny_diffusion_diagram.png)
 ![Training, error by noise level, samples and the copying check](tiny_diffusion_results.png)
 
+## Day 142 — GANs vs VAEs vs diffusion: real, honest quality/speed tradeoffs
+[`day142_generative_tradeoffs.py`](day142_generative_tradeoffs.py) — Week 19's VAE, Week 20's GAN and Day 141's diffusion model, each trained on the same 60,000 MNIST digits, scored by Day 138's scorer and timed on the same machine. New parts: an averaged copy of the weights (EMA), DDIM sampling, and a direct measure of blur.
+
+- **Quality:** FID 27.778 for diffusion (sampled from the averaged weights), 38.520 for the VAE, 52.781 for the GAN.
+- **Cost:** training took 100s, 125s and 1244s; sampling 2,000 digits took 0.02s (VAE), 0.01s (GAN) and 97.06s (diffusion, 1,000 network calls each). DDIM in 20 steps took 2.42s, at FID 61.201.
+- **The averaged copy fixed Day 141's decline:** FID 27.778 at 30,000 steps against 63.350 for the raw weights, though it was worse early (75.153 against 48.992 at 5,000).
+- **FID missed blur:** the share of grey pixels was 0.0500 for real digits, 0.0890 for the VAE and 0.0313 for the GAN, yet the VAE beat the GAN on FID.
+- **Fewer steps, worse samples:** with no fresh noise, FID went 38.086 (1,000 steps), 50.174 (50), 105.503 (5); fresh noise helped at 1,000 steps and hurt at 100 and below.
+- The first run was slowed by the laptop going into standby (diffusion training timed at 8,174 s); it was rerun kept awake, and every score came out identical.
+
+Study guide: [`day142_generative_tradeoffs_complete_guide.pdf`](day142_generative_tradeoffs_complete_guide.pdf) · Syntax walkthrough: [`day142_syntax_line_by_line.pdf`](day142_syntax_line_by_line.pdf) · [Run output](day142_run_output.txt)
+
+Exercise: [`day142_exercise.py`](day142_exercise.py) is the averaged copy, DDIM, the guesser wrapper, the grey share and the weight count, checked by hand — the third part of Day 146's capstone ([run output](day142_exercise_run_output.txt)).
+
+![Three generative models, and the cost of sampling](generative_tradeoffs_diagram.png)
+![Samples, quality while training, and DDIM's speed against quality](generative_tradeoffs_results.png)
+
 ---
 [← Back to main README](../README.md)
