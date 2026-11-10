@@ -1,0 +1,136 @@
+======================================================================
+1. BY HAND -- the best straight-line noise guess, and how eps and x_0 trade errors
+======================================================================
+pixels scaled to [-1, 1]; E[x_0^2] over the 60,000 training digits = 0.9254 (most pixels are background, -1)
+c(t) = sqrt(1 - abar_t) / (abar_t E[x_0^2] + 1 - abar_t), against c fitted by least squares on 1,000 test digits noised to t;
+since x_t = sqrt(abar_t) x_0 + sqrt(1 - abar_t) eps, a miss of d in x_0 is a miss of sqrt(abar_t / (1 - abar_t)) d in eps
+     t  sqrt(1-abar)     c(t)  fitted c  eps error of c(t) x_t  x_0 miss -> eps miss
+     1        0.0100   0.0108    0.0102                 1.0028               99.9950
+    10        0.0435   0.0470    0.0468                 0.9969               22.9513
+    50        0.1702   0.1835    0.1824                 0.9668                5.7880
+   100        0.3209   0.3439    0.3462                 0.8905                2.9513
+   200        0.5839   0.6141    0.6147                 0.6427                1.3903
+   300        0.7769   0.8006    0.8012                 0.3785                0.8104
+   500        0.9599   0.9656    0.9656                 0.0731                0.2920
+   700        0.9965   0.9970    0.9972                 0.0064                0.0838
+  1000        1.0000   1.0000    1.0000                 0.0000                0.0064
+at large t, x_t is nearly all noise, so c(t) x_t is nearly the right noise guess; at small t the noise is a sliver of x_t
+and a straight line cannot pull it out. The last column is why the choice of target matters: at t = 1 a tiny miss in x_0
+is a 100-times-larger miss in eps, at t = 1,000 a large miss in x_0 barely moves eps
+Actual output from this lesson's run.
+
+(feature network for the scores: 56 s)
+
+======================================================================
+2. FIRST DRAFTS THAT FAILED, and what fixed them
+======================================================================
+network 816 -> 512 -> 512 -> 784, ReLU, Adam lr 0.001, batches of 128, t uniform on 1-1,000
+(a) the first draft: the output read as eps, Day 126's He initialisation everywhere. Training loss, and the share of ReLUs
+that are on, each averaged over the last 50 steps:
+  output layer   step    loss  layer 1 on  layer 2 on
+            He     50   1.093        0.35        0.06
+            He    100   1.001        0.34        0.00
+            He    200   1.000        0.34        0.00
+            He    400   1.000        0.35        0.00
+          zero     50   0.967        0.46        0.41
+          zero    100   0.841        0.73        0.73
+          zero    200   0.706        0.84        0.83
+          zero    400   0.600        0.91        0.89
+before any training, the He-initialised output's spread (sd) at t = 500: 1.362; the target eps's: 1.001
+A likely reason for the stall, consistent with these numbers but not proved here: the first large steps that shrink an
+oversized output switch the second layer's ReLUs off; a switched-off ReLU passes no gradient, so they stay off, and the
+network outputs a constant (loss near 1.0, the error of guessing eps = 0). A zero output layer starts every guess at 0.
+
+(b) with the zero start, 3,000 steps each, then 2,000 samples each from the same noise, scored
+('ink' is the average pixel, 0-1; the real test digits' is 0.133; Day 138's scores for them: IS 9.407, FID 2.996)
+        what the output is read as     IS      FID  precision  recall    ink  train
+                     eps, 512 wide  1.817   325.88      0.136   0.000  0.498   105s
+                   eps, 1,024 wide  1.707   341.59      0.117   0.000  0.510   294s
+  eps on top of c(t) x_t, 512 wide  2.311   238.69      0.868   0.095  0.238   121s
+   x_0 (the clean digit), 512 wide  6.627    49.45      0.647   0.538  0.145   115s
+the eps readings leave speckled noise in their samples (too much ink); widening to 1,024 does not cure it; reading the
+same network's output as x_0 does. A likely reason, not tested further here: to output eps the network must carry 784
+independent noise values through 512 (or 1,024) ReLUs, while x_0 is a digit, far simpler to describe; reading the
+output as x_0 hands the noise part, x_t itself, to the formula eps = (x_t - sqrt(abar) x_0) / sqrt(1 - abar) for free
+Actual output from this lesson's run.
+
+======================================================================
+3. TRAINING THE MODEL -- the output read as x_0, zero-started, with its samples scored as it trains
+======================================================================
+816 -> 512 -> 512 -> 784 (ReLU); Adam lr 0.001; batches of 128 training digits; 30,000 steps;
+loss: mean squared error of the x_0 guess (pixels on the [-1, 1] scale), t uniform on 1-1,000
+test error: 1,000 test digits, each with its own fixed random t and eps; guessing the average training digit scores 0.2689
+scores: 2,000 samples from the same noise (seed 1), Day 140's reverse_sample with fresh noise beta-tilde_t, scored by Day 138's
+Scorer (the real test digits: IS 9.407, FID 2.996, precision 0.855, recall 0.884, nearest 4.49)
+    step  train loss  test error
+   1,000      0.1953      0.1781
+   2,000      0.1749      0.1716
+   5,000      0.1684      0.1672
+  10,000      0.1651      0.1646
+  15,000      0.1640      0.1634
+  20,000      0.1635      0.1634
+  25,000      0.1630      0.1634
+  30,000      0.1623      0.1623
+    step      IS      FID  precision  recall  nearest
+   2,500   6.532   72.918      0.574   0.462     4.93
+   5,000   7.325   48.992      0.617   0.620     4.67
+  10,000   6.916   36.856      0.739   0.513     4.57
+  20,000   6.692   56.008      0.629   0.601     5.30
+  30,000   6.809   63.350      0.652   0.535     5.24
+training 1088 s; sampling 2,000 digits, 1,000 network calls each, 107 s a time
+Actual output from this lesson's run.
+
+======================================================================
+4. WHAT THE TRAINED MODEL KNOWS AT EACH NOISE LEVEL
+======================================================================
+1,000 test digits at each t. x_0 errors are pixel RMSEs on the 0-1 scale (0.1: a typical pixel off by a tenth of
+black-to-white). Two guesses that need no training: undo the shrink, x_t / sqrt(abar_t); and the average training digit
+     t  x_0 RMSE, model  x_t / sqrt(abar)  average digit  eps error, model
+     1           0.0969            0.0050         0.2593          375.8892
+    10           0.0970            0.0218         0.2593           19.8312
+    50           0.0978            0.0864         0.2593            1.2828
+   100           0.1009            0.1694         0.2593            0.3550
+   200           0.1136            0.3596         0.2593            0.0997
+   300           0.1341            0.6169         0.2593            0.0473
+   500           0.2042            1.7118         0.2593            0.0142
+   700           0.2545            5.9690         0.2593            0.0018
+  1000           0.2595           78.6931         0.2593            0.0000
+the eps error at small t is large even where the x_0 guess is good: section 1's last column, at work
+Actual output from this lesson's run.
+
+======================================================================
+5. GENERATING DIGITS -- fresh noise per step, and clipping the x_0 guess
+======================================================================
+2,000 samples each, from the same starting noise (seed 1); fresh noise per step: beta-tilde_t (the posterior's), beta_t, or none;
+'clip': the x_0 guess forced into [-1, 1] at every step before the noise guess is worked out from it
+'digits': how many samples Day 138's feature network names as each digit 0-9 (the real test set has about 200 each); real ink 0.133
+     noise  clip      IS      FID  precision  recall    ink   time   digits 0-9
+ posterior    no   6.809   63.350      0.652   0.535  0.161   110s   238 97 241 307 128 330 117 287 72 183
+      beta    no   6.807   63.417      0.653   0.538  0.161   106s   239 97 241 307 128 330 114 287 74 183
+      none    no   1.025  560.473      1.000   0.000  0.033   109s   0 0 218 1782 0 0 0 0 0 0
+ posterior   yes   5.004   95.212      0.756   0.181  0.124   125s   224 64 262 395 99 402 58 232 95 169
+      beta   yes   5.006   95.229      0.755   0.182  0.124   124s   225 64 261 396 98 402 58 233 94 169
+      none   yes   1.002  570.705      1.000   0.000  0.037   124s   0 0 0 2000 0 0 0 0 0 0
+Day 139's conditional GAN after 10 epochs, for comparison: IS 7.580, FID 20.200, precision 0.442, recall 0.573
+Actual output from this lesson's run.
+
+======================================================================
+6. HAS IT COPIED ITS TRAINING IMAGES?
+======================================================================
+pixel distance (0-1 pixels, 784 of them) from each image to its nearest of the 60,000 training digits
+                images    min     1%    10%  median   mean
+       2,000 generated   1.37   1.71   3.29    5.00   5.04
+2,000 real test digits   0.95   1.28   2.15    4.32   4.19
+generated digits closer to a training digit than the closest real test digit is (0.95): 0
+distinct nearest training digits among the 2,000 samples: 1399
+a test digit was never trained on, so its distances show how close an honest new digit lands by chance
+Actual output from this lesson's run.
+
+saved tiny_diffusion_results.png
+saved tiny_diffusion_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 142 puts this model next to Week 19's VAE and Week 20's GAN on the same scorer, counts what each costs to train and
+to sample, and makes sampling faster by taking fewer, larger reverse steps (DDIM).

@@ -1,0 +1,5 @@
+c(300) = 0.8006; least-squares fit on 1,000 test digits: 0.7996
+300 steps, output read as eps, output layer He: loss 1.016, layer-2 ReLUs on 0.01 (averages)
+300 steps, output read as eps, output layer zero: loss 0.764, layer-2 ReLUs on 0.75 (averages)
+1,000 steps, output read as x_0, at t = 300: x_0 error 0.0986; x_t / sqrt(abar) 1.5187; the average training digit 0.2689
+100 samples after 1,000 steps: ink 0.163, mean distance to the nearest training digit 5.21

@@ -2,7 +2,7 @@
 
 A daily-practice log following a 52-week (365-day) roadmap from Python fundamentals through classical ML, deep learning, and into applied AI. Most lessons don't just call a library function — they build the underlying idea (gradient descent, backprop, convolution, dropout...) from scratch in NumPy first, then show the framework equivalent. Each day is a self-contained script; from Week 1 onward, most days add a paired study guide (a concept walkthrough and a line-by-line syntax breakdown, both PDF).
 
-**Currently on Day 140** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
+**Currently on Day 141** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
 
 ## How this repo is organized
 
@@ -34,7 +34,7 @@ A daily-practice log following a 52-week (365-day) roadmap from Python fundament
 | 18 | 119–125 | Unsupervised Learning I | [→ folder](week-18-unsupervised-learning-i) |
 | 19 | 126–132 | Unsupervised Learning II — Autoencoders | [→ folder](week-19-unsupervised-learning-ii) |
 | 20 | 133–139 | Generative Models — GANs | [→ folder](week-20-generative-models-gans) |
-| 21 | 140 (of 140–146) | Diffusion Models & Modern Generative AI — in progress | [→ folder](week-21-diffusion-models-modern-generative-ai) |
+| 21 | 140–141 (of 140–146) | Diffusion Models & Modern Generative AI — in progress | [→ folder](week-21-diffusion-models-modern-generative-ai) |
 
 Weeks 22 onward (time series analysis, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
 
@@ -91,7 +91,7 @@ Starting with Week 6, the same small neural-network library — written entirely
 | ![GAN results](week-20-generative-models-gans/gan_results.png) A GAN from scratch: the 1-D game, the optimal discriminator, MNIST samples — Day 134 | ![GAN instability results](week-20-generative-models-gans/gan_instability_results.png) GAN instability: mode coverage by loss, seed and balance — Day 135 |
 | ![DCGAN results](week-20-generative-models-gans/dcgan_results.png) DCGAN: convolutional players on MNIST, batch normalisation and an exact junction check — Day 136 | ![Conditional GAN results](week-20-generative-models-gans/conditional_gan_results.png) Conditional GAN: one noise vector as all ten digits, and the label checked by the discriminator — Day 137 |
 | ![Generative metrics results](week-20-generative-models-gans/generative_metrics_results.png) Evaluating generative models: what IS, FID, precision and recall can see — Day 138 | ![Week 20 build results](week-20-generative-models-gans/week20_build_results.png) Week 20 build: a conditional DCGAN against Gaussian class models, and the forward process — Day 139 |
-| ![Reverse diffusion results](week-21-diffusion-models-modern-generative-ai/reverse_diffusion_results.png) Reverse diffusion: exact and learned denoisers on the ring — Day 140 | |
+| ![Reverse diffusion results](week-21-diffusion-models-modern-generative-ai/reverse_diffusion_results.png) Reverse diffusion: exact and learned denoisers on the ring — Day 140 | ![Tiny diffusion model results](week-21-diffusion-models-modern-generative-ai/tiny_diffusion_results.png) A tiny diffusion model on MNIST digits — Day 141 |
 
 ## Featured project: Titanic EDA (Day 13)
 
