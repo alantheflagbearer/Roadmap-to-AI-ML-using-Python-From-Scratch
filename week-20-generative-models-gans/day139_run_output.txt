@@ -1,0 +1,108 @@
+======================================================================
+1. CHECKS -- the parts are verbatim, and the forward process's shortcut matches 1,000 small steps
+======================================================================
+functions and classes from day133_exercise.py to day138_exercise.py found here, character for character: 43 of 43
+linear schedule: beta from 0.0001 to 0.0200 over 1000 steps; alpha-bar_1000 = 4.04e-05, so sqrt(alpha-bar) = 0.0064 of the signal is left
+     t   1,000-step route: mean, variance, E[x x_0]    shortcut: mean, variance, E[x x_0]  formula E[x x_0] = sqrt(abar)
+    10         0.0038    1.0001       0.9991               0.0037    1.0000     0.9991             0.9991
+   100         0.0043    1.0002       0.9474               0.0029    1.0014     0.9481             0.9471
+   300         0.0016    1.0004       0.6294               0.0015    0.9932     0.6259             0.6296
+  1000         0.0002    0.9969       0.0069              -0.0004    1.0011     0.0076             0.0064
+the data has variance 1, and so does every x_t: each step takes away exactly as much signal variance as it adds noise
+Actual output from this lesson's run.
+
+======================================================================
+2. THE WEEK'S MODEL -- a conditional DCGAN (Days 134, 136, 137) on all 60,000 training images, scored (Day 138)
+======================================================================
+feature network (Day 138's part, 3 epochs, 63 s): test accuracy 0.9829
+real test digits (2,000): IS 9.407, FID 2.996, precision 0.855, recall 0.884, nearest 4.49, named correctly 0.990
+generator 74 -> 64 x 7 x 7 -> 32 x 14 x 14 -> 1 x 28 x 28; discriminator 11 channels in; AdamGAN (lr 0.0002, b1 0.5);
+60,000 images, batches of 128, 10 epochs (468 rounds each); scored on 2,000 fixed noise vectors, 200 asked for each digit
+  epoch      IS      FID  precision  recall  nearest  asked digit drawn
+      1   1.442  335.593      0.999   0.000     5.59              0.117
+      2   4.659   96.525      0.415   0.099     6.27              0.143
+      5   5.903   40.535      0.328   0.567     6.48              0.491
+     10   7.580   20.200      0.442   0.573     6.35              0.834
+(6387 s)
+per digit at the end, 200 images each (FID with only 200 images is biased upwards, so real test digits are shown too):
+   digit              0      1      2      3      4      5      6      7      8      9
+   asked, drawn    0.88   0.92   0.89   0.81   0.91   0.74   0.83   0.89   0.75   0.72
+   FID, GAN        69.5   66.3   61.1   59.9   45.2  117.7   69.7   52.7   52.2   50.5
+   FID, real        6.0    4.8   22.8   13.9    6.7   14.8   13.7   10.3   11.9    7.9
+Actual output from this lesson's run.
+
+======================================================================
+3. AGAINST DAY 133'S GAUSSIAN CLASS MODELS -- the simplest generative model of the week, scored the same way
+======================================================================
+shared covariance, reg 0.001 (2 s): IS 4.449, FID 99.448, precision 0.794, recall 0.111, nearest 6.11, asked digit drawn 0.619
+  full covariance, reg 0.001 (2 s): IS 8.486, FID 41.405, precision 0.844, recall 0.342, nearest 5.37, asked digit drawn 0.966
+  full covariance, reg 0.01 (2 s): IS 8.207, FID 51.468, precision 0.863, recall 0.292, nearest 5.72, asked digit drawn 0.960
+Actual output from this lesson's run.
+
+======================================================================
+4. THE FORWARD PROCESS ON EIGHT KNOWN MODES -- Day 135's ring, noised step by step
+======================================================================
+Day 135's mode_stats on x_t (a sample is good within 0.15 of a centre); the Frechet distance (Day 138) between
+x_t's fitted Gaussian and N(0, I), the end point of the process
+     t  sqrt(abar)  noise sd  modes  good share  distance from N(0, I)
+     0      1.0000    0.0000      8       0.988                 0.3448
+     1      0.9999    0.0100      8       0.986                 0.3448
+     5      0.9997    0.0264      8       0.971                 0.3444
+    10      0.9991    0.0435      8       0.925                 0.3440
+    25      0.9958    0.0919      8       0.643                 0.3394
+    50      0.9854    0.1702      8       0.298                 0.3292
+   100      0.9471    0.3209      8       0.097                 0.2841
+   200      0.8118    0.5839      0       0.028                 0.1593
+   400      0.4418    0.8971      0       0.015                 0.0167
+   700      0.0835    0.9965      0       0.013                 0.0002
+  1000      0.0064    1.0000      0       0.012                 0.0001
+for comparison, 20,000 exact N(0, I) samples: distance 0.0002
+Actual output from this lesson's run.
+
+======================================================================
+5. THE FORWARD PROCESS ON MNIST -- when does a digit stop being a digit? Linear against cosine schedule
+======================================================================
+pixels scaled to [-1, 1] (variance 1 would be ideal; here it is 0.386); each x_t is mapped back by (x_t + 1) / 2 for the feature network
+columns: signal left sqrt(abar); the feature network's accuracy (trained on clean digits); the accuracy of Day 116's softmax
+regression trained on 10,000 digits noised to the same t (an estimate of what is left to find); FID against clean digits
+linear schedule:
+       t  sqrt(abar)  clean-trained  noise-trained       FID
+       0      1.0000          0.990          0.917      3.00
+      50      0.9854          0.986          0.914      3.63
+     100      0.9471          0.978          0.895      8.65
+     200      0.8118          0.895          0.837     50.28
+     300      0.6296          0.580          0.732    135.81
+     400      0.4418          0.275          0.600    229.01
+     500      0.2803          0.159          0.431    295.96
+     600      0.1609          0.107          0.286    327.38
+     700      0.0835          0.102          0.148    349.44
+     800      0.0391          0.098          0.107    355.96
+    1000      0.0064          0.099          0.091    363.06
+   the noise-trained accuracy first falls below 0.5 at t = 500
+cosine schedule:
+       t  sqrt(abar)  clean-trained  noise-trained       FID
+       0      1.0000          0.990          0.917      3.00
+      50      0.9960          0.988          0.917      3.02
+     100      0.9859          0.985          0.910      3.58
+     200      0.9480          0.979          0.887      8.74
+     300      0.8871          0.959          0.866     23.54
+     400      0.8047          0.884          0.835     52.74
+     500      0.7027          0.721          0.775     98.76
+     600      0.5838          0.495          0.722    156.34
+     700      0.4507          0.268          0.612    225.69
+     800      0.3067          0.155          0.457    286.38
+    1000      0.0000          0.100          0.091    364.03
+   the noise-trained accuracy first falls below 0.5 at t = 800
+note: Day 116's default learning rate, 0.5, was unstable on these inputs in a first draft (linear schedule, t = 0, 50, 100,
+200, 300, 500: 0.883 0.889 0.545 0.808 0.729 0.373, rising again after t = 100); 0.05 for 200 steps, 0.01 for 500 and 0.05
+for 500 all fell steadily and agreed within about 0.01, so 0.05 for 200 steps is used
+Actual output from this lesson's run.
+
+saved week20_build_results.png
+saved week20_build_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 140 (Week 21) runs the process backwards: starting from pure noise, remove a little noise at a time. With the
+ring, where the best possible denoiser can be written down exactly, and then with one learned from data.

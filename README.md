@@ -2,7 +2,7 @@
 
 A daily-practice log following a 52-week (365-day) roadmap from Python fundamentals through classical ML, deep learning, and into applied AI. Most lessons don't just call a library function — they build the underlying idea (gradient descent, backprop, convolution, dropout...) from scratch in NumPy first, then show the framework equivalent. Each day is a self-contained script; from Week 1 onward, most days add a paired study guide (a concept walkthrough and a line-by-line syntax breakdown, both PDF).
 
-**Currently on Day 138** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
+**Currently on Day 139** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
 
 ## How this repo is organized
 
@@ -33,7 +33,7 @@ A daily-practice log following a 52-week (365-day) roadmap from Python fundament
 | 17 | 112–118 | Classical ML II — Kernels & Ensembles | [→ folder](week-17-classical-ml-kernels-ensembles) |
 | 18 | 119–125 | Unsupervised Learning I | [→ folder](week-18-unsupervised-learning-i) |
 | 19 | 126–132 | Unsupervised Learning II — Autoencoders | [→ folder](week-19-unsupervised-learning-ii) |
-| 20 | 133–138 (of 133–139) | Generative Models — GANs — in progress | [→ folder](week-20-generative-models-gans) |
+| 20 | 133–139 | Generative Models — GANs | [→ folder](week-20-generative-models-gans) |
 
 Weeks 21 onward (diffusion models, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
 
@@ -89,7 +89,7 @@ Starting with Week 6, the same small neural-network library — written entirely
 | ![Self-supervised build results](week-19-unsupervised-learning-ii/self_supervised_results.png) Week 19 build: a rotation pretext task against every representation of the week — Day 132 | ![Generative vs discriminative results](week-20-generative-models-gans/generative_discriminative_results.png) Generative vs discriminative: Gaussian class models against logistic regression — Day 133 |
 | ![GAN results](week-20-generative-models-gans/gan_results.png) A GAN from scratch: the 1-D game, the optimal discriminator, MNIST samples — Day 134 | ![GAN instability results](week-20-generative-models-gans/gan_instability_results.png) GAN instability: mode coverage by loss, seed and balance — Day 135 |
 | ![DCGAN results](week-20-generative-models-gans/dcgan_results.png) DCGAN: convolutional players on MNIST, batch normalisation and an exact junction check — Day 136 | ![Conditional GAN results](week-20-generative-models-gans/conditional_gan_results.png) Conditional GAN: one noise vector as all ten digits, and the label checked by the discriminator — Day 137 |
-| ![Generative metrics results](week-20-generative-models-gans/generative_metrics_results.png) Evaluating generative models: what IS, FID, precision and recall can see — Day 138 | |
+| ![Generative metrics results](week-20-generative-models-gans/generative_metrics_results.png) Evaluating generative models: what IS, FID, precision and recall can see — Day 138 | ![Week 20 build results](week-20-generative-models-gans/week20_build_results.png) Week 20 build: a conditional DCGAN against Gaussian class models, and the forward process — Day 139 |
 
 ## Featured project: Titanic EDA (Day 13)
 

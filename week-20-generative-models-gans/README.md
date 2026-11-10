@@ -91,5 +91,20 @@ Exercise: [`day138_exercise.py`](day138_exercise.py) is the scoring kit (matrix 
 ![How each score sees the images](generative_metrics_diagram.png)
 ![Scores against sample size, damage, and GAN training](generative_metrics_results.png)
 
+## Day 139 — Week 20 build: a conditional DCGAN, scored, and the forward diffusion process
+[`day139_gan_build_and_forward_diffusion.py`](day139_gan_build_and_forward_diffusion.py) — the 43 functions and classes of Days 133–138's exercise files, pasted in verbatim (checked character by character: 43 of 43) and assembled into one model: Day 137's conditional DCGAN trained on all 60,000 MNIST training images and scored with Day 138's metrics against Day 133's Gaussian class models. The day then starts Week 21's subject, the forward diffusion process, with its one-jump shortcut checked against 1,000 small steps.
+
+- **The week's model:** after 10 epochs the conditional DCGAN reaches FID 20.200 and recall 0.573, and draws the asked-for digit 0.834 of the time (real test digits: FID 2.996, recall 0.884). After epoch 1 it was collapsed (IS 1.442, recall 0.000), as every GAN in Day 138 was at first.
+- **Against Gaussian class models:** the best Gaussian (full covariance) scores FID 41.405 and recall 0.342, worse than the GAN, but higher precision (0.844 against 0.442) and draws the asked-for digit more often (0.966), after 2 s of fitting instead of 6387 s of training.
+- **The forward process on the ring:** points leave their modes early (good share 0.298 at t = 50), and by t = 700 the data is as close to N(0, I) as exact samples are (distance 0.0002).
+- **On MNIST:** a softmax regression trained on noised digits falls below 0.5 accuracy at t = 500 with the linear schedule and at t = 800 with the cosine one; the linear schedule spends its last steps on near-noise. Day 116's learning rate 0.5 was unstable on noised digits; the run reports the tuning to 0.05.
+
+Study guide: [`day139_gan_build_and_forward_diffusion_complete_guide.pdf`](day139_gan_build_and_forward_diffusion_complete_guide.pdf) · Syntax walkthrough: [`day139_syntax_line_by_line.pdf`](day139_syntax_line_by_line.pdf) · [Run output](day139_run_output.txt)
+
+Day 139 is the week's build, so it has no exercise script of its own.
+
+![The week's parts as one model, and the start of diffusion](week20_build_diagram.png)
+![The week's model scored, Gaussian baselines, and the forward process](week20_build_results.png)
+
 ---
 [← Back to main README](../README.md)
