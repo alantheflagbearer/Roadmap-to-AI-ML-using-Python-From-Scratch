@@ -1,0 +1,8 @@
+windows of 1..6, length 3: inputs [1,2,3], [2,3,4], [3,4,5], targets 4, 5, 6; gives [[1.0, 2.0, 3.0], [2.0, 3.0, 4.0], [3.0, 4.0, 5.0]], [4.0, 5.0, 6.0]
+starting biases, 2 hidden units: forget gates 1, the rest 0; gives [1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+all-zero network, targets 1 and 3: output 0, loss (1 + 9) / 2 = 5, gradient for by = 2 x mean(0 - target) = -4; gives 5.0, -4.0
+numerical gradient check, every weight of a 3-unit network: largest |numeric - analytic| 2.6e-11
+trained on a series that is always 0.5: predicts 0.499 (validation loss 3.5e-07 at epoch 40)
+recursion with a network that always outputs 0.7: 0.7, 0.7, 0.7; gives [0.7, 0.7, 0.7]
+changes of 2 added up from 16 (history 10, 12, 14, 16): 18, 20, 22; lstm_forecast gives [18.0, 20.0, 22.0]
+control on 0, 1, ..., 24 (every change 1): 25, 26, 27; seasonal_drift gives [25.0, 26.0, 27.0]

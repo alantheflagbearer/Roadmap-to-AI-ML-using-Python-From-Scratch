@@ -1,0 +1,68 @@
+
+======================================================================
+1. THE FORECASTER -- Day 65's LSTM, a linear output, and a gradient check through all of it
+======================================================================
+nudge 1e-06: worst relative error 3.3e-04 (absolute 2.3e-10, on a weight whose gradient is 3.5e-07)
+nudge 1e-05: worst relative error 1.3e-05 (absolute 9.3e-12, on a weight whose gradient is 3.5e-07)
+first draft used only the 1e-06 nudge and saw 3.3e-04: the worst weight's gradient is tiny, and rounding in the
+two losses swamps the difference; the larger nudge shows the gradients are right
+network: a window of 24 months -> LSTM with 16 hidden units -> one number; 1169 weights
+Actual output from this lesson's run.
+
+======================================================================
+2. LEVELS AGAINST CHANGES -- how far a network's forecasts can go
+======================================================================
+10 networks trained (149.3 s)
+trained on levels: test MAE by seed 4.83, 4.43, 3.78, 2.00, 2.30 ppm
+  the training months reached 371.0 ppm and the test months reach 373.8; the networks' forecasts reach at most 370.4, below the training maximum
+  the hard bound (|h| < 1, so output < sum|Wy| + by) is far higher: 406.1, 411.2, 421.9, 409.3, 415.9 -- it is not what held them back
+trained on month-to-month changes: test MAE by seed 0.224, 0.279, 0.259, 0.390, 0.313 ppm
+a forecast change is added to the last real level, so the forecast can rise past anything in training
+Actual output from this lesson's run.
+
+======================================================================
+3. FORECASTING CO2 IN 2000-2001 -- five seeds, against ARIMA, regression and a control
+======================================================================
+best epoch on validation, by seed: [274, 217, 158, 139, 285] of 300; validation loss at the best epoch 0.0594, 0.0675, 0.0597, 0.0645, 0.0606 (scaled changes; 1 = their variance)
+training loss at the last epoch 0.0456, 0.0552, 0.0474, 0.0463, 0.0421: below validation, as expected
+2000-01 to 2001-12, MAE (ppm): LSTM seeds 0.224, 0.279, 0.259, 0.390, 0.313 (range 0.224 to 0.390); average of the five 0.250
+  airline ARIMA 0.412; regression on lags 1-13 (Day 151) 0.706; same month last year 1.882
+the seed alone moves the error by 0.165 ppm; one network's score is not the method's score
+the control, no network (each calendar month's average change over all training years, added up): 0.231
+  the same control from the last 10 years 0.275, the last 5 0.419: the window matters, and picking it now would be choosing on the test
+bias (forecast - actual, mean): LSTM average +0.196, airline ARIMA +0.405, control +0.066
+Actual output from this lesson's run.
+
+======================================================================
+4. ROLLING ORIGINS -- every model fitted once on data up to 1989-12, then 97 forecasts from 1990-1998
+======================================================================
+97 origins (67.7 s, including training)
+   MAE (ppm), months ahead       1       6      12      24
+        LSTM, average of 5   0.252   0.534   0.630   0.949
+        LSTM, single seeds   0.263   0.543   0.648   0.980
+             airline ARIMA   0.264   0.453   0.717   1.101
+     regression, lags 1-13   0.314   0.650   0.736   1.127
+      same month last year   1.362   1.428   1.560   3.137
+        control, all years   0.278   0.641   0.680   1.077
+    control, last 10 years   0.251   0.452   0.637   0.908
+the averaged LSTM beats the airline model at 18 of 24 horizons; averaging the seeds beats the typical single seed at 24 of 24
+against the control: the averaged LSTM is better than all years' averages at 24 of 24 horizons, and than the last 10 years' at 4 of 24
+Actual output from this lesson's run.
+
+======================================================================
+5. ELECTRICAL-EQUIPMENT ORDERS -- log scale; the crash and the last two years
+======================================================================
+the crash: train up to 2007-12 (131 windows, the last 24 for validation); 24 months, MAE:
+  LSTM seeds 22.58%, 28.01%, 24.29%, 22.25%, 32.42%; average 25.57%; airline ARIMA 23.86%; same month last year 18.04%; control 23.06%
+the last 24 months: train up to 2014-05 (208 windows, the last 24 for validation); 24 months, MAE:
+  LSTM seeds 2.19%, 3.45%, 2.48%, 10.47%, 12.82%; average 5.30%; airline ARIMA 6.41%; same month last year 3.75%; control 2.37%
+Actual output from this lesson's run.
+
+saved lstm_forecasting_results.png
+saved lstm_forecasting_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 153: the Week 22 build -- a Prophet-style forecaster from this week's parts: a trend that may bend at
+changepoints, a season made of Fourier waves, fitted by least squares, and compared with every model so far.

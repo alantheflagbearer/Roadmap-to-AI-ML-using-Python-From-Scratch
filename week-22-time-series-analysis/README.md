@@ -85,5 +85,21 @@ Exercise: [`day151_exercise.py`](day151_exercise.py) is the feature builders, le
 ![Which months each feature reads](feature_engineering_diagram.png)
 ![The leaks, shuffled against time-ordered cross-validation, CO2 forecasts, rolling origins and the orders](feature_engineering_results.png)
 
+## Day 152 — An LSTM forecaster from Week 10's parts: against ARIMA, regression and a no-network control
+[`day152_lstm_forecasting.py`](day152_lstm_forecasting.py) — Day 65's LSTM (imported from Week 10, not rewritten) with a linear output on the last hidden state, trained with Adam on windows of 24 month-to-month changes. The epoch with the lowest validation loss is kept, forecasts are made recursively, and five seeds are averaged. It is compared with Day 149's airline ARIMA, Day 151's regression, the same month last year, and a control with no network: each calendar month's average change, added up.
+
+- **Checked:** a numerical gradient check through the whole network (1169 weights) gave 1.3e-05 at a 1e-05 nudge. The first draft used a 1e-06 nudge and saw 3.3e-04: rounding swamps a gradient of 3.5e-07.
+- **Levels against changes:** trained on levels, the networks missed by 4.83, 4.43, 3.78, 2.00, 2.30 ppm and never forecast above 370.4 (the test reached 373.8). The output's hard bound (406.1 to 421.9) was not what held them back. Trained on changes: 0.224, 0.279, 0.259, 0.390, 0.313.
+- **CO2 in 2000–2001:** the seed alone moved the error by 0.165 ppm. The average of five gave 0.250, against the airline ARIMA's 0.412 and regression's 0.706. The control with no network gave 0.231. With the last 10 years it gave 0.275, and with the last 5 years 0.419, so its window matters too.
+- **97 rolling origins (1990–1998):** at 24 months ahead the averaged LSTM scored 0.949, the airline 1.101, regression 1.127, the all-years control 1.077 and the 10-year control 0.908. The LSTM beat the airline at 18 of 24 horizons and the all-years control at 24 of 24, but the 10-year control at only 4 of 24.
+- **Orders:** through the 2008 crash, every model missed by more than the same month last year (LSTM average 25.57%, airline 23.86%, control 23.06%, last year 18.04%). In the last two years the seeds ranged from 2.19% to 12.82%, and the control won with 2.37%.
+
+Study guide: [`day152_lstm_forecasting_complete_guide.pdf`](day152_lstm_forecasting_complete_guide.pdf) · Syntax walkthrough: [`day152_syntax_line_by_line.pdf`](day152_syntax_line_by_line.pdf) · [Run output](day152_run_output.txt)
+
+Exercise: [`day152_exercise.py`](day152_exercise.py) is the windows, the loss and gradients, Adam training, the recursion, the fit on changes and the control, checked by hand — the sixth part of Day 153's forecaster ([run output](day152_exercise_run_output.txt)).
+
+![The forecaster built from Week 10's parts](lstm_forecasting_diagram.png)
+![Training, levels against changes, CO2 forecasts, rolling origins and the orders](lstm_forecasting_results.png)
+
 ---
 [← Back to main README](../README.md)
