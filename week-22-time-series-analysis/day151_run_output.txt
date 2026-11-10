@@ -1,0 +1,111 @@
+
+======================================================================
+1. BUILDING THE FEATURES -- checked against pandas and statsmodels
+======================================================================
+lag 12 against shift(12): largest difference 0.0e+00
+mean of the 12 months before against rolling(12).mean().shift(1): 1.1e-13
+sd of the 12 months before against rolling(12).std(ddof=0).shift(1): 2.4e-12
+month columns against get_dummies: 0.0e+00 (11 columns; January is all zeros)
+least squares on lags 1-13 against AutoReg(13): largest coefficient difference 1.8e-13
+the first rows: 13 months have a missing lag and are left out of the fit (14 columns: intercept, lag 1, ..., lag 13)
+Actual output from this lesson's run.
+
+======================================================================
+2. FOUR LEAKS -- each looks like better accuracy; none is available when forecasting
+======================================================================
+                                     features  train MAE  test MAE  months
+                    honest: lags 1, 2, 12, 13      0.308     0.292      24
+   A: + 3-month mean that includes this month      0.000     0.000      24
+   honest: lags, on the 18 months B can reach      0.308     0.340      18
+   B: lags + centred 12-month trend (Day 147)      0.293     0.341      18
+         honest: straight trend line + months      1.512     3.056      18
+           B: centred 12-month trend + months      0.218     0.179      18
+B reads 6 months past the target, so it does not exist for the last 6 test months; added to the lags it changes little (0.340 to 0.341), but in place of a trend line it looks 17 times better
+A's coefficients on lag 1, lag 2 and the 3-month mean: -1.000, -1.000, 3.000 -- 3 x mean - lag 1 - lag 2 is this month itself
+C: the honest model's 2000-2001 error one step ahead (true lags every month) 0.292; forecast from 1999-12 for 24 months 0.664 -- a 24-month forecast must not be scored with lags it could not have known
+D: scaling the features with all months (test included) instead of the training months: least-squares forecasts change by at most 4.0e-13
+   (least squares with a constant gives the same fit for any shift and scaling of the features, so this leak cannot matter here)
+Actual output from this lesson's run.
+
+======================================================================
+3. CROSS-VALIDATION -- shuffled folds against time-ordered folds, on the training years only
+======================================================================
+             target, lags, model  shuffled CV  time CV  test (2000-01)
+     CO2 level, 3, least squares        0.597    0.628           0.548
+              CO2 level, 3, 5-NN        1.048    3.547           1.556
+    CO2 level, 12, least squares        0.305    0.331           0.279
+             CO2 level, 12, 5-NN        0.581    3.858           1.978
+    CO2 level, 24, least squares        0.268    0.284           0.245
+             CO2 level, 24, 5-NN        0.583    4.178           2.164
+monthly change, 12, least squares        0.284    0.296           0.233
+        monthly change, 12, 5-NN        0.243    0.262           0.280
+5-NN on levels: shuffled CV promises 0.581, the test gives 1.978 (3.4 times worse); time-ordered CV warned (3.858)
+why: in the shuffled folds, a held-out month's nearest training month (in features) is a median 1 month(s) away in time, and within 2 months for 51% of them
+each time-ordered block is about 49 months long, against the test's 24, so it reaches further past its training rows: a likely reason it is more pessimistic than the test (not tested here)
+for least squares, and for 5-NN on the monthly changes, the shuffled estimate stays close to the test
+Actual output from this lesson's run.
+
+======================================================================
+4. CHOOSING THE FEATURES FOR CO2 -- time-ordered validation before 1990, then the test
+======================================================================
+validation: 157 origins, 1975-01 to 1988-01, each forecasting 24 months (forecasts end by 1989-12)
+                                            features  validation  test 2000-01
+                                           lags 1-13       0.473         0.706
+                                      lags 1, 12, 13       0.496         0.670
+                                      trend + months       2.269         3.062
+                     lags 1, 12, 13 + trend + months       0.589         0.396
+                    lags 1, 12, 13 + trend + 2 waves       0.598         0.367
+ lags 1, 12, 13 + trend + months + 12-month mean, sd       0.517         0.352
+validation chooses: lags 1-13
+2000-01 to 2001-12, MAE (ppm): lags 1-13, recursive 0.706, direct 0.727; airline ARIMA (Day 149) 0.412
+Actual output from this lesson's run.
+
+======================================================================
+5. ROLLING ORIGINS -- 97 forecasts, 24 months ahead, 1990-1998, against ARIMA
+======================================================================
+97 origins (7.0 s); features: lags 1-13
+     MAE (ppm), months ahead       1       6      12      24
+       regression, recursive   0.300   0.588   0.701   1.058
+          regression, direct   0.300   0.524   0.747   1.188
+          airline ARIMA, CSS   0.264   0.451   0.715   1.099
+        same month last year   1.362   1.428   1.560   3.137
+recursive regression beats the airline model at 5 of 24 horizons; direct beats recursive at 8 of 24
+did the validation ranking (1975-1988 origins) hold in 1990-1998? mean error over 24 months, recursive:
+                                             lags 1-13  validation 0.473  1990-1998 0.784
+                                        lags 1, 12, 13  validation 0.496  1990-1998 0.786
+   lags 1, 12, 13 + trend + months + 12-month mean, sd  validation 0.517  1990-1998 0.677
+                       lags 1, 12, 13 + trend + months  validation 0.589  1990-1998 0.725
+                      lags 1, 12, 13 + trend + 2 waves  validation 0.598  1990-1998 0.724
+                                        trend + months  validation 2.269  1990-1998 2.415
+validation's choice ranked 4 of 6 in 1990-1998; the best there: lags 1, 12, 13 + trend + months + 12-month mean, sd
+Actual output from this lesson's run.
+
+======================================================================
+6. ELECTRICAL-EQUIPMENT ORDERS -- log scale; features chosen before 2001
+======================================================================
+validation (25 origins, 12 months ahead, log scale) chooses: lags 1, 12, 13 + trend + months + 12-month mean, sd (0.0527; lags 1-13 0.0771, lags 1, 12, 13 0.0602, trend + months 0.0548, lags 1, 12, 13 + trend + months 0.0534, lags 1, 12, 13 + trend + 2 waves 0.0641)
+rolling origins 2001-01 to 2007-01 (73), mean absolute % error by months ahead:
+                               1       6      12
+   regression, recursive   2.38%   6.26%  12.05%
+      regression, direct   2.38%   6.76%  18.28%
+      airline ARIMA, CSS   1.92%   4.39%   6.26%
+    same month last year   5.31%   5.13%   4.83%
+did the validation ranking (1998-1999 origins) hold in 2001-2007? mean error over 12 months, recursive:
+   lags 1, 12, 13 + trend + months + 12-month mean, sd  validation 5.27 (log error x 100)  2001-2007 6.92%
+                       lags 1, 12, 13 + trend + months  validation 5.34 (log error x 100)  2001-2007 7.80%
+                                        trend + months  validation 5.48 (log error x 100)  2001-2007 12.26%
+                                        lags 1, 12, 13  validation 6.02 (log error x 100)  2001-2007 5.09%
+                      lags 1, 12, 13 + trend + 2 waves  validation 6.41 (log error x 100)  2001-2007 6.19%
+                                             lags 1-13  validation 7.71 (log error x 100)  2001-2007 5.59%
+validation's choice ranked 4 of 6 in 2001-2007; the best there: lags 1, 12, 13; validation's top three (all with a trend line: True) ranked 4, 5, 6
+the crash (train up to 2007-12, 24 months): regression 21.83%, airline ARIMA 23.86%, same month last year 18.04%
+Actual output from this lesson's run.
+
+saved feature_engineering_results.png
+saved feature_engineering_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 152: recurrent networks for forecasting -- Week 10's LSTM, trained on these lag windows, against the
+classical models of Days 149-151.

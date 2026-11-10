@@ -69,5 +69,21 @@ Exercise: [`day150_exercise.py`](day150_exercise.py) is the smoothing equations,
 ![One month of Holt-Winters](exponential_smoothing_diagram.png)
 ![Smoothing weights, CO2 forecasts, the seasonal values over time, rolling-origin accuracy and coverage, and the orders' crash](exponential_smoothing_results.png)
 
+## Day 151 — Feature engineering for time series: lags, rolling statistics, calendar features and leakage
+[`day151_feature_engineering.py`](day151_feature_engineering.py) — forecasting turned into ordinary regression, written from scratch in NumPy: lags, rolling statistics on windows that end before the target, month and Fourier columns, one design-matrix builder for any horizon, least squares, recursive and direct multi-step forecasts, nearest neighbours, and shuffled and time-ordered cross-validation. pandas and statsmodels' AutoReg are the reference.
+
+- **Checked:** our lags and month columns equal pandas' (0.0e+00), the rolling mean and sd agree to 1.1e-13 and 2.4e-12, and least squares on lags 1–13 gives AutoReg's coefficients to 1.8e-13.
+- **Four leaks, measured:** a 3-month mean that includes the current month let least squares rebuild the target (coefficients -1.000, -1.000, 3.000; test error 0.000). Day 147's centred trend changed little beside the lags but looked 17 times better than a trend line. Scoring one step ahead gave 0.292 for a model whose 24-month forecast error was 0.664. Scaling with all months changed least-squares forecasts by only 4.0e-13.
+- **Cross-validation:** for least squares, shuffled and time-ordered folds both landed near the test. For 5-nearest neighbours on CO2's levels, shuffled folds promised 0.581 and the test gave 1.978. A held-out month's nearest training month was within 2 months for 51% of them.
+- **Forecasting CO2:** validation on 157 origins before 1990 chose lags 1–13. It forecast 2000–2001 with an error of 0.706 ppm, against the airline ARIMA's 0.412. Over 97 rolling origins the two were close (1.058 against 1.099 at 24 months).
+- **Did the choice hold?** No. Validation's choice ranked 4 of 6 in 1990–1998 on CO2. On the orders, validation's top three all had a trend line, and in 2001–2007 they ranked 4, 5, 6; plain lags did best (5.09%).
+
+Study guide: [`day151_feature_engineering_complete_guide.pdf`](day151_feature_engineering_complete_guide.pdf) · Syntax walkthrough: [`day151_syntax_line_by_line.pdf`](day151_syntax_line_by_line.pdf) · [Run output](day151_run_output.txt)
+
+Exercise: [`day151_exercise.py`](day151_exercise.py) is the feature builders, least squares, both forecast strategies, nearest neighbours and both kinds of cross-validation, checked by hand — the fifth part of Day 153's forecaster ([run output](day151_exercise_run_output.txt)).
+
+![Which months each feature reads](feature_engineering_diagram.png)
+![The leaks, shuffled against time-ordered cross-validation, CO2 forecasts, rolling origins and the orders](feature_engineering_results.png)
+
 ---
 [← Back to main README](../README.md)

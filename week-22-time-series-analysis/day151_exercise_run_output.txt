@@ -1,0 +1,9 @@
+lag 1 of 1, 2, 3, 4: nan, 1, 2, 3; lag gives [nan, 1.0, 2.0, 3.0]
+mean of the 2 months before, on 1..5: nan, nan, 1.5, 2.5, 3.5; rolling gives [nan, nan, 1.5, 2.5, 3.5]
+the same window including this month (shift 0, a leak): nan, 1.5, 2.5, 3.5, 4.5; gives [nan, 1.5, 2.5, 3.5, 4.5]
+month columns for January, February, December: all zeros, a 1 in column 1, a 1 in column 11; month_dummies gives 0 ones, column 1, column 11
+one Fourier pair for April (month 3 from January): sin(2 pi 3/12) = 1, cos = 0; fourier gives [1.0, 0.0]
+a 3-month direct model with lags 1 and 12 reads lags 3 and 14: ['intercept', 'lag 3', 'lag 14']
+least squares on y = 2 + 3x, exactly: [2.0, 3.0]; cv_random 3.0e-16, cv_time 2.4e-15
+a series that halves every month (64, ..., 1); with y = 0.5 x last month, the next three are 0.5, 0.25, 0.125: recursive [0.5, 0.25, 0.125], direct [0.5, 0.25, 0.125]
+2 nearest neighbours of 1.2 among 0, 1, 2, 10 are 1 and 2: knn gives [1.5]
