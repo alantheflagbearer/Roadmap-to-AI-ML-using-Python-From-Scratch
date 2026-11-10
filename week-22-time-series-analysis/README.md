@@ -35,5 +35,22 @@ Exercise: [`day148_exercise.py`](day148_exercise.py) is the autocorrelation func
 ![Test, difference, test again](stationarity_differencing_diagram.png)
 ![Simulated series, the Dickey-Fuller table, the test's power, and CO2 differenced](stationarity_differencing_results.png)
 
+## Day 149 — ARIMA from scratch: fitting, choosing and forecasting on real data
+[`day149_arima_from_scratch.py`](day149_arima_from_scratch.py) — seasonal ARIMA written from scratch in NumPy: the partial autocorrelation, the model's error recursion, a Levenberg-Marquardt fit by conditional least squares (CSS), forecasts built back up through the differences, intervals from the psi weights, and the Ljung-Box check. statsmodels' exact-likelihood fit (MLE) and Kalman-filter forecasts are the reference.
+
+- **Checked:** the partial autocorrelation matches statsmodels (4.0e-16), our solver matches scipy's least_squares (3.8e-09), and for the same coefficients our forecasts and interval widths match statsmodels' Kalman filter (2.2e-07, 4.2e-09).
+- **Choosing the model:** on CO2's training years (up to 1999-12) the differenced series has ACF spikes at lag 1 and lag 12 only, and AIC over 36 models picks one MA term at each, the 'airline' model. Ljung-Box finds no clear memory left in its errors (p 0.159).
+- **Forecasting 2000–2001:** mean error 0.412 ppm, against Day 147's 1.882 (same month last year) and 0.591 (trend line plus season). Every test month fell inside the 95% interval, although the forecast was too high in 23 of 24 months.
+- **CSS against MLE:** the two fits differ in the seasonal coefficient (-0.6902 against -0.8480). A simulation with a known answer shows CSS biased towards 0 (in 40 of 40 runs), but by 0.051 on average, less than CO2's gap of 0.158; the rest is not explained here.
+- **Rolling origins:** over 97 forecasts from 1990–1998, the error grows from 0.264 ppm one month ahead to 1.099 at 24 months, and the 95% intervals covered between 0.897 and 0.979 at every horizon.
+- **Electrical-equipment orders:** the model wins one month ahead (1.92% against 5.31%) but loses a year ahead (6.26% against 4.83%). Through the 2008–09 crash, 13 of 24 months fell outside its 95% interval.
+
+Study guide: [`day149_arima_from_scratch_complete_guide.pdf`](day149_arima_from_scratch_complete_guide.pdf) · Syntax walkthrough: [`day149_syntax_line_by_line.pdf`](day149_syntax_line_by_line.pdf) · [Run output](day149_run_output.txt)
+
+Exercise: [`day149_exercise.py`](day149_exercise.py) is the partial autocorrelation, the seasonal ARMA polynomials, the error recursion, the Levenberg-Marquardt solver, the CSS fit, the differencing polynomial, forecasts, psi weights and Ljung-Box, checked by hand — the third part of Day 153's forecaster ([run output](day149_exercise_run_output.txt)).
+
+![The ARIMA workflow](arima_from_scratch_diagram.png)
+![ACF and PACF signatures, CO2 forecasts, rolling-origin accuracy and coverage, and the orders' crash](arima_from_scratch_results.png)
+
 ---
 [← Back to main README](../README.md)
