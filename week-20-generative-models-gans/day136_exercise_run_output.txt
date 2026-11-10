@@ -1,0 +1,15 @@
+strided convolution (2, 1, 28, 28) -> (2, 4, 14, 14); transposed convolution back to (2, 1, 28, 28)
+<conv(X), Y> = 4.6809728382; <X, convT(Y)> = 4.6809728382 (the same: one is the other's adjoint)
+kernel 4, stride 2, all-ones weights on a 3 x 3 input of ones; each output pixel counts its contributions:
+[[1 2 2 2 2 1]
+ [2 4 4 4 4 2]
+ [2 4 4 4 4 2]
+ [2 4 4 4 4 2]
+ [2 4 4 4 4 2]
+ [1 2 2 2 2 1]]
+d loss / d ConvT weight [1, 2, 3, 0]: backward 0.0032860936; finite difference 0.0032860936
+rounds 1-50: D(real) 0.783, D(fake) 0.129
+rounds 51-100: D(real) 0.962, D(fake) 0.025
+rounds 101-150: D(real) 0.977, D(fake) 0.022
+rounds 151-200: D(real) 0.976, D(fake) 0.031
+500 generated images after 200 rounds: shape (500, 784), ink (average pixel) 0.127; real digits 0.130

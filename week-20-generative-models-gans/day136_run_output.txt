@@ -1,0 +1,153 @@
+======================================================================
+1. BY HAND -- the shapes, the transposed convolution as an adjoint, and its overlaps
+======================================================================
+discriminator: (1, 28, 28) -> (32, 14, 14) -> (64, 7, 7)   strided convolution: (H + 2p - k) / s + 1 = (28 + 2 - 4) / 2 + 1 = 14
+generator:     (64, 7, 7) -> (32, 14, 14) -> (1, 28, 28)   transposed: (H - 1) s - 2p + k = 6 x 2 - 2 + 4 = 14
+adjoint check, same weights: <conv(X), Y> = 15.8151776735;  <X, convT(Y)> = 15.8151776735  (relative gap 6.7e-16)
+kernel 4, stride 2: output (14, 14); contributions per pixel, top-left 4 x 4:
+       1  2  2  2
+       2  4  4  4
+       2  4  4  4
+       2  4  4  4
+   away from the edges: from 4 to 4 contributions
+kernel 3, stride 2: output (13, 13); contributions per pixel, top-left 4 x 4:
+       1  2  1  2
+       2  4  2  4
+       1  2  1  2
+       2  4  2  4
+   away from the edges: from 1 to 4 contributions
+kernel 4 with stride 2 gives every inner pixel the same number of contributions; kernel 3 alternates 1, 2, 4:
+an uneven grid built into the layer itself, the source of the 'checkerboard' pattern
+Actual output from this lesson's run.
+
+======================================================================
+2. CORRECTNESS -- the generator's gradient through both convolutional players
+======================================================================
+   layer  entries checked  worst relative error  largest |bias gradient|
+   Dense                6               7.6e-09                  3.6e-18
+      BN               12               2.6e-07                  1.1e-02
+   ConvT                6               7.7e-09                  1.9e-17
+      BN               12               3.6e-10                  3.6e-02
+   ConvT               12               1.9e-10                  8.8e-02
+worst over the generator: 2.6e-07 (the gradient passes back through D's two strided convolutions first)
+the Dense and first ConvT biases have zero gradient: the batch normalisation right after them subtracts the
+batch mean, so a constant added before it changes nothing (those entries are left out of the relative error)
+Actual output from this lesson's run.
+
+======================================================================
+3. MNIST -- Day 134's dense GAN against the DCGAN, watched every epoch
+======================================================================
+real test digits: rarest 0.077, commonest 0.136, judge's confidence 0.8757, nearest training image 4.49, pixel-to-pixel jump 0.0650
+dense: generator 218,128 numbers, discriminator 201,217
+DCGAN: generator 243,489 numbers (64 -> 64 x 7 x 7 -> 32 x 14 x 14 -> 1 x 28 x 28), discriminator 36,513
+both: 20,000 training images, batches of 128, 20 epochs, AdamGAN (lr 0.0002, b1 0.5), the non-saturating loss;
+each epoch, on 2,000 fixed noise vectors: the judge's rarest and commonest digit share (0.100 each if even),
+its confidence, the distance to the nearest training image, and the average jump between neighbouring pixels
+dense, seed 0:  epoch  D(real)  D(fake)  rarest  commonest  confidence  nearest    jump
+                    1    0.860    0.064   0.000      0.996      0.8303     7.17  0.1488
+                    2    0.781    0.133   0.000      0.862      0.5272     7.01  0.1311
+                    3    0.840    0.226   0.000      0.985      0.6446     4.76  0.0739
+                    5    0.934    0.210   0.000      0.649      0.5721     4.02  0.0507
+                   10    0.828    0.160   0.043      0.271      0.6720     5.69  0.0869
+                   15    0.825    0.172   0.026      0.204      0.7224     5.74  0.0780
+                   20    0.798    0.199   0.035      0.177      0.7242     5.74  0.0710
+                (78 s)
+dense, seed 1:  epoch  D(real)  D(fake)  rarest  commonest  confidence  nearest    jump
+                    1    0.855    0.060   0.000      0.999      0.9300     7.12  0.1426
+                    2    0.788    0.123   0.000      0.732      0.5394     7.04  0.1308
+                    3    0.849    0.234   0.000      0.953      0.6450     4.62  0.0686
+                    5    0.935    0.214   0.000      0.492      0.5331     4.20  0.0478
+                   10    0.831    0.157   0.031      0.265      0.6751     5.70  0.0874
+                   15    0.825    0.172   0.027      0.188      0.7234     5.74  0.0783
+                   20    0.800    0.191   0.053      0.261      0.7354     5.81  0.0739
+                (52 s)
+DCGAN, seed 0:  epoch  D(real)  D(fake)  rarest  commonest  confidence  nearest    jump
+                    1    0.910    0.057   0.000      0.684      0.5702     6.61  0.1263
+                    2    0.971    0.043   0.000      0.524      0.4947     4.49  0.0651
+                    3    0.968    0.034   0.000      0.510      0.4891     5.71  0.0991
+                    5    0.921    0.068   0.024      0.168      0.6836     5.93  0.0751
+                   10    0.741    0.255   0.066      0.200      0.7465     6.46  0.0639
+                   15    0.702    0.295   0.056      0.177      0.7527     6.41  0.0605
+                   20    0.691    0.307   0.049      0.151      0.7500     6.53  0.0625
+                (1573 s)
+DCGAN, seed 1:  epoch  D(real)  D(fake)  rarest  commonest  confidence  nearest    jump
+                    1    0.906    0.061   0.000      0.984      0.7249     4.61  0.0754
+                    2    0.972    0.049   0.000      0.379      0.5142     4.28  0.0491
+                    3    0.974    0.030   0.004      0.367      0.5931     5.33  0.0691
+                    5    0.873    0.129   0.034      0.206      0.7214     6.28  0.0676
+                   10    0.732    0.268   0.050      0.198      0.7595     6.46  0.0617
+                   15    0.675    0.323   0.057      0.154      0.7577     6.54  0.0607
+                   20    0.671    0.326   0.051      0.158      0.7618     6.70  0.0627
+                (1401 s)
+dense, seed 0, final spread of digits: 0.03 0.10 0.09 0.13 0.18 0.06 0.07 0.13 0.11 0.10
+dense, seed 1, final spread of digits: 0.06 0.06 0.08 0.10 0.26 0.06 0.05 0.13 0.12 0.07
+DCGAN, seed 0, final spread of digits: 0.05 0.07 0.09 0.15 0.13 0.11 0.06 0.11 0.09 0.15
+DCGAN, seed 1, final spread of digits: 0.05 0.06 0.08 0.13 0.15 0.10 0.07 0.12 0.09 0.16
+Actual output from this lesson's run.
+
+======================================================================
+4. THE DCGAN WITHOUT BATCH NORMALISATION -- seeds 0 and 1, everything else the same
+======================================================================
+no batchnorm, seed 0:  epoch  D(real)  D(fake)  rarest  commonest  confidence  nearest    jump
+                           1    0.911    0.122   0.000      1.000      0.6099     3.66  0.0073
+                           2    0.993    0.028   0.000      1.000      0.6116     3.58  0.0010
+                           3    0.998    0.005   0.000      1.000      0.6117     3.57  0.0004
+                           5    1.000    0.001   0.000      1.000      0.6118     3.57  0.0002
+                          10    1.000    0.000   0.000      1.000      0.6796     4.57  0.0285
+                          15    1.000    0.000   0.000      0.860      0.5660     5.36  0.0467
+                          20    0.994    0.005   0.000      1.000      0.5697     5.73  0.0777
+                       (2668 s); final spread of digits: 0.00 0.00 0.00 0.00 0.00 1.00 0.00 0.00 0.00 0.00
+no batchnorm, seed 1:  epoch  D(real)  D(fake)  rarest  commonest  confidence  nearest    jump
+                           1    0.910    0.157   0.000      1.000      0.6116     3.61  0.0037
+                           2    0.995    0.019   0.000      1.000      0.6117     3.58  0.0008
+                           3    0.999    0.003   0.000      1.000      0.6118     3.57  0.0004
+                           5    0.998    0.002   0.000      0.466      0.4455     4.96  0.0686
+                          10    0.999    0.000   0.000      0.717      0.2895     6.85  0.1197
+                          15    0.847    0.156   0.006      0.385      0.7702     5.13  0.0490
+                          20    0.737    0.254   0.024      0.223      0.7853     5.98  0.0579
+                       (2181 s); final spread of digits: 0.03 0.22 0.12 0.08 0.15 0.04 0.08 0.18 0.02 0.07
+Actual output from this lesson's run.
+
+======================================================================
+5. JUNCTIONS -- can each GAN draw straight arms of the right length?
+======================================================================
+data: 4,000 junctions (1,000 each of 1, 2, 3 and 4 arms of length 8), 3 x 28 x 28, noise 0.4; pixel values from -2.20 to 4.03
+the arm counter on the real images: arms read correctly 1.0000; misfit median 0.164, 99th percentile 0.270; valid if misfit < 0.270
+real images: valid share 0.990; split by arms 1-4: 0.242 0.252 0.255 0.252
+dense (generator 621,104, discriminator 602,625 numbers), seed 0, linear output, 100 epochs:
+      epoch  D(real)  D(fake)  valid  median misfit   arms 1-4 among the valid     jump
+         10    0.942    0.008  0.000          0.839   0.000 0.000 0.000 0.000    1.431
+         20    0.978    0.004  0.000          0.799   0.000 0.000 0.000 0.000    1.260
+         30    0.975    0.007  0.000          0.678   0.000 0.000 0.000 0.000    1.062
+         40    0.978    0.009  0.001          0.649   1.000 0.000 0.000 0.000    0.910
+         50    0.964    0.010  0.003          0.588   0.333 0.667 0.000 0.000    0.755
+         60    0.958    0.018  0.015          0.561   0.133 0.867 0.000 0.000    0.611
+         70    0.964    0.023  0.024          0.551   0.042 0.958 0.000 0.000    0.492
+         80    0.975    0.023  0.019          0.551   0.053 0.947 0.000 0.000    0.380
+         90    0.982    0.026  0.006          0.590   0.500 0.500 0.000 0.000    0.275
+        100    0.987    0.022  0.001          0.649   0.000 1.000 0.000 0.000    0.198
+      (165 s)
+DCGAN (generator 244,515, discriminator 37,537 numbers), seed 0, linear output, 100 epochs:
+      epoch  D(real)  D(fake)  valid  median misfit   arms 1-4 among the valid     jump
+         10    0.791    0.122  0.000          0.680   0.000 0.000 0.000 0.000    0.749
+         20    0.826    0.124  0.001          0.645   1.000 0.000 0.000 0.000    0.404
+         30    0.842    0.095  0.001          0.694   1.000 0.000 0.000 0.000    0.402
+         40    0.851    0.111  0.000          0.684   0.000 0.000 0.000 0.000    0.458
+         50    0.833    0.132  0.009          0.596   1.000 0.000 0.000 0.000    0.484
+         60    0.825    0.132  0.014          0.557   0.929 0.071 0.000 0.000    0.477
+         70    0.815    0.149  0.028          0.536   0.929 0.071 0.000 0.000    0.479
+         80    0.808    0.162  0.046          0.505   0.870 0.130 0.000 0.000    0.485
+         90    0.792    0.150  0.043          0.529   0.953 0.047 0.000 0.000    0.494
+        100    0.787    0.171  0.058          0.521   0.862 0.138 0.000 0.000    0.499
+      (2145 s)
+real images' jump: 0.526
+Actual output from this lesson's run.
+
+saved dcgan_results.png
+saved dcgan_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+The generator above draws whatever digit its noise happens to land on. Day 137 gives both players the label as
+well (a conditional GAN), so it can be asked for a 7 and must draw a 7.

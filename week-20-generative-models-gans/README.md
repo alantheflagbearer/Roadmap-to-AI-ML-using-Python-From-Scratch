@@ -47,5 +47,19 @@ Exercise: [`day135_exercise.py`](day135_exercise.py) is the ring, the mode count
 ![Three ways GAN training goes wrong](gan_instability_diagram.png)
 ![Mode coverage over training, by loss, seed and balance](gan_instability_results.png)
 
+## Day 136 — A DCGAN-style convolutional GAN, on MNIST and the junction dataset
+[`day136_dcgan.py`](day136_dcgan.py) — Day 134's GAN rebuilt from convolutions, all from scratch: strided convolutions shrink the image in the discriminator, transposed convolutions with batch normalisation grow it in the generator. The transposed convolution is checked as the convolution's adjoint (relative gap 6.7e-16), and kernel 4 at stride 2 gives every inner pixel the same number of contributions, where kernel 3 gives 1, 2 or 4.
+
+- **MNIST, 20 epochs, two seeds:** with about the same number of generator weights, the DCGAN spread its output over the digits a little more evenly than the dense GAN (commonest digit 0.151 and 0.158 against 0.177 and 0.261) and matched the real digits' smoothness (pixel jump 0.0625 against real 0.0650), at about 20 to 27 times the training time.
+- **Without batch normalisation:** both seeds collapsed onto one featureless image for several epochs (commonest digit 1.000, pixel jump 0.0002); seed 0 never recovered.
+- **Junctions, an exact check:** on Week 7's junction images, where a generated image can be matched against all 375 perfect junctions, neither GAN learned the task in 100 epochs: at most 0.024 (dense) and 0.058 (DCGAN) of samples were valid, against 0.990 of real images, and never with 3 or 4 arms.
+
+Study guide: [`day136_dcgan_complete_guide.pdf`](day136_dcgan_complete_guide.pdf) · Syntax walkthrough: [`day136_syntax_line_by_line.pdf`](day136_syntax_line_by_line.pdf) · [Run output](day136_run_output.txt)
+
+Exercise: [`day136_exercise.py`](day136_exercise.py) is the convolutional machinery (im2col, col2im, Conv, ConvT, batch normalisation, the layer stack, both players and one round of the game), checked by hand — the fourth part of Day 139's build ([run output](day136_exercise_run_output.txt)).
+
+![The two convolutional players](dcgan_diagram.png)
+![DCGAN results on MNIST and junctions](dcgan_results.png)
+
 ---
 [← Back to main README](../README.md)
