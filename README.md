@@ -2,11 +2,11 @@
 
 A daily-practice log following a 52-week (365-day) roadmap from Python fundamentals through classical ML, deep learning, and into applied AI. Most lessons don't just call a library function — they build the underlying idea (gradient descent, backprop, convolution, dropout...) from scratch in NumPy first, then show the framework equivalent. Each day is a self-contained script; from Week 1 onward, most days add a paired study guide (a concept walkthrough and a line-by-line syntax breakdown, both PDF).
 
-**Currently on Day 146** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
+**Currently on Day 147** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
 
 ## How this repo is organized
 
-- **One folder per week** (`week-01-python-foundations/` … `week-21-diffusion-models-modern-generative-ai/`) — each holds that week's scripts, study-guide PDFs, diagrams, and run outputs, plus its own `README.md` with a day-by-day index. Open a week's `README.md` first; it links to everything inside.
+- **One folder per week** (`week-01-python-foundations/` … `week-22-time-series-analysis/`) — each holds that week's scripts, study-guide PDFs, diagrams, and run outputs, plus its own `README.md` with a day-by-day index. Open a week's `README.md` first; it links to everything inside.
 - **`practice-drills/`** — short standalone Python-fundamentals exercises (`pfdsNN.py`), numbered independently of the daily roadmap.
 - Root-level `titanic.csv`, `titanic.db`, and `students.csv` are the shared datasets several early weeks use; each is also copied into every week folder whose scripts need it, so any single week folder runs standalone without reaching outside itself.
 
@@ -35,8 +35,9 @@ A daily-practice log following a 52-week (365-day) roadmap from Python fundament
 | 19 | 126–132 | Unsupervised Learning II — Autoencoders | [→ folder](week-19-unsupervised-learning-ii) |
 | 20 | 133–139 | Generative Models — GANs | [→ folder](week-20-generative-models-gans) |
 | 21 | 140–146 | Diffusion Models & Modern Generative AI | [→ folder](week-21-diffusion-models-modern-generative-ai) |
+| 22 | 147 (of 147–153) | Time Series Analysis — in progress | [→ folder](week-22-time-series-analysis) |
 
-Weeks 22 onward (time series analysis, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
+Weeks 23 onward (recommender systems, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
 
 Starting with Week 6, the same small neural-network library — written entirely in NumPy, no framework — is extended week over week: the `net.forward()` / `net.backward()` core built on Day 36 is still what every later script, all the way through Day 62, trains against; Week 10 starts a new cell, the LSTM.
 
@@ -94,7 +95,7 @@ Starting with Week 6, the same small neural-network library — written entirely
 | ![Reverse diffusion results](week-21-diffusion-models-modern-generative-ai/reverse_diffusion_results.png) Reverse diffusion: exact and learned denoisers on the ring — Day 140 | ![Tiny diffusion model results](week-21-diffusion-models-modern-generative-ai/tiny_diffusion_results.png) A tiny diffusion model on MNIST digits — Day 141 |
 | ![Generative model tradeoffs results](week-21-diffusion-models-modern-generative-ai/generative_tradeoffs_results.png) GANs vs VAEs vs diffusion, measured — Day 142 | ![CLIP-style joint embeddings results](week-21-diffusion-models-modern-generative-ai/clip_joint_embeddings_results.png) CLIP-style joint embeddings for digits and captions — Day 143 |
 | ![Prompt engineering results](week-21-diffusion-models-modern-generative-ai/prompt_engineering_results.png) Prompt engineering and classifier-free guidance on digits — Day 144 | ![Generative AI ethics results](week-21-diffusion-models-modern-generative-ai/generative_ai_ethics_results.png) Bias, deepfake detection and memorisation, measured on digits — Day 145 |
-| ![Week 21 build results](week-21-diffusion-models-modern-generative-ai/text_to_digit_capstone_results.png) Week 21 build: a text-to-digit generator, checked end to end — Day 146 | |
+| ![Week 21 build results](week-21-diffusion-models-modern-generative-ai/text_to_digit_capstone_results.png) Week 21 build: a text-to-digit generator, checked end to end — Day 146 | ![Time-series decomposition results](week-22-time-series-analysis/time_series_decomposition_results.png) CO2 and electrical-equipment orders split into trend, season and residual — Day 147 |
 
 ## Featured project: Titanic EDA (Day 13)
 

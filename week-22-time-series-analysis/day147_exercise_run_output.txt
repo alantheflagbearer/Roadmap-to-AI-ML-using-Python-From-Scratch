@@ -1,0 +1,6 @@
+3-month average of [1.0, 5.0, 2.0, 8.0, 3.0, 7.0, 4.0]: at the second value (1 + 5 + 2) / 3 = 2.6667; centred_ma gives 2.6667
+2 x 4 average at the third value: (0.5 x 1 + 5 + 2 + 8 + 0.5 x 3) / 4 = 4.2500; centred_ma gives 4.2500
+trend 10 + 0.2 t plus a known season, 5 years: largest error in the season 2.0e-15, in the trend 7.1e-15, largest residual 5.1e-15
+strength of made-up parts: trend 1 - 0.01 / 1.16 = 0.99138, season 1 - 0.01 / 1.21 = 0.99174; strength() gives 0.99138, 0.99174
+CO2: 526 months (5 filled); its season peaks in month 5 (May) at +2.92 ppm and is lowest in month 10 (October) at -3.14
+orders: 257 months, 1995-01 to 2016-05

@@ -1,0 +1,100 @@
+======================================================================
+1. THE DATA -- two real monthly series
+======================================================================
+Mauna Loa CO2 (ppm, parts per million; weekly readings averaged by month): 526 months, 1958-03 to 2001-12
+  5 months had no reading and were filled on a straight line between neighbours: 1958-06, 1958-10, 1964-02, 1964-03, 1964-04
+  lowest 313.4, highest 373.8, first year's mean 315.4, last year's 370.9
+euro-area new orders for electrical equipment (an index): 257 months, 1995-01 to 2016-05, none missing
+  lowest 65.2 (1995-02), highest 134.1 (2007-12)
+Actual output from this lesson's run.
+
+======================================================================
+2. THE TREND -- a centred moving average, checked by hand
+======================================================================
+weights of the 2 x 12 moving average: 0.04167 (= 1/24) at both ends, 0.08333 (= 1/12) for the 11 in between; sum 1.000
+a made-up 12-month pattern repeated 6 years: every trend value equals the pattern's mean; largest difference 1.1e-16
+a straight line passes through unchanged: largest difference 7.1e-15
+so the average removes the season and keeps a straight trend; it loses 6 months at each end
+CO2's trend, average rise per year in each decade:
+  1960s: 0.86 ppm per year (316.6 -> 325.2)
+  1970s: 1.26 ppm per year (325.2 -> 337.8)
+  1980s: 1.58 ppm per year (337.8 -> 353.5)
+  1990s: 1.51 ppm per year (353.5 -> 368.7)
+Actual output from this lesson's run.
+
+======================================================================
+3. CLASSICAL DECOMPOSITION -- from scratch, checked against statsmodels
+======================================================================
+largest difference from statsmodels' seasonal_decompose (period 12):
+     CO2 additive       trend 0.0e+00  seasonal 0.0e+00  residual 0.0e+00
+     CO2 multiplicative trend 0.0e+00  seasonal 0.0e+00  residual 2.2e-16
+  orders additive       trend 0.0e+00  seasonal 0.0e+00  residual 0.0e+00
+  orders multiplicative trend 0.0e+00  seasonal 0.0e+00  residual 2.2e-16
+CO2, additive seasonal pattern by calendar month:
+      Jan    Feb    Mar    Apr    May    Jun    Jul    Aug    Sep    Oct    Nov    Dec
+    -0.02   0.63   1.42   2.50   2.92   2.28   0.74  -1.32  -3.04  -3.14  -2.05  -0.92
+   peak May, low Oct, swing 6.07; residual std 0.283; strength of trend 1.000, of season 0.981
+orders, additive seasonal pattern by calendar month:
+      Jan    Feb    Mar    Apr    May    Jun    Jul    Aug    Sep    Oct    Nov    Dec
+    -9.12  -9.23   7.16  -5.32  -6.83   6.68  -2.94 -14.30  12.07   4.15   7.73   9.95
+   peak Sep, low Aug, swing 26.37; residual std 2.661; strength of trend 0.956, of season 0.912
+strength: 1 - var(residual) / var(component + residual); near 1 means the residual is small beside that component
+Actual output from this lesson's run.
+
+======================================================================
+4. ADDITIVE OR MULTIPLICATIVE -- does the season grow with the level?
+======================================================================
+additive: y = T + S + R (the season adds the same amount every year); multiplicative: y = T x S x R (the same share)
+  series  corr(swing, level)  fit error: additive  multiplicative
+     CO2               0.616               0.2830          0.2575
+  orders               0.703               2.6607          2.4701
+fit error: root mean squared difference between the series and trend + season (or trend x season), in its own units
+orders, multiplicative seasonal factors by calendar month (1.000 = an ordinary month):
+      Jan    Feb    Mar    Apr    May    Jun    Jul    Aug    Sep    Oct    Nov    Dec
+    0.909  0.908  1.070  0.948  0.932  1.065  0.969  0.861  1.122  1.040  1.075  1.100
+Actual output from this lesson's run.
+
+======================================================================
+5. WHAT A CLASSICAL DECOMPOSITION GETS WRONG -- ends, a changing season, a crash
+======================================================================
+ends: no trend for the first 6 and last 6 months (CO2: before 1958-09 and after 2001-06); the latest months are the ones a forecast needs
+CO2 season from 1959-1968 alone: peak May +2.77, low Oct -2.98, swing 5.75
+CO2 season from 1992-2001 alone: peak May +2.99, low Sep -3.45, swing 6.44
+one fixed pattern for all 44 years cannot follow that; what it misses stays in the residual, which is not random noise:
+  residual autocorrelation, lag 1 and lag 12: classical 0.403, 0.264; STL 0.393, -0.129
+  STL's season, averaged over the first and last 10 years: swing 4.56 -> 6.70
+the 2008-09 crash in the orders:
+  trend peak 122.9 (2007-11), lowest after it 91.5 (2009-08)
+  five largest residuals: 1995-09 +8.4%, 1996-09 +7.0%, 2008-10 +7.1%, 2009-01 -7.7%, 2009-02 -8.4%
+  seasonal factors with 2008-2010 left out: largest change in any month 0.007
+  residual std (as a share): classical 0.0255; STL on the log 0.0303
+Actual output from this lesson's run.
+
+======================================================================
+6. USING IT -- seasonal adjustment, and a first forecast
+======================================================================
+orders, month-on-month changes: raw and seasonally adjusted point opposite ways in 0.414 of months
+  2009-01: raw -27.7%, seasonally adjusted -12.5%
+  2006-09: raw +37.0%, seasonally adjusted +5.0%
+  2008-11: raw +0.7%, seasonally adjusted -2.7%
+CO2 forecast for 2000-01 to 2001-12 (24 months) from data up to 1999-12 (training trend ends 1999-06);
+training trend's rise over each of its last three years: 1996-06 -> 1997-06: +1.10; 1997-06 -> 1998-06: +2.88; 1998-06 -> 1999-06: +1.68
+mean absolute error and mean error (forecast - actual), ppm:
+  last value                             2.420  -2.207
+  same month last year                   1.882  -1.882
+  trend line (last 24 months) + season   2.425  +2.425   slope 2.48 ppm per year
+  trend line (last 60 months) + season   0.890  +0.890   slope 1.88 ppm per year
+  trend line (last 120 months) + season  0.591  -0.591   slope 1.52 ppm per year
+the line's window is a choice; picking it by this table would use the test months to choose it (later this week:
+choosing on earlier data only)
+Actual output from this lesson's run.
+
+saved time_series_decomposition_results.png
+saved time_series_decomposition_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 148: stationarity. Many forecasting models need a series whose behaviour does not drift; differencing
+(month minus the month before, or minus the same month last year) removes trend and season, and the
+augmented Dickey-Fuller test, built from scratch, checks whether it worked.
