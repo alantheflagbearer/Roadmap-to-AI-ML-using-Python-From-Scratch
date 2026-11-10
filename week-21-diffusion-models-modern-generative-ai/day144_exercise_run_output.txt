@@ -1,0 +1,4 @@
+w = 1 with 'no caption' passed explicitly against the one-call shortcut: largest difference 0.00e+00
+a made-up stroke: ink 0.0357 (28 / 784 = 0.0357), lean 0.335
+1,500 steps of training: loss 0.1939 -> 0.1499
+guided samples, w = 2: 'zero' ink 0.2040, 'one' ink 0.0654 (real training digits: 0.1734 and 0.0760)

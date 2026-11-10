@@ -1,0 +1,126 @@
+======================================================================
+1. BY HAND -- guidance in the x_0 guess is guidance in the noise guess
+======================================================================
+eps(x_0) = (x_t - sqrt(abar_t) x_0) / sqrt(1 - abar_t) is a straight-line function of x_0, so mixing guesses commutes with it:
+  w = 0.0: largest difference between eps(guided x_0) and guided eps: 0.00e+00
+  w = 1.0: largest difference between eps(guided x_0) and guided eps: 4.44e-16
+  w = 3.0: largest difference between eps(guided x_0) and guided eps: 1.78e-15
+w = 0 returns the no-caption guess exactly, w = 1 the captioned guess exactly; a negative prompt simply takes the no-caption guess's place
+Actual output from this lesson's run.
+
+(feature network for the scores: 35 s)
+
+======================================================================
+2. TRAINING THE TEXT-CONDITIONED MODEL
+======================================================================
+Day 143's encoders, trained with thick sevens never called thick: 21 s
+diffusion model: Day 141's network with 64 more inputs (880 -> 512 -> 512 -> 784), output read as x_0, output layer started at zero;
+each training digit gets a fresh random caption (Day 143's, the same held-out pair), embedded by the text encoder, which is frozen;
+15% of captions replaced by zeros ('no caption'); Adam lr 0.001, batches of 128, 20,000 steps, averaged copy decay 0.999
+    step     loss
+   2,000   0.1620
+   4,000   0.1411
+   6,000   0.1375
+   8,000   0.1358
+  10,000   0.1350
+  12,000   0.1341
+  14,000   0.1334
+  16,000   0.1331
+  18,000   0.1327
+  20,000   0.1320
+(559 s, including the text encoder embedding every caption)
+Actual output from this lesson's run.
+
+======================================================================
+3. THE GUIDANCE SCALE -- following the prompt against quality and variety
+======================================================================
+prompts 'zero' ... 'nine', 200 samples each (2,000 in all), DDIM 100 steps; 'right digit': the share Day 138's classifier
+names as the prompted digit (0.10 is chance); FID, precision and recall against real training digits; ink: the average pixel
+    w  right digit     IS      FID  precision  recall  grey share    ink   time
+  0.0        0.107   4.64    72.99      0.819   0.476      0.1251  0.124    12s
+  1.0        0.948   8.52    25.47      0.924   0.527      0.1097  0.128     8s
+  2.0        1.000   9.90    25.06      0.930   0.464      0.0848  0.150    12s
+  3.0        1.000   9.98    70.09      0.856   0.341      0.0678  0.166    12s
+  5.0        1.000   9.98   142.70      0.694   0.190      0.0463  0.183    12s
+  8.0        1.000   9.96   210.96      0.571   0.345      0.0275  0.189    12s
+ real                                                      0.0500  0.132   (2,000 real test digits)
+Actual output from this lesson's run.
+
+======================================================================
+4. PARAPHRASES, AND WORDS THE MODEL DOES NOT KNOW
+======================================================================
+200 samples per prompt from the same starting noise (seed 1), guidance w = 2.0; 'right': the share named as the intended digit;
+ink and lean: Day 143's measurements, averaged; classified as: the two digits Day 138's classifier names most often
+                        prompt  negative prompt   right     ink    lean    grey   classified as
+                       'seven'                -   1.000  0.1497  0.0160  0.0699   seven 200, zero 0
+                     'a seven'                -   1.000  0.1500  0.0159  0.0712   seven 200, zero 0
+             'the digit seven'                -   1.000  0.1490  0.0154  0.0690   seven 200, zero 0
+           'handwritten seven'                -   1.000  0.1506  0.0133  0.0698   seven 200, zero 0
+             'seven written a'                -   1.000  0.1530  0.0249  0.0699   seven 200, zero 0
+ 'a photo of the number seven'                -   1.000  0.1334  0.0063  0.0852   seven 200, zero 0
+       'seven purple elephant'                -   1.000  0.1497  0.0160  0.0699   seven 200, zero 0
+                           '7'                -   0.000  0.1083  0.1446  0.1113   eight 84, five 24
+                        'sept'                -   0.000  0.1083  0.1446  0.1113   eight 84, five 24
+'7' against an empty caption: cosine 1.000000; an empty caption against 'no caption' (zeros, used in training): different (largest entry 0.274)
+real training sevens: ink 0.1145, lean 0.0241
+Actual output from this lesson's run.
+
+======================================================================
+5. ATTRIBUTES, AND A COMBINATION NEVER SEEN IN TRAINING
+======================================================================
+200 samples per prompt from the same starting noise (seed 1), guidance w = 2.0; 'right': the share named as the intended digit;
+ink and lean: Day 143's measurements, averaged; classified as: the two digits Day 138's classifier names most often
+                        prompt  negative prompt   right     ink    lean    grey   classified as
+                       'three'                -   1.000  0.1690  0.0808  0.0864   three 200, zero 0
+               'a thick three'                -   1.000  0.2302  0.0185  0.0824   three 200, zero 0
+                'a thin three'                -   1.000  0.1032  0.0383  0.0841   three 200, zero 0
+                        'four'                -   1.000  0.1379  0.0591  0.0802   four 200, zero 0
+          'four leaning right'                -   1.000  0.1468  0.4722  0.0760   four 200, zero 0
+           'four leaning left'                -   0.985  0.1401 -0.2718  0.0755   four 197, nine 3
+                'four upright'                -   1.000  0.1404  0.0949  0.0793   four 200, zero 0
+                       'seven'                -   1.000  0.1497  0.0160  0.0699   seven 200, zero 0
+               'a thick seven'                -   0.990  0.2111  0.0012  0.0832   seven 198, four 1
+                'a thin seven'                -   1.000  0.0906  0.0109  0.0581   seven 200, zero 0
+real training threes: ink 0.1415, lean 0.0555
+real training fours: ink 0.1214, lean 0.0576
+real training sevens: ink 0.1145, lean 0.0241
+'a thick seven': neither model's training captions ever put 'thick' with 'seven'
+Actual output from this lesson's run.
+
+======================================================================
+6. NEGATIVE PROMPTS -- guide away from a second prompt instead of from 'no caption'
+======================================================================
+200 samples per prompt from the same starting noise (seed 1), guidance w = 2.0; 'right': the share named as the intended digit;
+ink and lean: Day 143's measurements, averaged; classified as: the two digits Day 138's classifier names most often
+                        prompt  negative prompt   right     ink    lean    grey   classified as
+                       'three'                -   1.000  0.1690  0.0808  0.0864   three 200, zero 0
+                       'three'          'thick'   0.990  0.0810  0.0915  0.0659   three 198, five 2
+                       'three'           'thin'   0.975  0.2663  0.0007  0.0498   three 195, eight 3
+                        'four'  'leaning right'   0.970  0.1563 -0.1674  0.0614   four 194, nine 6
+                        'four'   'leaning left'   0.955  0.1634  0.4064  0.0584   four 191, eight 5
+                       'three'          'eight'   1.000  0.1758  0.0476  0.0772   three 200, zero 0
+                         'one'          'seven'   1.000  0.0878  0.2335  0.0401   one 200, zero 0
+Actual output from this lesson's run.
+
+======================================================================
+7. CONTRADICTORY PROMPTS
+======================================================================
+200 samples per prompt from the same starting noise (seed 1), guidance w = 2.0; 'right': the share named as the intended digit;
+ink and lean: Day 143's measurements, averaged; classified as: the two digits Day 138's classifier names most often
+                        prompt  negative prompt   right     ink    lean    grey   classified as
+                 'three seven'                -       -  0.1432 -0.0423  0.0885   three 112, seven 86
+                 'three eight'                -       -  0.1515  0.1561  0.1073   eight 169, three 29
+                    'one zero'                -       -  0.1206  0.2852  0.1065   zero 88, one 86
+            'thick thin seven'                -       -  0.1558 -0.0247  0.0519   seven 200, zero 0
+     'leaning left right four'                -       -  0.1310  0.1393  0.0806   four 200, zero 0
+Actual output from this lesson's run.
+
+saved prompt_engineering_results.png
+saved prompt_engineering_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Guidance made the model follow its prompts, and also changed how thick and how varied its digits are.
+Day 145 looks at skew like that deliberately (bias), at telling generated images from real ones (deepfakes), and at
+copying (memorisation), with real case studies.

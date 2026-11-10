@@ -65,5 +65,21 @@ Exercise: [`day143_exercise.py`](day143_exercise.py) is the measurements, captio
 ![A CLIP-style pair of encoders](clip_joint_embeddings_diagram.png)
 ![Training, the shared space, retrieval and the held-out combination](clip_joint_embeddings_results.png)
 
+## Day 144 — Prompt engineering for generative models: real experimentation
+[`day144_prompt_engineering.py`](day144_prompt_engineering.py) — Day 143's text encoder now steers Day 141's diffusion model: the network gets a caption's 64-number embedding as an extra input and is trained with the caption dropped 15% of the time, so one network can draw with and without a prompt. Classifier-free guidance then pushes the captioned guess away from the uncaptioned one, and prompts were varied one change at a time, 200 drawings each.
+
+- **The guidance scale:** with no guidance the prompt is ignored (right digit 0.107, chance); w = 1 gave 0.948, and w = 2 gave 1.000 with the best FID (25.06). Beyond that quality fell: FID 70.09 at w = 3 and 210.96 at w = 8, recall 0.527 down to 0.190 at w = 5. Guidance also thickened the digits (ink 0.124 to 0.189, against 0.132 for real digits).
+- **Unknown words fail silently:** '7' and 'sept' drew no sevens (0.000), mostly eights; an unknown word becomes an empty caption (cosine 1.000000 with one), which the model never saw in training.
+- **Attributes and an unseen combination:** 'a thick three' ink 0.2302 against 0.1032 for 'a thin three'; 'four leaning right' lean 0.4722 against -0.2718 for leaning left; 'a thick seven', never in training, ink 0.2111 with 198 of 200 still sevens.
+- **Negative prompts:** 'three' with negative 'thick' drew ink 0.0810, thinner than 'a thin three'; the cost was the digit itself (right digit 0.975 with negative 'thin').
+- **Contradictions pick a side:** 'three seven' gave three 112, seven 86, not a blend; 'thick thin seven' drew ink 0.1558, close to plain 'seven'.
+
+Study guide: [`day144_prompt_engineering_complete_guide.pdf`](day144_prompt_engineering_complete_guide.pdf) · Syntax walkthrough: [`day144_syntax_line_by_line.pdf`](day144_syntax_line_by_line.pdf) · [Run output](day144_run_output.txt)
+
+Exercise: [`day144_exercise.py`](day144_exercise.py) is the captioned guess, training with dropped captions, guided DDIM sampling with an optional negative prompt, the two measurements and digit naming, checked by hand — the fifth part of Day 146's capstone ([run output](day144_exercise_run_output.txt)).
+
+![Classifier-free guidance](prompt_engineering_diagram.png)
+![Training, the guidance scale, and drawings for each prompt](prompt_engineering_results.png)
+
 ---
 [← Back to main README](../README.md)
