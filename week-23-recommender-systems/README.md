@@ -81,5 +81,21 @@ Exercise: [`day158_exercise.py`](day158_exercise.py) is the users' table, implic
 ![Explicit against implicit feedback, and fold-in for new users](implicit_feedback_diagram.png)
 ![Implicit ALS grid and objective, top-10 lists, how popular the lists are, and new users](implicit_feedback_results.png)
 
+## Day 159 — Evaluating recommenders: precision, recall, MAP, NDCG, and how sure
+[`day159_evaluating_recommenders.py`](day159_evaluating_recommenders.py) — the measures themselves are the subject today. Precision, recall, average precision, NDCG (also graded by stars), reciprocal rank and four beyond-accuracy measures are built from scratch, worked by hand, and applied to every model of the week. A paired bootstrap, a retrained seed and fresh splits test how sure each difference is. Written in NumPy on Day 154's MovieLens split, importing the earlier days' parts.
+
+- **By hand:** two lists with the same two hits score the same precision, but NDCG 0.765 when the hits come first and 0.277 when they come last.
+- **The measures agree:** every one ranks the two implicit ALS models first, then PureSVD, co-occurrence, popularity, explicit ALS and random. The one exception is recall, where the two implicit ALS models swap.
+- **Beyond accuracy:** the 10% most-watched films hold 42.1% of the test watches. Popularity recommended a share of 0.030 of the catalogue and found none of the less popular films. Binary implicit ALS had the widest coverage of the accurate models (0.237).
+- **How sure:** implicit ALS beat PureSVD by +0.0198 graded NDCG [+0.0136, +0.0259]. Retraining with another seed moved it by -0.0023. Day 158's stars-as-confidence gain won on all five fresh splits (mean +0.0142).
+- **The sampled shortcut** (100 random negatives, as in the NCF paper) inflated implicit ALS's hit rate from 0.1474 to 0.6638 but kept the models' order here.
+
+Study guide: [`day159_evaluating_recommenders_complete_guide.pdf`](day159_evaluating_recommenders_complete_guide.pdf) · Syntax walkthrough: [`day159_syntax_line_by_line.pdf`](day159_syntax_line_by_line.pdf) · [Run output](day159_run_output.txt)
+
+Exercise: [`day159_exercise.py`](day159_exercise.py) holds the per-user measures, the beyond-accuracy measures, the paired bootstrap, the leave-last-out split and the sampled evaluation, each checked by hand (for example personalisation 0.667 on three tiny lists). It is the sixth part of Day 160's recommender ([run output](day159_exercise_run_output.txt)).
+
+![Scoring lists, and how sure a comparison is](evaluating_recommenders_diagram.png)
+![Every model on every measure, beyond accuracy, bootstrap, fresh splits and sampled negatives](evaluating_recommenders_results.png)
+
 ---
 [← Back to main README](../README.md)

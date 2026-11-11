@@ -1,0 +1,93 @@
+
+======================================================================
+1. FOUR WAYS TO SCORE ONE LIST
+======================================================================
+3 films to find (0, 1 and 10); top-10 list A has films 0 and 1 in places 1-2, list B in places 9-10:
+  list A: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+  list B: [2, 3, 4, 5, 6, 7, 8, 9, 0, 1]
+  list A: precision 0.200  recall 0.667  AP 0.667  NDCG 0.765  reciprocal rank 1.000
+  list B: precision 0.200  recall 0.667  AP 0.104  NDCG 0.277  reciprocal rank 0.111
+by hand, A: precision 2/10; recall 2/3; AP (1/1 + 2/2)/3 = 0.667; NDCG (1 + 0.631)/(1 + 0.631 + 0.5) = 0.765; RR 1
+by hand, B: precision 2/10; recall 2/3; AP (1/9 + 2/10)/3 = 0.104; NDCG (0.301 + 0.289)/2.131 = 0.277; RR 1/9
+graded NDCG (gain 2^stars - 1): 5-star film first 0.984, 1-star film first 0.640; precision, recall and AP cannot tell them apart (0.667 and 0.667)
+by hand: ideal 31 + 1 x 0.631 + 1 x 0.5 = 32.131; 5-star first (31 + 0.631)/32.131 = 0.984; 1-star first (1 + 31 x 0.631)/32.131 = 0.640
+Actual output from this lesson's run.
+
+======================================================================
+2. THE WEEK'S MODELS ON EVERY MEASURE
+======================================================================
+7 models fitted on Day 154's training split (32 s); test: every user's held-out films, every film ranked
+                 @10  precision   recall     MAP    NDCG  graded NDCG     MRR
+          popularity     0.1948   0.1195  0.1215  0.2267       0.1698  0.4380
+              random     0.0151   0.0064  0.0051  0.0158       0.0087  0.0592
+       co-occurrence     0.2930   0.1948  0.2305  0.3606       0.2806  0.6126
+             PureSVD     0.3507   0.2301  0.2830  0.4218       0.3250  0.6648
+        explicit ALS     0.0421   0.0189  0.0127  0.0380       0.0382  0.0916
+        implicit ALS     0.3672   0.2438  0.3034  0.4423       0.3448  0.6849
+ implicit ALS, stars     0.3703   0.2387  0.3108  0.4478       0.3561  0.7002
+  order by   precision: implicit ALS, stars > implicit ALS > PureSVD > co-occurrence > popularity > explicit ALS > random
+  order by      recall: implicit ALS > implicit ALS, stars > PureSVD > co-occurrence > popularity > explicit ALS > random
+  order by         MAP: implicit ALS, stars > implicit ALS > PureSVD > co-occurrence > popularity > explicit ALS > random
+  order by        NDCG: implicit ALS, stars > implicit ALS > PureSVD > co-occurrence > popularity > explicit ALS > random
+  order by graded NDCG: implicit ALS, stars > implicit ALS > PureSVD > co-occurrence > popularity > explicit ALS > random
+  order by         MRR: implicit ALS, stars > implicit ALS > PureSVD > co-occurrence > popularity > explicit ALS > random
+Actual output from this lesson's run.
+
+======================================================================
+3. BEYOND ACCURACY: COVERAGE, POPULARITY, NOVELTY, PERSONALISATION
+======================================================================
+the 170 most-watched films (10% of 1682) hold 42.1% of the held-out test watches
+                      coverage  median watchers  novelty (bits)  personalisation  tail recall@10
+          popularity     0.030              346            1.43            0.504          0.0000
+              random     0.996               19            5.90            0.994          0.0056
+       co-occurrence     0.114              247            1.90            0.844          0.0137
+             PureSVD     0.233              216            2.15            0.927          0.0436
+        explicit ALS     0.171                7            5.93            0.642          0.0050
+        implicit ALS     0.237              233            2.09            0.916          0.0474
+ implicit ALS, stars     0.199              241            2.03            0.906          0.0338
+Actual output from this lesson's run.
+
+======================================================================
+4. HOW SURE IS A DIFFERENCE?
+======================================================================
+paired bootstrap over 942 users, 2000 resamples, graded NDCG@10:
+          implicit ALS - PureSVD      : +0.0198, 95% interval [+0.0136, +0.0259], resamples with no gain 0.0%
+   implicit ALS, stars - implicit ALS : +0.0113, 95% interval [+0.0068, +0.0157], resamples with no gain 0.0%
+  implicit ALS, seed 1 - implicit ALS : -0.0023, 95% interval [-0.0058, +0.0015], resamples with no gain 88.4%
+         co-occurrence - popularity   : +0.1108, 95% interval [+0.0995, +0.1225], resamples with no gain 0.0%
+fresh random 80/20 splits: graded NDCG@10, stars as confidence against binary (Day 158's settings, not re-tuned):
+  split seed 10: binary 0.3447, stars 0.3641, difference +0.0195
+  split seed 11: binary 0.3517, stars 0.3620, difference +0.0102
+  split seed 12: binary 0.3492, stars 0.3623, difference +0.0131
+  split seed 13: binary 0.3379, stars 0.3523, difference +0.0144
+  split seed 14: binary 0.3512, stars 0.3652, difference +0.0140
+  mean difference +0.0142, smallest +0.0102, largest +0.0195
+Actual output from this lesson's run.
+
+======================================================================
+5. THE SAMPLED-NEGATIVES SHORTCUT
+======================================================================
+leave-last-out: 943 held-out films, one per user, models refitted (35 s)
+                      full ranking: HR@10  NDCG@10   100 sampled: HR@10  NDCG@10   other negatives: HR@10
+          popularity               0.0859   0.0449               0.4093   0.2287                   0.4136
+              random               0.0053   0.0031               0.0806   0.0381                   0.0870
+       co-occurrence               0.1092   0.0563               0.5090   0.2910                   0.5069
+             PureSVD               0.1410   0.0708               0.6458   0.3776                   0.6543
+        explicit ALS               0.0117   0.0039               0.1750   0.0784                   0.1771
+        implicit ALS               0.1474   0.0752               0.6638   0.3865                   0.6638
+ implicit ALS, stars               0.1432   0.0724               0.6511   0.3778                   0.6617
+  expected for random scores: full ranking 10/1681 = 0.0059 (roughly), sampled 10/101 = 0.0990
+  check: five other draws of random scores, sampled HR@10 0.0965, 0.0912, 0.0848, 0.1018, 0.0997 (mean 0.0948)
+  order by HR@10, full ranking: implicit ALS > implicit ALS, stars > PureSVD > co-occurrence > popularity > explicit ALS > random
+  order by HR@10,      sampled: implicit ALS > implicit ALS, stars > PureSVD > co-occurrence > popularity > explicit ALS > random
+Actual output from this lesson's run.
+
+saved evaluating_recommenders_results.png
+saved evaluating_recommenders_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 160: the week's build, neural collaborative filtering. A small network learns from the same
+watched / not watched data, using the week's parts, and is judged with today's measures, both by
+ranking every film and by the sampled shortcut its original paper used.

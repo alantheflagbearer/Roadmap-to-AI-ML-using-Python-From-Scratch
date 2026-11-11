@@ -2,7 +2,7 @@
 
 A daily-practice log following a 52-week (365-day) roadmap from Python fundamentals through classical ML, deep learning, and into applied AI. Most lessons don't just call a library function — they build the underlying idea (gradient descent, backprop, convolution, dropout...) from scratch in NumPy first, then show the framework equivalent. Each day is a self-contained script; from Week 1 onward, most days add a paired study guide (a concept walkthrough and a line-by-line syntax breakdown, both PDF).
 
-**Currently on Day 158** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
+**Currently on Day 159** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
 
 ## How this repo is organized
 
@@ -36,7 +36,7 @@ A daily-practice log following a 52-week (365-day) roadmap from Python fundament
 | 20 | 133–139 | Generative Models — GANs | [→ folder](week-20-generative-models-gans) |
 | 21 | 140–146 | Diffusion Models & Modern Generative AI | [→ folder](week-21-diffusion-models-modern-generative-ai) |
 | 22 | 147–153 | Time Series Analysis | [→ folder](week-22-time-series-analysis) |
-| 23 | 154–158 (of 154–160) | Recommender Systems — in progress | [→ folder](week-23-recommender-systems) |
+| 23 | 154–159 (of 154–160) | Recommender Systems — in progress | [→ folder](week-23-recommender-systems) |
 
 Weeks 24 onward (model evaluation and statistics, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
 
@@ -102,7 +102,7 @@ Starting with Week 6, the same small neural-network library — written entirely
 | ![LSTM forecasting results](week-22-time-series-analysis/lstm_forecasting_results.png) An LSTM forecaster against ARIMA, regression and a no-network control — Day 152 | ![Week 22 build results](week-22-time-series-analysis/prophet_style_results.png) Week 22 build: a Prophet-style forecaster against every model of the week — Day 153 |
 | ![Collaborative filtering results](week-23-recommender-systems/collaborative_filtering_results.png) Collaborative filtering on MovieLens: neighbours, a shuffled control and top-10 lists — Day 154 | ![Matrix factorization results](week-23-recommender-systems/matrix_factorization_results.png) Matrix factorization from scratch: SVD routes, ALS and SGD against neighbours — Day 155 |
 | ![Content-based filtering results](week-23-recommender-systems/content_based_results.png) Content-based filtering: profiles, a shuffled-content control and the cold start — Day 156 | ![Hybrid recommender results](week-23-recommender-systems/hybrid_recommenders_results.png) Hybrid recommenders: weighted, switching and in-model hybrids with noise and leak checks — Day 157 |
-| ![Implicit feedback results](week-23-recommender-systems/implicit_feedback_results.png) Implicit feedback: implicit ALS against popularity, co-occurrence and PureSVD, with new-user cold start — Day 158 | |
+| ![Implicit feedback results](week-23-recommender-systems/implicit_feedback_results.png) Implicit feedback: implicit ALS against popularity, co-occurrence and PureSVD, with new-user cold start — Day 158 | ![Evaluating recommenders results](week-23-recommender-systems/evaluating_recommenders_results.png) Evaluating recommenders: precision, recall, MAP, NDCG, coverage, bootstrap and sampled negatives — Day 159 |
 
 ## Featured project: Titanic EDA (Day 13)
 
