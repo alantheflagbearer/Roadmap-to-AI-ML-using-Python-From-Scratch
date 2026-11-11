@@ -1,0 +1,10 @@
+MovieLens 100K: 100,000 ratings, 943 users, 1,682 films, 19 genres; gives 100,000, 943, 1,682, 19
+film 50 (index 49) is Star Wars (1977); gives Star Wars (1977)
+split of 10 ratings, 20% held out: 8 kept, 2 out, no overlap, all 10 used; gives 8, 2, 0, 10
+biases on a full table that is exactly 3 + user part + film part: rebuilt to within 0.0e+00
+films 1 and 4 share users 1-4: (5x1 + 4x1 + 1x5 + 1x4) / (sqrt(25+16+1+1) x sqrt(1+1+25+16)) = 18 / 43 = 0.4186;
+  similarity gives 0.4186 from 4 shared raters; with shrink 4, x 4 / (4 + 4): 0.2093, gives 0.2093
+item-based, film C: k 2 gives (0.5 x 1 + 0.25 x -1) / 0.75 = 0.3333, k 1 gives 1; with damping 0.25, 0.25 / 1.0 = 0.25;
+  gives 0.3333, 1.0000, 0.2500
+user-based, user 1: (0.6 x 2 + 0.2 x -1) / 0.8 = 1.25 above user 1's mean; gives 1.2500
+errors of predictions 1, 2 against 2, 4: RMSE sqrt((1 + 4) / 2) = 1.5811, MAE 1.5; gives 1.5811, 1.5000

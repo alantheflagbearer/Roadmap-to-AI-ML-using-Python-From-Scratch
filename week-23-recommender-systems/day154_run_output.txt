@@ -1,0 +1,146 @@
+======================================================================
+1. THE DATA -- MovieLens 100K, a real ratings matrix
+======================================================================
+100,000 ratings by 943 users of 1682 films; the 943 x 1682 table has 1,586,126 cells
+  filled: 0.0630 of the cells (6.3%); the rest is what a recommender must guess
+  stars:  1: 6,110 (0.061)   2: 11,370 (0.114)   3: 27,145 (0.271)   4: 34,174 (0.342)   5: 21,201 (0.212);  mean 3.530
+  ratings per user: fewest 20, median 65, most 737
+  ratings per film: fewest 1, median 27, most 583 (Star Wars (1977))
+  the most-rated 10% of films (168) hold 0.427 of all ratings; 333 films have fewer than 5
+  commonest genres: Drama 725, Comedy 505, Action 251 (a film can have several)
+  collected over 215 days, 1997-09-20 to 1998-04-22
+Actual output from this lesson's run.
+
+======================================================================
+2. A SPLIT, AND FOUR BASELINES THAT USE NO NEIGHBOURS
+======================================================================
+ratings split at random (seed 0): 80,000 training, 20,000 test; of the training, 8,000 held back for validation
+  every test user also has training ratings: True; test films never rated in training: 43
+bias penalties chosen on validation: user 5, film 2 (validation RMSE 0.9511)
+            test, 20,000 ratings    RMSE     MAE
+                 the global mean  1.1263  0.9445
+                each user's mean  1.0390  0.8329
+                each film's mean  1.0301  0.8205
+    mean + user bias + film bias  0.9401  0.7430
+without penalties the 'best' film is #1536 (bias +1.91 from 1 rating(s)); with them, #1449 (bias +1.17 from 7)
+Actual output from this lesson's run.
+
+======================================================================
+3. SIMILARITY -- checked by hand, and the small-overlap problem
+======================================================================
+a 5-user, 4-film example: films 1 and 4 share 4 raters; cosine 0.4186, by hand 0.4186
+a full 30 x 6 table, centred by each film's mean: against numpy's corrcoef, largest difference 1.1e-16
+films' similarities on the training ratings (residuals from the bias model): 1,413,721 pairs, 0.401 share no rater
+  pairs sharing   1-2 raters:   394,036; |similarity| > 0.9 in 0.786, mean |s| 0.892
+  pairs sharing   3-9 raters:   272,047; |similarity| > 0.9 in 0.044, mean |s| 0.411
+  pairs sharing 10-49 raters:   165,063; |similarity| > 0.9 in 0.000, mean |s| 0.215
+  pairs sharing   50+ raters:    16,327; |similarity| > 0.9 in 0.000, mean |s| 0.126
+most similar to Star Wars (1977), no shrinkage:
+    +1.000  shared raters   1  Mirage (1995)
+    +1.000  shared raters   1  MURDER and murder (1996)
+    +1.000  shared raters   1  Wedding Bell Blues (1996)
+    +1.000  shared raters   1  Next Step, The (1995)
+    +1.000  shared raters   1  Nothing Personal (1995)
+most similar to Star Wars (1977), shrinkage 100:
+    +0.517  shared raters 316  Return of the Jedi (1983)
+    +0.446  shared raters 227  Empire Strikes Back, The (1980)
+    +0.293  shared raters 236  Raiders of the Lost Ark (1981)
+    +0.180  shared raters 107  L.A. Confidential (1997)
+    +0.161  shared raters  78  Austin Powers: International Man of Mystery (1997)
+Actual output from this lesson's run.
+
+======================================================================
+4. USER-BASED -- the k most similar users who rated the film
+======================================================================
+  user-based: validation RMSE
+    shrink      k 5     k 10     k 20     k 40     k 80    k 160
+         0   1.0227   0.9839   0.9636   0.9562   0.9565   0.9576
+        10   0.9952   0.9651   0.9530   0.9505   0.9526   0.9543
+        25   0.9963   0.9645   0.9532   0.9504   0.9516   0.9535
+        50   0.9956   0.9664   0.9538   0.9505   0.9513   0.9531
+       100   0.9967   0.9670   0.9540   0.9508   0.9514   0.9529
+       200   0.9992   0.9666   0.9549   0.9508   0.9515   0.9528
+       400   0.9998   0.9673   0.9553   0.9509   0.9515   0.9528
+       800   0.9999   0.9675   0.9554   0.9508   0.9516   0.9529
+  chosen: k 40, shrink 25 (7.5 s for the grid)
+test: RMSE 0.9353, MAE 0.7284; neighbours used: median 40, none for 0.004 of test ratings (they get the user's mean)
+Actual output from this lesson's run.
+
+======================================================================
+5. ITEM-BASED -- the k films most like this one that the user rated
+======================================================================
+  similarity on raw ratings (cosine)                     best validation RMSE 0.9459 (k 80, shrink 0)
+  similarity on minus the film's mean (Pearson)          best validation RMSE 0.9260 (k 40, shrink 800)
+  similarity on minus the user's mean (adjusted cosine)  best validation RMSE 0.9242 (k 40, shrink 800)
+  similarity on minus the bias model                     best validation RMSE 0.9264 (k 40, shrink 800)
+  item-based, minus the user's mean (adjusted cosine): validation RMSE
+    shrink      k 5     k 10     k 20     k 40     k 80    k 160
+         0   1.0186   0.9751   0.9505   0.9407   0.9371   0.9369
+        10   0.9730   0.9418   0.9299   0.9279   0.9283   0.9286
+        25   0.9726   0.9388   0.9274   0.9259   0.9266   0.9269
+        50   0.9759   0.9391   0.9270   0.9249   0.9257   0.9259
+       100   0.9738   0.9391   0.9270   0.9245   0.9252   0.9253
+       200   0.9722   0.9388   0.9274   0.9243   0.9250   0.9250
+       400   0.9731   0.9391   0.9272   0.9244   0.9249   0.9249
+       800   0.9737   0.9391   0.9274   0.9242   0.9248   0.9248
+  chosen: minus the user's mean (adjusted cosine), k 40, shrink 800 (28.0 s for the grids)
+  the limit as shrink grows (weights s x n; the 1 / shrink cancels in the weighted average): validation RMSE 0.9242 at k 40
+                            test, all models    RMSE     MAE
+                             the global mean  1.1263  0.9445
+                            each user's mean  1.0390  0.8329
+                            each film's mean  1.0301  0.8205
+                mean + user bias + film bias  0.9401  0.7430
+                                  user-based  0.9353  0.7284
+                                  item-based  0.9153  0.7183
+  control: item-based, shuffled similarities  0.9748  0.7660
+item-based neighbours used: median 40; none for 0.003 of test ratings (they get the bias model)
+test RMSE by how many training ratings the user has:
+     ratings test pairs  bias model  user-based  item-based
+        0-49      3,156      0.9831      1.0013      0.9724
+      50-149      7,323      0.9373      0.9352      0.9109
+        150+      9,521      0.9275      0.9124      0.8990
+test RMSE by how many ratings the film has (in all the data):
+        0-19      1,017      1.0416      1.0607      1.0557
+       20-99      6,022      0.9689      0.9646      0.9487
+        100+     12,961      0.9178      0.9106      0.8872
+Actual output from this lesson's run.
+
+======================================================================
+6. FROM PREDICTED RATINGS TO A TOP-10 LIST
+======================================================================
+for each user, the 10 unrated films with the highest score; a hit is a test film the user rated 4 or 5
+916 users have at least one such film (7.9 s to score every unrated pair)
+                         ranked by  precision@10  recall@10  ratings per recommended film (median)
+       item-based predicted rating        0.0417     0.0288        40
+        bias model (mean + biases)        0.0439     0.0310        99
+           popularity (most rated)        0.1381     0.1446       346
+                            random        0.0084     0.0063        19
+user 1 rated 208 films in training; item-based top 5, the rated film that pulled each up most, and the
+total similarity behind it (the weighted average divides by this, so a tiny total still gives a full correction):
+    4.99  Pather Panchali (1955)             (  7 ratings) total 0.122  because of Monty Python and the Hol (5)
+    4.97  Close Shave, A (1995)              ( 91 ratings) total 0.931  because of Fargo (1996) (5)
+    4.91  Big Bang Theory, The (1994)        (  1 ratings) total 0.001  because of Contact (1997) (5)
+    4.85  Casablanca (1942)                  (201 ratings) total 1.785  because of Fargo (1996) (5)
+    4.82  Schindler's List (1993)            (242 ratings) total 1.904  because of Return of the Jedi (1983 (5)
+a fix: add a constant d to that total (dividing by total + d), so a film with little evidence keeps close to the
+bias model; d chosen on validation precision@10 (training without the validation ratings; hits = validation films rated 4-5)
+  d 0     validation precision@10 0.0203
+  d 0.1   validation precision@10 0.0306
+  d 0.25  validation precision@10 0.0305
+  d 0.5   validation precision@10 0.0306
+  d 1     validation precision@10 0.0295
+  d 2     validation precision@10 0.0285
+  d 4     validation precision@10 0.0267
+test, d 0.1: precision@10 0.0562, recall@10 0.0417, ratings per recommended film (median) 94
+  still 2.5 times below popularity (0.1381); test RMSE with d 0.1: 0.9140
+Actual output from this lesson's run.
+
+saved collaborative_filtering_results.png
+saved collaborative_filtering_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 155: matrix factorization. Instead of comparing users or films directly, describe each by a short list
+of hidden numbers, learned so that their products rebuild the known ratings; SVD and its regularised
+relative (Funk SVD) are built from scratch and compared with today's neighbours.
