@@ -50,5 +50,20 @@ Exercise: [`day156_exercise.py`](day156_exercise.py) is the release years, the f
 ![Content-based filtering from film attributes and one user's ratings](content_based_diagram.png)
 ![Content against rating neighbours, the penalty, RMSE by film popularity, cold start, top-10 lists and one profile](content_based_results.png)
 
+## Day 157 — Hybrid recommenders: blending, switching, and content inside the factor model
+[`day157_hybrid_recommenders.py`](day157_hybrid_recommenders.py) — combining the week's models, each with its own blind spot. Item-based neighbours (Day 154), ALS factors (Day 155) and content profiles (Day 156) are combined three ways: a weighted blend fitted on validation; switching and feature-weighted blends that depend on how many ratings a film has; and one factor model with the content inside. Written from scratch in NumPy on Day 154's MovieLens split, importing the earlier days' parts.
+
+- **Different mistakes:** item-based and ALS errors correlate 0.973. Content profiles are the weakest model but the least alike (0.878 with item-based).
+- **Weighted blends:** test RMSE fell from 0.9115 (ALS alone) to 0.9061 with item-based + ALS, 0.9039 adding content, and 0.8973 with all five models. Three checks held: a noise column got weight -0.0124; weights fitted on test would have reported 0.8963; on two halves of validation the five-model blend still won (0.9012 against 0.9108).
+- **Weights that depend on the film's rating count:** films with 0–5 ratings improved from 1.0487 to 0.9930. At 1 rating content got weight +0.64 and ALS -0.03; at 400 ratings, ALS +0.89.
+- **Content inside the factors:** matched ALS on familiar films (test 0.9104) and scored new films at 1.0314 against the 1.0567 fallback, behind Day 156's profiles (1.0222). It made the week's best personalised top-10 lists (precision@10 0.0684).
+
+Study guide: [`day157_hybrid_recommenders_complete_guide.pdf`](day157_hybrid_recommenders_complete_guide.pdf) · Syntax walkthrough: [`day157_syntax_line_by_line.pdf`](day157_syntax_line_by_line.pdf) · [Run output](day157_run_output.txt)
+
+Exercise: [`day157_exercise.py`](day157_exercise.py) is the blend, the feature-weighted design, the switch and the factor model with content inside, checked by hand. Without a penalty on the films' own factors, a toy model left unseen films 0.474 off; with one, 0.019. It is the fourth part of Day 160's recommender ([run output](day157_exercise_run_output.txt)).
+
+![Three ways to combine neighbours, factors and content](hybrid_recommenders_diagram.png)
+![Error correlations, weighted blends, switching, feature-weighted blends, the in-model hybrid and new films](hybrid_recommenders_results.png)
+
 ---
 [← Back to main README](../README.md)

@@ -1,0 +1,84 @@
+
+======================================================================
+1. THE INGREDIENTS: FIVE MODELS, AND WHETHER THEIR MISTAKES DIFFER
+======================================================================
+each model trained twice: without the validation ratings (to fit blends) and on all 80,000 (60 s)
+                    validation     test
+        bias model      0.9511   0.9401
+        item-based      0.9242   0.9153
+       ALS factors      0.9238   0.9115
+  content profiles      1.0073   0.9901
+    bias + content      0.9349   0.9222
+correlation of test errors:
+                   bias model item-based ALS factor content pr bias + con
+        bias model      1.000      0.964      0.975      0.907      0.986
+        item-based      0.964      1.000      0.973      0.878      0.961
+       ALS factors      0.975      0.973      1.000      0.906      0.967
+  content profiles      0.907      0.878      0.906      1.000      0.920
+    bias + content      0.986      0.961      0.967      0.920      1.000
+Actual output from this lesson's run.
+
+======================================================================
+2. WEIGHTED HYBRID: A LINEAR BLEND FITTED ON VALIDATION
+======================================================================
+                                                  blend of    test   weights (intercept first)
+              item-based + ALS, plain average (no fitting)  0.9073
+                                  item-based + ALS factors  0.9061   -0.336 +0.467 +0.615
+               item-based + ALS factors + content profiles  0.9039   -0.488 +0.445 +0.555 +0.125
+item-based + ALS factors + content profiles + bias + content  0.9039   -0.456 +0.415 +0.519 +0.097 +0.086
+bias model + item-based + ALS factors + content profiles + bias + content  0.8973   -0.250 -0.924 +0.471 +0.720 +0.017 +0.772
+three-model blend: model weights sum to 1.126; plus a noise column: noise weight -0.0148, test 0.9044; weights fitted on test (a leak): 0.9031; fitted on half of validation, scored on the other half: 0.9108
+five-model blend: model weights sum to 1.057; plus a noise column: noise weight -0.0124, test 0.8977; weights fitted on test (a leak): 0.8963; fitted on half of validation, scored on the other half: 0.9012
+Actual output from this lesson's run.
+
+======================================================================
+3. SWITCHING AND FEATURE-WEIGHTED HYBRIDS: HOW MUCH IS KNOWN ABOUT THE FILM
+======================================================================
+switching to 'bias + content' for films with fewer training ratings than the threshold (validation RMSE):
+  0: 0.9155, 1: 0.9152, 3: 0.9153, 5: 0.9149, 10: 0.9149, 20: 0.9150, 50: 0.9178, 100: 0.9225
+  chosen threshold 10: test 0.9054 (the blend alone 0.9061; test films below it: 617)
+feature-weighted blend of item-based, ALS and content profiles: test 0.9019 (plain blend 0.9039)
+  a film with   1 training ratings: weights item-based +0.62, ALS -0.03, content +0.64
+  a film with  10 training ratings: weights item-based +0.52, ALS +0.27, content +0.39
+  a film with 100 training ratings: weights item-based +0.39, ALS +0.65, content +0.08
+  a film with 400 training ratings: weights item-based +0.31, ALS +0.89, content -0.12
+   ratings  test ratings   plain  weighted
+       0-5           368  1.0487    0.9930
+      6-20          1105  1.0030    0.9940
+     21-50          2948  0.9355    0.9329
+    51-150          8413  0.8986    0.8985
+      151+          7166  0.8723    0.8726
+Actual output from this lesson's run.
+
+======================================================================
+4. CONTENT INSIDE THE FACTOR MODEL: ONE MODEL FOR OLD AND NEW FILMS
+======================================================================
+Day 154's split, 100 factors, penalty 0.125: best validation 0.9212 at epoch 47 of 120 (43 s); Day 155's SGD without content reached 0.9229 in Day 155's run
+  refit on all training ratings for 47 epochs: test 0.9104
+new films (Day 156's cold split, 18947 test ratings); epochs chosen on new validation films: 8
+    mean + user bias (ratings-only fallback)  1.0567
+                  content profiles (Day 156)  1.0222
+                 factors with content inside  1.0314
+          control: factors, content shuffled  1.0736
+Actual output from this lesson's run.
+
+======================================================================
+5. TOP-10 LISTS FROM THE HYBRIDS
+======================================================================
+                                precision@10  median ratings
+                   ALS factors        0.0405               7
+                bias + content        0.0627             100
+            average of the two        0.0596              94
+   factors with content inside        0.0684              99
+                    popularity        0.1381             346
+Actual output from this lesson's run.
+
+saved hybrid_recommenders_results.png
+saved hybrid_recommenders_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 158: implicit feedback and cold start. Most real systems never see star ratings, only who watched
+or clicked what. Tomorrow turns the ratings into watched / not watched, learns from that, and looks at
+the other cold start: a brand-new user.

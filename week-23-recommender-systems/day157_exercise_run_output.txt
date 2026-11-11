@@ -1,0 +1,6 @@
+y = 1 + 2 a + 3 b exactly: stack_fit gives [1.0, 2.0, 3.0]
+blend of predictions 4 and 3 with weights (0.5; 0.6, 0.3): 0.5 + 2.4 + 0.9 = 3.8; stack_predict gives 3.8000
+fw_design for a film with 0 ratings (log 1 = 0) and predictions 4, 3: [0.0, 4.0, 3.0, 0.0, 0.0] (0, the two predictions, then 0, 0)
+switch at 10 ratings, films with 0, 5 and 20: rich 4, poor 3 -> 3, 3, 4; switch_predict gives [3.0, 3.0, 4.0]
+in-model hybrid, 8 users x 6 films, films 4-5 never seen, penalty 0.0: their own factors stay 0.0; largest error on seen films 0.001, on unseen films, from genre alone 0.474
+in-model hybrid, 8 users x 6 films, films 4-5 never seen, penalty 0.1: their own factors stay 0.0; largest error on seen films 0.010, on unseen films, from genre alone 0.019
