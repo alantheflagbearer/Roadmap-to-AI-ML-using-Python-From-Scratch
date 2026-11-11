@@ -1,0 +1,9 @@
+singular values of a 4 x 3 table with 3, 2, 1 on its diagonal: 3, 2; top_svd gives [3.0, 2.0]
+a random 30 x 20 table, top 5: largest difference from numpy's SVD 1.8e-15
+a rank-1 table (outer product of 1,2,3 and 2,0.5,1,4) rebuilt at rank 1: error 1.8e-15
+the same table with cell (3, 4) hidden (true value 12): hard_impute at rank 1 fills 12.0000
+prediction: 3 + 0.5 - 0.2 + (1 x 0.5 + 2 x 0.25) = 4.3; mf_predict gives 4.3000
+objective with rating 5, lam 0.1: (5 - 4.3)^2 + 0.1 x (1 + 4 + 0.25 + 0.0625 + 0.25 + 0.04) = 0.49 + 0.56025 = 1.05025; gives 1.05025
+numerical gradient check, every parameter of a 5 x 4 table: largest |numeric - analytic| 1.5e-08
+ALS objective after each of 6 sweeps never rises: True (12.7389 -> 8.2725)
+SGD on a full 3 x 4 table that is a mean plus a rank-1 pattern: largest error after 400 epochs 1.1e-15

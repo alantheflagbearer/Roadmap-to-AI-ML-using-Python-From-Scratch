@@ -18,5 +18,21 @@ Exercise: [`day154_exercise.py`](day154_exercise.py) is the data loaders, the sp
 ![User-based and item-based collaborative filtering](collaborative_filtering_diagram.png)
 ![Long tail, small-overlap similarities, choosing k, test errors and top-10 precision](collaborative_filtering_results.png)
 
+## Day 155 — Matrix factorization from scratch: SVD and learned factors
+[`day155_matrix_factorization.py`](day155_matrix_factorization.py) — describing every user and film by a short list of hidden numbers (factors) whose products rebuild the known ratings. Two routes on Day 154's MovieLens split, written from scratch in NumPy: the SVD of a filled-in table, and factors fitted to the known ratings only, by alternating least squares (ALS) and by Funk-style SGD.
+
+- **Checked:** the SVD by subspace iteration matches numpy's to 2.3e-07 and reaches the best possible rank-20 error (219.9119). The objective's gradient matches finite differences (7.0e-09), and the ALS objective fell after every sweep.
+- **Low-rank, modestly:** the top 20 directions hold 0.189 of the residual table, against 0.154 when the same values are shuffled among the known cells.
+- **What goes in the empty cells:** zeros scored 2.4282 on validation. With the bias model there, rank 20 scored 0.9255 on test. Filling and refitting with no penalty overfitted: at rank 50, training 0.2279 against validation 1.0896.
+- **Learned factors** (100 factors, penalty chosen on validation): ALS 0.9115 and early-stopped SGD 0.9105 on test, just ahead of Day 154's item-based 0.9153. SGD's objective was higher (63418.4 against 62689.1), so early stopping acted as extra regularisation. Giving each user another user's factors scored 0.9711.
+- **Top-10 lists did not improve:** precision@10 was 0.0405, against 0.1381 for recommending the most-rated films.
+
+Study guide: [`day155_matrix_factorization_complete_guide.pdf`](day155_matrix_factorization_complete_guide.pdf) · Syntax walkthrough: [`day155_syntax_line_by_line.pdf`](day155_syntax_line_by_line.pdf) · [Run output](day155_run_output.txt)
+
+Exercise: [`day155_exercise.py`](day155_exercise.py) is the SVD, the rank-k approximation, fill-factorize-repeat, the prediction, the objective and its gradient, ALS and SGD, checked by hand — the second part of Day 160's recommender ([run output](day155_exercise_run_output.txt)).
+
+![Two routes to a low-rank model of the ratings table](matrix_factorization_diagram.png)
+![Spectrum against a control, SVD routes, the ALS grid, training curves and test errors](matrix_factorization_results.png)
+
 ---
 [← Back to main README](../README.md)

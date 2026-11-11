@@ -1,0 +1,104 @@
+======================================================================
+1. IS THE RATINGS TABLE LOW-RANK? -- SVD from scratch, checked, and a control
+======================================================================
+top 20 singular values of the 943 x 1682 residual table: subspace iteration (0.13 s) against numpy's SVD,
+  largest relative difference 2.3e-07; U orthonormal to 2.0e-15
+  rank-20 reconstruction: |A - U S Vt| = 219.9119; the best possible, from the discarded singular values, 219.9119
+share of the table's squared size in the top k directions (the control: the same residuals shuffled among known cells):
+  k   1: real 0.020   shuffled 0.010
+  k   5: real 0.071   shuffled 0.044
+  k  10: real 0.115   shuffled 0.084
+  k  20: real 0.189   shuffled 0.154
+  k  50: real 0.356   shuffled 0.321
+Actual output from this lesson's run.
+
+======================================================================
+2. SVD AS A RECOMMENDER -- what goes in the empty cells
+======================================================================
+  rank k   empty = 0  empty = bias model   (validation RMSE)
+       1      2.5852              0.9451
+       2      2.5455              0.9418
+       3      2.5140              0.9413
+       5      2.4796              0.9383
+      10      2.4282              0.9376
+      20      2.4467              0.9365
+      50      2.5579              0.9443
+     100      2.6723              0.9472
+chosen on validation: empty cells = the bias model, rank 20
+test RMSE 0.9255 (bias model alone 0.9401); with empty = 0 at rank 10 the best validation RMSE was 2.4282
+Actual output from this lesson's run.
+
+======================================================================
+3. FILL, FACTORIZE, REPEAT -- imputation with no penalty
+======================================================================
+  rank k  training RMSE  validation RMSE   (30 rounds)
+       1         0.8699           0.9375
+       2         0.8438           0.9420
+       3         0.8198           0.9516
+       5         0.7739           0.9560
+      10         0.6802           0.9917
+      20         0.5258           1.0353
+      50         0.2279           1.0896
+chosen on validation: rank 1; test RMSE 0.9269 (33 s)
+Actual output from this lesson's run.
+
+======================================================================
+4. LEARNING THE FACTORS FROM KNOWN RATINGS ONLY -- alternating least squares
+======================================================================
+gradient check on a 6 x 5 table, every parameter: largest |numeric - analytic| 7.0e-09
+ALS on the same table: objective after each sweep 17.4840, 13.5415, 12.9659, 12.8652, 12.8453
+  after a user sweep the user gradients are 0 by construction; after the film sweep, film gradients: 1.1e-15
+validation RMSE, 15 sweeps each (205 s for the grid):
+   factors   lam 0.05  lam 0.075    lam 0.1  lam 0.125   lam 0.15
+        10     0.9796     0.9492     0.9355     0.9303     0.9302
+        20     0.9867     0.9484     0.9308     0.9257     0.9271
+        50     0.9581     0.9348     0.9254     0.9239     0.9266
+       100     0.9392     0.9289     0.9241     0.9238     0.9266
+chosen: 100 factors, lam 0.125 (0.9238); the grid's edge, 200 factors at lam 0.125: 0.9236
+refit on all training ratings: objective 70276.3 after sweep 1, 62943.8 after 5, 62689.1 after 15; falls every sweep: True
+test RMSE 0.9115, MAE 0.7206
+Actual output from this lesson's run.
+
+======================================================================
+5. SGD (FUNK SVD) AGAINST ALS -- the same objective, two routes
+======================================================================
+100 factors, learning rate 0.01, batches of 128 (84 s); RMSE on training / validation after each pass:
+  SGD, lam 0.125 1: 0.959 / 0.9953, 5: 0.897 / 0.9597, 15: 0.859 / 0.9459, 30: 0.795 / 0.9300, 60: 0.720 / 0.9241, 120: 0.685 / 0.9244
+                 best validation 0.9229 at pass 85
+  SGD, lam 0.03125 1: 0.954 / 0.9942, 5: 0.849 / 0.9580, 15: 0.591 / 0.9397, 30: 0.361 / 0.9560, 60: 0.260 / 0.9637
+                 best validation 0.9397 at pass 15
+  ALS, lam 0.125 1: 0.827 / 0.9651, 5: 0.682 / 0.9235, 15: 0.673 / 0.9238
+                 best validation 0.9235 at pass 6
+refit on all training ratings, SGD for 85 epochs (validation's best): test RMSE 0.9105; ALS 0.9115
+  objective (lower is better): SGD 63418.4, ALS 62689.1
+Actual output from this lesson's run.
+
+======================================================================
+6. AGAINST DAY 154'S NEIGHBOURS, A CONTROL, AND WHAT THE FACTORS MEAN
+======================================================================
+                    test, 20,000 ratings    RMSE     MAE
+                    bias model (Day 154)  0.9401  0.7430
+              item-based, k 40 (Day 154)  0.9153  0.7183
+                 SVD, empty = bias model  0.9255  0.7276
+                 fill, factorize, repeat  0.9269  0.7261
+              learned factors, ALS (100)  0.9115  0.7206
+              learned factors, SGD (100)  0.9105  0.7201
+   control: ALS, users' factors shuffled  0.9711  0.7746
+item-based and ALS predictions: correlation 0.953; their errors: correlation 0.973
+direction 1 of the film factors (films with 50+ ratings), one end: Net, The (1995); Pretty Woman (1990); Independence Day (ID4) (1996)
+                                           other end: Clockwork Orange, A (1971); To Die For (1995); Trainspotting (1996)
+direction 2 of the film factors (films with 50+ ratings), one end: Beavis and Butt-head Do America (1996); Event Horizon (1997); Fifth Element, The (1997)
+                                           other end: It's a Wonderful Life (1946); E.T. the Extra-Terrestrial (1982); Dirty Dancing (1987)
+closest to Star Wars (1977) by the angle between factor vectors (50+ ratings): Empire Strikes Back, The (1980) 0.89; Return of the Jedi (1983) 0.87; Raiders of the Lost Ark (1981) 0.63; Frighteners, The (1996) 0.47; Indiana Jones and the Last Crusade (1989) 0.44
+top-10 lists (Day 154's measure): ALS predicted rating precision@10 0.0405 (median 7 ratings per film); factors only, no biases 0.0122 (14); popularity 0.1381 (346)
+Actual output from this lesson's run.
+
+saved matrix_factorization_results.png
+saved matrix_factorization_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 156: content-based filtering. Neighbours and factors need ratings; a film nobody has rated has
+none. Content-based filtering recommends from what the films are (here, their genres and year), building
+a profile of each user's tastes, and so can place a brand-new film.
