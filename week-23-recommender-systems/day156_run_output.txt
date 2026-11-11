@@ -1,0 +1,95 @@
+
+======================================================================
+1. FILM CONTENT: FEATURES, CONTENT SIMILARITY, AND RATINGS
+======================================================================
+1682 films x 27 features (19 genres + 8 decades); genres per film: 833 films with 1, 569 films with 2, 215 films with 3, 51 films with 4, 11 films with 5, 3 films with 6
+release year missing for 1 film(s); years 1922-1998; 1990s films 1348 (80%)
+Star Wars (1977): Action, Adventure, Romance, Sci-Fi, War, 1970s
+  content neighbours: Return of the Jedi (1983) (0.83); Star Trek: The Motion Picture (1979) (0.82); Empire Strikes Back, The (1980) (0.77); Starship Troopers (1997) (0.73); African Queen, The (1951) (0.73)
+  (2 films share the fifth one's cosine; ties are broken by file order, not merit)
+  rating neighbours (Day 154): Return of the Jedi (1983) (content 0.83); Empire Strikes Back, The (1980) (content 0.77); Raiders of the Lost Ark (1981) (content 0.47); Godfather, The (1972) (content 0.41); Usual Suspects, The (1995) (content 0.00)
+films with 50+ ratings (519): mean content cosine with their 10 rating neighbours 0.443, with 10 random films 0.322; same genres and decade (cosine 1): 5.1% against 2.1%
+Actual output from this lesson's run.
+
+======================================================================
+2. USER PROFILES: A RIDGE REGRESSION PER USER
+======================================================================
+validation RMSE (0.4 s): mean + user bias 1.0527; + shared profile (penalty 1) 1.0244; bias model 0.9511
+  penalty  content only  bias + content   (per-user profiles, shrunk toward the shared one)
+      0.3        1.0755          0.9885
+        1        1.0481          0.9659
+        3        1.0253          0.9475
+       10        1.0100          0.9358
+       30        1.0073          0.9349
+      100        1.0127          0.9406
+      300        1.0185          0.9459
+     1000        1.0222          0.9491
+chosen on validation: content only, penalty 30; bias + content, penalty 30
+                    test, 20,000 ratings    RMSE
+                        mean + user bias  1.0384
+            content only (user profiles)  0.9901
+   control: content shuffled among films  1.0418
+                    bias model (Day 154)  0.9401
+           bias model + content profiles  0.9222
+              item-based, k 40 (Day 154)  0.9153
+test RMSE by how many training ratings the film has:
+   ratings  test ratings  content only  bias model  bias + content  item-based
+         0            53        0.9550      1.0525          1.0310      1.0525
+       1-5           315        1.1160      1.0893          1.0589      1.1165
+      6-20          1105        1.1185      1.0376          1.0148      1.0335
+     21-50          2948        1.0318      0.9685          0.9492      0.9512
+    51-150          8413        0.9744      0.9334          0.9194      0.9078
+      151+          7166        0.9639      0.9117          0.8913      0.8779
+Actual output from this lesson's run.
+
+======================================================================
+3. COLD START: FILMS NOBODY HAS RATED
+======================================================================
+films: 1178 for training (68871 ratings), 168 for validation (12182), 336 for test (18947); every rating of a held-out film is held out
+  a held-out film's bias in Day 154's model is 0.0, and it has no raters, so the bias model, item-based
+  neighbours and learned factors all fall back to mean + user bias for it
+validation (new films): shared profile penalty 100 (1.0136); profiles penalty 10 (0.9919); content kNN k 20 (1.0099)
+  profiles by penalty: 0.3: 1.0614, 1: 1.0310, 3: 1.0061, 10: 0.9919, 30: 0.9920, 100: 0.9998, 300: 1.0067, 1000: 1.0110
+  content kNN by k: 5: 1.0516, 10: 1.0220, 20: 1.0099, 40: 1.0117, 80: 1.0174, 160: 1.0205, 320: 1.0213
+            test: 18947 ratings of new films    RMSE
+ mean + user bias (all ratings-only methods)  1.0567
+   shared profile (genre and decade effects)  1.0369
+        user profiles (shrunk toward shared)  1.0222
+                                 content kNN  1.0310
+         control: profiles, content shuffled  1.0729
+  profiles shrunk toward 0 rather than the shared profile: 1.0221
+Actual output from this lesson's run.
+
+======================================================================
+4. TOP-10 LISTS: ACCURACY AND NARROWNESS
+======================================================================
+                        precision@10  median ratings  unrated films  distinct genres
+          content only        0.0353              76           6.6%              9.2
+  bias model + content        0.0627             100           0.0%              8.2
+            bias model        0.0439              99           0.0%              8.2
+            popularity        0.1381             346           0.0%             10.7
+                random        0.0084              19           2.8%              8.6
+Actual output from this lesson's run.
+
+======================================================================
+5. EXPLAINING A RECOMMENDATION FROM ONE USER'S PROFILE
+======================================================================
+user 1's content profile (stars above the user's mean): likes Documentary +0.52, Animation +0.38, Drama +0.33, Sci-Fi +0.31
+                                      dislikes Children's -0.60, Adventure -0.22, Musical -0.21, 1990s -0.20
+  Day the Earth Stood Still, The (1951)  +0.84 = +0.33 (Drama) +0.31 (Sci-Fi) +0.20 (1950s)
+  Manhattan (1979)                       +0.83 = +0.33 (Drama) +0.30 (1970s) +0.24 (Romance) -0.04 (Comedy)
+  Witness (1985)                         +0.77 = +0.33 (Drama) +0.24 (Romance) +0.17 (1980s) +0.04 (Thriller)
+  Casablanca (1942)                      +0.74 = +0.33 (Drama) +0.24 (Romance) +0.17 (1940s) +0.00 (War)
+  Somewhere in Time (1980)               +0.74 = +0.33 (Drama) +0.24 (Romance) +0.17 (1980s)
+  unrated films sharing the top score: 1
+Actual output from this lesson's run.
+
+saved content_based_results.png
+saved content_based_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 157: hybrid recommenders. Content places new films; ratings-based models are more accurate once
+films have ratings. Hybrids combine them: blending predictions, switching by how much is known, or
+putting content features inside the factor model itself.

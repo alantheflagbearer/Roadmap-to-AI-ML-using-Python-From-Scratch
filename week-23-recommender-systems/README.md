@@ -34,5 +34,21 @@ Exercise: [`day155_exercise.py`](day155_exercise.py) is the SVD, the rank-k appr
 ![Two routes to a low-rank model of the ratings table](matrix_factorization_diagram.png)
 ![Spectrum against a control, SVD routes, the ALS grid, training curves and test errors](matrix_factorization_results.png)
 
+## Day 156 — Content-based filtering: user profiles over genre and decade, and the cold start
+[`day156_content_based_filtering.py`](day156_content_based_filtering.py) — recommending from what the films are rather than who rated them. Each film becomes 27 flags (19 genres from MovieLens and its decade of release). Each user gets a profile: a ridge regression of their ratings on those flags, shrunk toward a profile fitted on everyone. Written from scratch in NumPy on Day 154's split.
+
+- **Content and ratings agree partly:** films' 10 nearest rating neighbours have a mean content cosine of 0.443, against 0.322 for random films.
+- **Profiles carry taste:** content alone scored 0.9901 test RMSE against 1.0384 for the user's average. With the content shuffled among films it scored 1.0418. On top of the bias model profiles gave 0.9222 (from 0.9401), still behind Day 154's item-based neighbours (0.9153).
+- **Cold start:** with whole films held out, every ratings-only method falls back to 1.0567. Per-user profiles scored 1.0222, content kNN 1.0310, and the shuffled-content control 1.0729.
+- **Top-10 lists:** bias model plus profiles reached precision@10 0.0627 (bias model 0.0439, popularity 0.1381). Content-only lists were not narrower on a genre count: 9.2 genres per list against 8.2.
+- **Explainable:** each score is an exact sum of feature weights. User 1's profile likes Documentary +0.52 and dislikes Children's -0.60.
+
+Study guide: [`day156_content_based_filtering_complete_guide.pdf`](day156_content_based_filtering_complete_guide.pdf) · Syntax walkthrough: [`day156_syntax_line_by_line.pdf`](day156_syntax_line_by_line.pdf) · [Run output](day156_run_output.txt)
+
+Exercise: [`day156_exercise.py`](day156_exercise.py) is the release years, the feature builder, content similarity, the shared and per-user profiles, the prediction and the cold split, checked by hand — the third part of Day 160's recommender ([run output](day156_exercise_run_output.txt)).
+
+![Content-based filtering from film attributes and one user's ratings](content_based_diagram.png)
+![Content against rating neighbours, the penalty, RMSE by film popularity, cold start, top-10 lists and one profile](content_based_results.png)
+
 ---
 [← Back to main README](../README.md)
