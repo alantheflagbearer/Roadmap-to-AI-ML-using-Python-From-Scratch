@@ -101,5 +101,22 @@ Exercise: [`day152_exercise.py`](day152_exercise.py) is the windows, the loss an
 ![The forecaster built from Week 10's parts](lstm_forecasting_diagram.png)
 ![Training, levels against changes, CO2 forecasts, rolling origins and the orders](lstm_forecasting_results.png)
 
+## Day 153 — Week 22 build: a Prophet-style forecaster from this week's parts
+[`day153_prophet_style_forecaster.py`](day153_prophet_style_forecaster.py) — a trend that bends at 25 changepoints (one hinge column each, with a penalty on the slope changes) plus a season of Fourier waves (Day 151), fitted by one penalised least squares, with Prophet's simulated intervals. It is compared with every model of the week, all imported unchanged: Day 147's data and decomposition, Day 148's autocorrelation and KPSS, Day 149's airline ARIMA and Ljung-Box test, Day 150's Holt-Winters, Day 151's regression and Day 152's LSTM and control.
+
+- **Checked:** slopes of 1, 3 and 0.5 a year were recovered as 0.937, 3.058 and 0.449. The fit equals Day 151's least squares on the same columns (2.1e-13), the closed form (1.9e-11), and, with no changepoints, Day 151's trend-and-waves regression (2.3e-13).
+- **Choosing on validation:** 97 origins before 1990 chose 5 waves and penalty 100 (0.474). On 2000–2001 that choice ranked 5 of 6 (0.400, against 0.232 for a light penalty).
+- **What it says about CO2:** the slope rose from 0.745 to 1.546 ppm a year, and the season matches Day 147's within 0.028 ppm. The residuals are far from noise: lag-1 autocorrelation 0.819, Ljung-Box 1633.6, against 20.6 for the airline model's residuals.
+- **2000–2001:** the curve scored 0.400 ppm. The airline ARIMA scored 0.412, Holt-Winters 0.329, the LSTM 0.250 and the control 0.231. Adding an AR(1) on the curve's residuals gave 0.295; with no changepoints the curve scored 3.062.
+- **97 rolling origins:** the curve beat the airline model at 0 of 24 horizons (0.631 against 0.264 one month ahead). An AR(1) on its residuals brought that to 0.294. Its 80% intervals held 0.536 to 0.289 of the time; the airline model's held 0.845 to 0.701.
+- **Orders:** through the crash it was the worst model (29.03%, against 18.04% for last year's value). Fitted to the whole series, its largest slope changes fell at 2008-01 and 2009-05: the crash and the recovery, dated after the fact.
+
+Study guide: [`day153_prophet_style_forecaster_complete_guide.pdf`](day153_prophet_style_forecaster_complete_guide.pdf) · Syntax walkthrough: [`day153_syntax_line_by_line.pdf`](day153_syntax_line_by_line.pdf) · [Run output](day153_run_output.txt)
+
+Day 153 is the week's build, so it has no exercise script of its own.
+
+![The week's parts as one Prophet-style forecaster](prophet_style_diagram.png)
+![Trend and changepoints, season, forecasts, rolling origins, interval coverage and the orders](prophet_style_results.png)
+
 ---
 [← Back to main README](../README.md)

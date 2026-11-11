@@ -1,0 +1,94 @@
+
+======================================================================
+1. THE PARTS, CHECKED -- known slopes recovered, and the fit against plain least squares
+======================================================================
+a line with slopes 1, 3, 0.5 a year (changes at months 60 and 120), a season and noise sd 0.3; changepoints placed at [60, 120]
+  fitted slopes 0.937, 3.058, 0.449 a year; noise sd left over 0.287
+CO2 to 1999-12, no penalty: against Day 151's fit_ols on the same columns, largest coefficient difference 2.1e-13
+penalty 100: stacked least squares against the closed form (X'X + lam D) b = X'y, largest difference 1.9e-11
+no changepoints: fitted values against Day 151's regression with a trend and 4 waves, largest difference 2.3e-13
+the forecast's trend rises 1.5456 ppm a year; the last piece's slope is 1.5456
+1000 simulated futures, 24 months each; their mean against the forecast, largest gap 0.037 ppm (noise sd 0.525)
+Actual output from this lesson's run.
+
+======================================================================
+2. CHOOSING THE WAVES AND THE PENALTY -- validation origins whose 24 months end by 1989-12
+======================================================================
+97 origins, 1980-01 to 1988-01 (1.0 s); mean MAE (ppm) over 24 months
+   waves  pen 0.01   pen 0.1     pen 1    pen 10   pen 100  pen 1000
+       2     0.495     0.497     0.500     0.491     0.481     0.557
+       3     0.489     0.491     0.494     0.485     0.476     0.554
+       4     0.489     0.491     0.494     0.485     0.474     0.551
+       5     0.489     0.490     0.494     0.485     0.474     0.551
+validation's choice: 5 waves, penalty 100 (0.474); no changepoints at all (a straight line) 2.606
+did the choice hold? test MAE (2000-2001) with 5 waves, by penalty: 0.01: 0.235, 0.1: 0.235, 1: 0.232, 10: 0.255, 100: 0.400, 1000: 0.447
+  the choice ranks 5 of 6 on the test; the test is reported, not used to choose
+Actual output from this lesson's run.
+
+======================================================================
+3. WHAT THE MODEL SAYS ABOUT CO2 -- fitted to 1999-12
+======================================================================
+25 changepoints, 1959-07 to 1991-08; the slope went from 0.745 ppm a year (1958) to 1.546 (after 1991-08)
+  largest slope changes: 1991-08 +0.147, 1988-12 -0.125, 1976-12 +0.107
+the season (5 waves) against Day 147's classical decomposition: largest difference 0.028 ppm (peak 2.92 against 2.93, month 5 of 12)
+what is left: sd 0.525 ppm; autocorrelation at lags 1, 2, 12: 0.819, 0.712, 0.317
+  Ljung-Box over 24 lags: Q = 1633.6 (5% critical value about 36); the airline model's residuals Q = 20.6
+  KPSS on what is left: 0.038 (5% critical value 0.463): it wanders, but around a fixed level
+the curve captures the trend and the season; the month-to-month memory is left in the errors, and it forecasts
+as if it were not there
+Actual output from this lesson's run.
+
+======================================================================
+4. FORECASTING CO2 IN 2000-2001 -- against every model of the week
+======================================================================
+all models fitted on data to 1999-12 (75.0 s, mostly the networks); AR(1) on the residuals: phi = 0.822
+             2000-01 to 2001-12, 24 months     MAE    bias
+       Prophet-style (validation's choice)   0.400  -0.399
+     Prophet-style + AR(1) on what is left   0.295  -0.261
+  straight line + season (no changepoints)   3.062  -3.062
+                   airline ARIMA (Day 149)   0.412  +0.405
+             Holt-Winters, mult. (Day 150)   0.329  +0.314
+           regression, lags 1-13 (Day 151)   0.706  +0.706
+              LSTM, average of 5 (Day 152)   0.250  +0.196
+         control: average change (Day 152)   0.231  +0.066
+            same month last year (Day 147)   1.882  -1.882
+Prophet-style 80% interval: half-width 0.68 ppm one month ahead, 0.66 at 24; 20 of 24 months inside
+Actual output from this lesson's run.
+
+======================================================================
+5. ROLLING ORIGINS -- 97 forecasts from 1990-1998; how often the 80% intervals hold
+======================================================================
+97 origins (60.4 s); the curve and the control recomputed at every origin, the rest fitted once on data to 1989-12
+       MAE (ppm), months ahead       1       6      12      24
+       Prophet-style, refitted   0.631   0.766   0.942   1.257
+    Prophet-style, fitted once   1.411   1.443   1.453   1.474
+         Prophet-style + AR(1)   0.294   0.696   0.925   1.256
+                 airline ARIMA   0.264   0.453   0.717   1.101
+           Holt-Winters, mult.   0.277   0.459   0.684   1.036
+         regression, lags 1-13   0.314   0.650   0.736   1.127
+            LSTM, average of 5   0.252   0.534   0.630   0.949
+       control: average change   0.273   0.600   0.680   1.069
+the refitted curve beats the airline model at 0 of 24 horizons; with AR(1) added, at 0 of 24
+       inside the 80% interval       1       6      12      24
+                 Prophet-style   0.536   0.443   0.361   0.289
+                 airline ARIMA   0.845   0.753   0.732   0.701
+Actual output from this lesson's run.
+
+======================================================================
+6. ELECTRICAL-EQUIPMENT ORDERS -- log scale; settings chosen on validation before each cut
+======================================================================
+the crash: train up to 2007-12; validation chose 5 waves, penalty 0.01; 24 months, MAE:
+  Prophet-style 29.03%; + AR(1) 29.01%; line + season 25.99%; airline 23.86%; Holt-Winters 18.81%; regression 18.41%; LSTM avg 25.57%; control 23.06%; last year 18.04%
+the last 24 months: train up to 2014-05; validation chose 5 waves, penalty 1000; 24 months, MAE:
+  Prophet-style 5.86%; + AR(1) 5.77%; line + season 12.90%; airline 6.41%; Holt-Winters 4.65%; regression 2.72%; LSTM avg 5.30%; control 2.37%; last year 3.75%
+the whole series (4 waves, penalty 1, changepoints to 2012-02): largest slope changes 2009-05 +0.180, 2008-01 -0.129, 2010-01 +0.117 (log units a year)
+Actual output from this lesson's run.
+
+saved prophet_style_results.png
+saved prophet_style_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Week 23: recommender systems -- Day 154 starts with collaborative filtering, user-based and item-based,
+on a real ratings matrix.
