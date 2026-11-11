@@ -65,5 +65,21 @@ Exercise: [`day157_exercise.py`](day157_exercise.py) is the blend, the feature-w
 ![Three ways to combine neighbours, factors and content](hybrid_recommenders_diagram.png)
 ![Error correlations, weighted blends, switching, feature-weighted blends, the in-model hybrid and new films](hybrid_recommenders_results.png)
 
+## Day 158 — Implicit feedback and cold start: learning from what people watch
+[`day158_implicit_feedback.py`](day158_implicit_feedback.py) — most real systems see clicks and views, not stars. MovieLens's ratings become watched / not watched, and the question becomes "what will this user watch next?". Implicit ALS (Hu, Koren and Volinsky, 2008) fits every cell, with a confidence weight on what was watched. It is compared with popularity, item co-occurrence, PureSVD and Day 155's explicit ALS, and then serves brand-new users. Written from scratch in NumPy on Day 154's split.
+
+- **Top-10 lists on test:** implicit ALS 0.3672 of recommended films watched, against popularity 0.1948, co-occurrence 0.2930 and PureSVD 0.3507. On liked films (4–5 stars) it scored 0.2653, against Day 157's best rating model at 0.0684. Shuffling users' factors dropped it to 0.1288, below popularity.
+- **The week's puzzle answered:** Day 155's explicit ALS, trained only on rated cells, scored 0.0421, recommending films with a median of 7 watchers.
+- **Grid:** 50 factors, penalty 30, alpha 3 on validation (0.1374). The first run chose 50 at the grid's edge; 100 factors scored 0.1337.
+- **Stars as confidence:** a small gain, liked-film precision 0.2741 against 0.2653.
+- **New users** (188 held out entirely): with 20 films known, fold-in reached recall@10 0.1584 against popularity's 0.0925 and co-occurrence's 0.1418. Age and gender alone barely beat popularity (0.0797 against 0.0791); a shuffled-group control scored 0.0719.
+
+Study guide: [`day158_implicit_feedback_complete_guide.pdf`](day158_implicit_feedback_complete_guide.pdf) · Syntax walkthrough: [`day158_syntax_line_by_line.pdf`](day158_syntax_line_by_line.pdf) · [Run output](day158_run_output.txt)
+
+Exercise: [`day158_exercise.py`](day158_exercise.py) is the users' table, implicit ALS, its objective, fold-in, co-occurrence and the top-k measures, checked by hand. The shortcut user step matches the full weighted ridge over every film, and the same check misses by 0.899 if the extra weight c − 1 is left out. It is the fifth part of Day 160's recommender ([run output](day158_exercise_run_output.txt)).
+
+![Explicit against implicit feedback, and fold-in for new users](implicit_feedback_diagram.png)
+![Implicit ALS grid and objective, top-10 lists, how popular the lists are, and new users](implicit_feedback_results.png)
+
 ---
 [← Back to main README](../README.md)

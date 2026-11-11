@@ -1,0 +1,71 @@
+
+======================================================================
+1. FROM STARS TO 'WATCHED': THE DATA, THE MEASURE, AND POPULARITY
+======================================================================
+training: 80000 watched cells of 1586126 (5.0%); test: 20000 held-out watched films for 942 users
+every rated film counts as watched, whatever its stars: 17.6% of test 'watched' films got 1-2 stars
+precision@10 / recall@10 on held-out watched films: popularity 0.1948 / 0.1195; random 0.0151 / 0.0064
+Day 154's measure (test films rated 4-5): popularity 0.1381
+Actual output from this lesson's run.
+
+======================================================================
+2. IMPLICIT ALS: EVERY EMPTY CELL IS A WEAK 0
+======================================================================
+check: the shortcut user step against the full weighted ridge over every cell: largest difference 0.0e+00
+grid: 4 factor counts x 6 penalties x 4 confidence weights (578 s); validation precision@10 at 50 factors:
+   penalty   alpha 1   alpha 3  alpha 10  alpha 30
+         1    0.1128    0.1093    0.1010    0.0905
+         3    0.1158    0.1118    0.1027    0.0910
+        10    0.1289    0.1192    0.1097    0.0948
+        30    0.1284    0.1374    0.1216    0.1008
+       100    0.0708    0.1009    0.1233    0.1279
+       300    0.0706    0.0704    0.0840    0.1056
+  best at each factor count: 10: 0.1333, 20: 0.1363, 50: 0.1374, 100: 0.1337
+chosen: 50 factors, penalty 30, alpha 3 (validation 0.1374)
+objective after each sweep: 303612, 167523, 160481, 158447, ..., 156536; never rises: True
+PureSVD rank chosen on validation: 20 (5: 0.1142, 10: 0.1281, 20: 0.1313, 50: 0.1125, 100: 0.0852)
+                                    test  precision@10  recall@10  liked: precision@10  median watchers
+                              popularity        0.1948     0.1195               0.1381              346
+               co-occurrence (item-item)        0.2930     0.1948               0.2140              247
+                        PureSVD, rank 20        0.3507     0.2301               0.2479              216
+           explicit ALS (Day 155, stars)        0.0421     0.0189               0.0405                7
+                implicit ALS (50, 30, 3)        0.3672     0.2438               0.2653              233
+   control: implicit ALS, users shuffled        0.1288     0.0723               0.0909              242
+Actual output from this lesson's run.
+
+======================================================================
+3. STARS AS CONFIDENCE
+======================================================================
+confidence = 1 + alpha x stars instead of 1 + alpha (50 factors, penalty 30); validation precision@10 watched / liked:
+  alpha 0.15 per star: 0.1212 / 0.0935
+  alpha 0.3 per star: 0.1313 / 0.1040
+  alpha 0.6 per star: 0.1386 / 0.1100
+  alpha 1 per star: 0.1360 / 0.1080
+  alpha 1.5 per star: 0.1299 / 0.1027
+  alpha 3 per star: 0.1235 / 0.0950
+  binary, alpha 3: 0.1374 / 0.1061
+test, stars as confidence (alpha 0.6 per star): watched 0.3703, liked 0.2741
+Actual output from this lesson's run.
+
+======================================================================
+4. THE OTHER COLD START: BRAND-NEW USERS
+======================================================================
+188 new users held out entirely (every one has at least 20 films); models trained on the other 755 users
+recall@10 for new users, by how many of their films are known (popularity breaks ties when nothing is known):
+                   films known       0       1       3       5      10      20
+                    popularity  0.0791  0.0786  0.0787  0.0804  0.0824  0.0925
+     age and gender popularity  0.0797  0.0799  0.0806  0.0821  0.0849  0.0943
+      control: groups shuffled  0.0719  0.0726  0.0726  0.0750  0.0784  0.0886
+                 co-occurrence  0.0791  0.0820  0.1031  0.1119  0.1252  0.1418
+          implicit ALS fold-in  0.0791  0.0803  0.1005  0.1115  0.1351  0.1584
+Actual output from this lesson's run.
+
+saved implicit_feedback_results.png
+saved implicit_feedback_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 159: evaluating recommenders. Precision@10 has been the week's only ranking measure. Tomorrow
+builds precision@k, recall@k, MAP and NDCG from scratch, asks which ones reward what, and looks at
+popularity bias and how sure a difference between two models really is.
