@@ -97,5 +97,21 @@ Exercise: [`day159_exercise.py`](day159_exercise.py) holds the per-user measures
 ![Scoring lists, and how sure a comparison is](evaluating_recommenders_diagram.png)
 ![Every model on every measure, beyond accuracy, bootstrap, fresh splits and sampled negatives](evaluating_recommenders_results.png)
 
+## Day 160 — Week 23 build: neural collaborative filtering from the week's parts
+[`day160_neural_collaborative_filtering.py`](day160_neural_collaborative_filtering.py) — the week ends with a neural recommender. GMF, an MLP and NeuMF (He and others, 2017) are built from scratch in NumPy with hand-written backpropagation and Adam, trained on watched films plus 4 sampled unwatched films per epoch, and judged with every part of the week, imported from Days 154–159's exercise files: the split, PureSVD, genres, the blend, implicit ALS and the measures.
+
+- **Gradient check** through the whole pipeline: backprop and finite differences agree to within 1.5e-10.
+- **First-draft bug:** an L2 decay on every weight inside Adam collapsed GMF (validation 0.027 flat, every film embedding 0.0000). A penalty on the batch's rows only fixed it (0.088 by epoch 8).
+- **Fine-tuning never helped:** pre-trained NeuMF (a trained GMF and MLP joined) scored 0.1319 on validation before any fine-tuning, and every fine-tuning rate lowered it.
+- **The final test:** implicit ALS stays on top (precision@10 0.3672). NeuMF 0.3475, GMF 0.3311, MLP 0.3209. NeuMF minus implicit ALS on graded NDCG: -0.0275 [-0.0357, -0.0194]. The shuffled-user control fell to 0.1256. The networks covered more of the catalogue (0.303–0.353 against 0.237).
+- **The paper's protocol:** with 100 sampled negatives NeuMF came first (0.6649); ranked against every film, MLP led (0.1485). Every gap among the top models was below one standard error (0.0116).
+
+Study guide: [`day160_neural_collaborative_filtering_complete_guide.pdf`](day160_neural_collaborative_filtering_complete_guide.pdf) · Syntax walkthrough: [`day160_syntax_line_by_line.pdf`](day160_syntax_line_by_line.pdf) · [Run output](day160_run_output.txt)
+
+Build day: no exercise file. The script imports Days 154–159's exercise files unchanged.
+
+![NeuMF: GMF and an MLP side by side](neural_cf_diagram.png)
+![Learning curves, the final test, coverage, bootstrap and the paper's protocol](neural_cf_results.png)
+
 ---
 [← Back to main README](../README.md)
