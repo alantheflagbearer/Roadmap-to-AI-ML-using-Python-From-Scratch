@@ -1,0 +1,132 @@
+two models trained on the 24130 fitting rows (16 s)
+
+======================================================================
+0. THE PLAN, FIXED ON THE VALIDATION ROWS BEFORE THE TEST FILE IS OPENED
+======================================================================
+  validation, logistic: accuracy 0.8408, AUC 0.8972, ECE 0.0149
+  validation, boosting: accuracy 0.8662, AUC 0.9258, ECE 0.0096
+  model: boosting (more accurate on validation, and calibrated); baseline: logistic regression
+  threshold 0.5; the six tests in section 6 are corrected with Holm at 0.05 (Benjamini-Hochberg shown beside it)
+  the test file is scored once, below; nothing is changed after seeing it
+Actual output from this lesson's run.
+
+======================================================================
+1. PERFORMANCE ON THE TEST FILE, WITH INTERVALS (DAY 163)
+======================================================================
+  15060 test rows, 0.2457 earn above $50K
+  fast_auc against Day 117's roc_auc on these rows: 0.9240055077 vs 0.9240055077
+  boosting: accuracy 0.8691 [0.8636, 0.8744]; AUC 0.9240 [0.9197, 0.9285]
+  logistic: accuracy 0.8421 [0.8362, 0.8478]; AUC 0.8970 [0.8917, 0.9023]
+Actual output from this lesson's run.
+
+======================================================================
+2. IS BOOSTING BETTER THAN LOGISTIC REGRESSION? (DAY 162'S McNEMAR TEST)
+======================================================================
+  only boosting wrong 291, only logistic wrong 697: chi-square 166.02, p 5.48e-38, exact p 4.52e-39
+  AUC difference +0.0270 [+0.0244, +0.0296] (paired bootstrap)
+Actual output from this lesson's run.
+
+======================================================================
+3. OVER-FITTING AND VARIANCE (DAY 161)
+======================================================================
+  logistic: Brier on its training rows 0.1084, on the test file 0.1089
+  boosting: Brier on its training rows 0.0870, on the test file 0.0917
+  logistic trained on quarters (6033 rows each): Brier 0.1095 = bias^2 + noise 0.1087 + variance 0.0006
+  boosting trained on quarters (6033 rows each): Brier 0.0954 = bias^2 + noise 0.0921 + variance 0.0025
+  (quarter models took 15 s)
+Actual output from this lesson's run.
+
+======================================================================
+4. CALIBRATION ON THE TEST FILE (DAY 165)
+======================================================================
+  boosting: ECE 0.0118 (chance floor 0.0060); mean probability 0.2467 against a rate of 0.2457
+  logistic: ECE 0.0093 (chance floor 0.0065); mean probability 0.2482 against a rate of 0.2457
+  boosting, Female: ECE 0.0089 (chance floor 0.0076); mean probability 0.1157 against 0.1134
+  boosting, Male  : ECE 0.0163 (chance floor 0.0082); mean probability 0.3101 against 0.3097
+Actual output from this lesson's run.
+
+======================================================================
+5. FAIRNESS BY SEX ON THE TEST FILE (DAY 166)
+======================================================================
+  Female: 4913 test rows, base rate 0.1134; selected 0.0804, TPR 0.5727, FPR 0.0174, precision 0.8076
+  Male  : 10147 test rows, base rate 0.3097; selected 0.2680, TPR 0.6688, FPR 0.0881, precision 0.7731
+  gap men - women in sel: test +0.1876 [+0.1759, +0.1997]; validation +0.1769
+  gap men - women in tpr: test +0.0961 [+0.0536, +0.1414]; validation +0.0713
+  gap men - women in fpr: test +0.0706 [+0.0631, +0.0783]; validation +0.0670
+  gap men - women in ppv: test -0.0345 [-0.0756, +0.0053]; validation -0.0416
+  women's selection rate / men's = 0.300
+Actual output from this lesson's run.
+
+======================================================================
+6. THE CARD'S SIX TESTS, CORRECTED FOR MULTIPLE COMPARISONS (DAY 164)
+======================================================================
+  boosting vs logistic (McNemar)  : p 4.52e-39; no correction reject, Bonferroni reject, Holm reject, Benjamini-Hochberg reject
+  accuracy, test vs validation    : p 5.81e-01; no correction keep, Bonferroni keep, Holm keep, Benjamini-Hochberg keep
+  sel gap by sex                  : p 2.00e-156; no correction reject, Bonferroni reject, Holm reject, Benjamini-Hochberg reject
+  tpr gap by sex                  : p 1.11e-05; no correction reject, Bonferroni reject, Holm reject, Benjamini-Hochberg reject
+  fpr gap by sex                  : p 8.03e-53; no correction reject, Bonferroni reject, Holm reject, Benjamini-Hochberg reject
+  ppv gap by sex                  : p 1.23e-01; no correction keep, Bonferroni keep, Holm keep, Benjamini-Hochberg keep
+Actual output from this lesson's run.
+
+======================================================================
+7. SHAP FROM SCRATCH: EXACT, CHECKED AGAINST A CLOSED FORM; KERNEL, CHECKED AGAINST EXACT
+======================================================================
+  explaining log-odds; a feature 'absent' takes its value from one of 200 background rows (averaged over all 200)
+  logistic, test row 9516: largest difference from the closed form 1.1e-16; sum of values +1.2848 = f(x) - background mean +1.2848
+  logistic, test row 4987: largest difference from the closed form 2.2e-16; sum of values +3.1336 = f(x) - background mean +3.1336
+  logistic, test row 1106: largest difference from the closed form 2.2e-16; sum of values -1.5081 = f(x) - background mean -1.5081
+  boosting, test row 9516: sum of values +0.7106 = f(x) - background mean +0.7106; largest: occupation -0.740
+  boosting, test row 4987: sum of values +3.5672 = f(x) - background mean +3.5672; largest: age +0.878
+  boosting, test row 1106: sum of values -3.9277 = f(x) - background mean -3.9277; largest: age -1.365
+  boosting, test row 8157: sum of values -2.5127 = f(x) - background mean -2.5127; largest: age -0.974
+  boosting, test row 327: sum of values +0.8836 = f(x) - background mean +0.8836; largest: education-num +0.660
+  (exact values for 5 rows: 12 s, 4096 coalitions x 200 background rows each)
+  KernelSHAP with   50 coalitions: largest error against exact 0.0275, mean 0.0109 (5 rows x 2 seeds)
+  KernelSHAP with  200 coalitions: largest error against exact 0.0073, mean 0.0048 (5 rows x 2 seeds)
+  KernelSHAP with 1000 coalitions: largest error against exact 0.0035, mean 0.0021 (5 rows x 2 seeds)
+  two backgrounds of  50 rows: exact values differ by up to 0.4536 (mean of the per-row largest 0.3855)
+  two backgrounds of 200 rows: exact values differ by up to 0.0468 (mean of the per-row largest 0.0424)
+  first draft, 50 background rows (seed 5): top three relationship 0.589, age 0.566, marital-status 0.461; capital-gain 0.365, rank 5; the background has 3 rows with a capital gain, largest 99999
+  first draft, 50 background rows (seed 7): top three capital-gain 0.634, relationship 0.629, age 0.566; capital-gain 0.634, rank 1; the background has 7 rows with a capital gain, largest 20051
+  mean |SHAP value| over 200 test rows (151 s): relationship 0.599, age 0.582, marital-status 0.460, capital-gain 0.390, education-num 0.380, occupation 0.342, hours-per-week 0.338, sex 0.141, workclass 0.103, native-country 0.054, capital-loss 0.030, race 0.030
+  check with a second background of 200 rows: relationship 0.617, age 0.554, marital-status 0.472, capital-gain 0.404, education-num 0.388, occupation 0.350, hours-per-week 0.340, sex 0.142, workclass 0.099, native-country 0.072, capital-loss 0.066, race 0.034; largest change 0.036
+  mean SHAP value of sex           : women -0.194 (68 rows), men +0.114 (132 rows)
+  mean SHAP value of relationship  : women -0.236 (68 rows), men +0.105 (132 rows)
+  mean SHAP value of marital-status: women -0.229 (68 rows), men +0.142 (132 rows)
+Actual output from this lesson's run.
+
+======================================================================
+8. LIME FROM SCRATCH, AND HOW MUCH ITS ANSWER DEPENDS ON ITS SETTINGS
+======================================================================
+  test row 9516, exact SHAP: occupation -0.740, relationship +0.639, marital-status +0.609, age +0.325
+  LIME, 1000 samples, 5 seeds: occupation -0.766 to -0.701; relationship +0.574 to +0.737; marital-status +0.524 to +0.709; age -0.046 to +0.466; largest spread across seeds 0.513 (age)
+  LIME, 5000 samples, 5 seeds: occupation -0.813 to -0.729; relationship +0.588 to +0.713; marital-status +0.550 to +0.729; age +0.275 to +0.379; largest spread across seeds 0.179 (marital-status)
+  width 0.50: occupation -0.663, relationship +0.545, marital-status +0.108, age +0.186; largest difference from SHAP 0.501
+  width 1.00: occupation -0.773, relationship +0.573, marital-status +0.641, age +0.227; largest difference from SHAP 0.107
+  width 2.60: occupation -0.730, relationship +0.605, marital-status +0.616, age +0.275; largest difference from SHAP 0.071
+  width 10.00: occupation -0.721, relationship +0.614, marital-status +0.616, age +0.280; largest difference from SHAP 0.079
+  on logistic regression (linear in these on/off features), LIME vs the closed-form SHAP: largest difference 0.073
+  over 20 rows at the defaults: top-3 features shared with SHAP 2.55 of 3 on average (all 3 in 11 rows); correlation of the 12 values 0.925 on average, lowest 0.811
+Actual output from this lesson's run.
+
+======================================================================
+9. THE REPORT CARD
+======================================================================
+  model             boosting, 200 trees of depth 3, threshold 0.5, trained on 24130 rows
+  performance       accuracy 0.8691 [0.8636, 0.8744], AUC 0.9240
+  vs baseline       McNemar exact p 4.52e-39: better after Holm
+  calibration       ECE 0.0118
+  fairness          selected women 0.0804, men 0.2680; TPR women 0.5727, men 0.6688
+  tests             4 of 6 significant after Holm: boosting vs logistic (McNemar), sel gap by sex, tpr gap by sex, fpr gap by sex
+  explanations      largest mean |SHAP|: relationship 0.599, age 0.582, marital-status 0.460
+Actual output from this lesson's run.
+
+saved report_card_results.png
+saved report_card_diagram.png
+total time 314 s
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Week 25: hyperparameter tuning and experimentation, starting with grid and random search
+built from scratch on the same kind of held-out rows.

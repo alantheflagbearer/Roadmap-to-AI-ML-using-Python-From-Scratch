@@ -99,5 +99,21 @@ Exercise: [`day166_exercise.py`](day166_exercise.py) holds rates per group, the 
 ![Three fairness criteria and the identity that links them](fairness_diagram.png)
 ![Rates per sex, deleting proxies, per-group thresholds, and small-group intervals](fairness_results.png)
 
+## Day 167 — Week 24 build: the report card, with SHAP and LIME from scratch
+[`day167_report_card.py`](day167_report_card.py) — the week ends by using all six tools, imported unchanged from Days 161–166's exercise files, on one model. The plan was fixed on the validation rows before Adult's test file was opened: boosting is the model, logistic regression the baseline, the threshold is 0.5, and six named tests are corrected with Holm. The test file (15060 rows) is then scored once. SHAP (exact Shapley values and KernelSHAP) and LIME are built from scratch to explain it.
+
+- **Performance and baseline:** accuracy 0.8691 [0.8636, 0.8744], AUC 0.9240 [0.9197, 0.9285]. McNemar against logistic regression: 291 rows only boosting got wrong, against 697 only logistic regression got wrong (exact p 4.52e-39).
+- **Over-fitting, calibration, fairness:** Brier 0.0870 on its training rows against 0.0917 on test. ECE 0.0118, about twice its chance floor (0.0060). The sex gaps held on test: selection +0.1876, TPR +0.0961 [+0.0536, +0.1414]. 4 of 6 claims survived Holm; the drift check did not reject (p 5.81e-01).
+- **SHAP checked:** on logistic regression, exact Shapley values matched the closed form to 2.2e-16. On boosting, KernelSHAP came within 0.0035 of the exact values with 1000 coalitions.
+- **First draft:** a 50-row background was too small. Two such backgrounds moved values by up to 0.4536 and changed capital-gain's rank from 5 to 1. With 200 rows the change fell to 0.0468.
+- **LIME:** with 1000 samples, one feature's value ran from -0.046 to +0.466 across five seeds. A narrow kernel width changed the explanation by 0.501.
+
+Study guide: [`day167_report_card_complete_guide.pdf`](day167_report_card_complete_guide.pdf) · Syntax walkthrough: [`day167_syntax_line_by_line.pdf`](day167_syntax_line_by_line.pdf) · [Run output](day167_run_output.txt)
+
+Build day: no exercise file. The script imports Days 161–166's exercise files unchanged.
+
+![One model, seven checks, one look at the test file](report_card_diagram.png)
+![Global SHAP importance, KernelSHAP error against the background's effect, LIME across seeds and widths, reliability and fairness on test](report_card_results.png)
+
 ---
 [← Back to main README](../README.md)
