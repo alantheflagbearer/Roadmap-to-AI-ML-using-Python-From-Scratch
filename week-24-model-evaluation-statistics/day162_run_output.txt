@@ -1,0 +1,88 @@
+
+======================================================================
+1. THE EXPERIMENT, AND A CHECK THAT THE RANDOMISATION WORKED
+======================================================================
+Hillstrom's email experiment: 64000 customers, two weeks after the emails
+  Mens E-Mail     21307 customers: visited 0.1828, bought 0.0125, spent $1.423 each
+  Womens E-Mail   21387 customers: visited 0.1514, bought 0.0088, spent $1.077 each
+  No E-Mail       21306 customers: visited 0.1062, bought 0.0057, spent $0.653 each
+balance: 22 tests of before-email columns (11 columns x 2 emailed groups): 0 below 0.05 (chance alone expects 1.1); smallest p 0.159
+largest standardised difference 0.0137 (a common rule of thumb worries above 0.1)
+Actual output from this lesson's run.
+
+======================================================================
+2. TWO-PROPORTION Z TESTS AND WELCH'S TEST, WITH 95% INTERVALS
+======================================================================
+  Mens E-Mail vs none, visit     : +0.0766 [+0.0700, +0.0832], z 22.49, p 5.7e-112 (+72% relative)
+  Mens E-Mail vs none, conversion: +0.0068 [+0.0050, +0.0086], z 7.39, p 1.5e-13 (+119% relative)
+  Mens E-Mail vs none, spend     : $+0.770 [+0.485, +1.055], t 5.30, p 1.2e-07 (+118% relative)
+  Womens E-Mail vs none, visit     : +0.0452 [+0.0389, +0.0516], z 13.95, p 3.2e-44 (+43% relative)
+  Womens E-Mail vs none, conversion: +0.0031 [+0.0015, +0.0047], z 3.78, p 1.6e-04 (+54% relative)
+  Womens E-Mail vs none, spend     : $+0.424 [+0.169, +0.680], t 3.26, p 1.1e-03 (+65% relative)
+men's email vs women's email, visit: +0.0314 [+0.0243, +0.0384], p 3.8e-18
+men's email vs women's email, spend: $+0.345 [+0.033, +0.658], p 0.030
+among buyers only (not randomised: the email changes who buys, so these groups are different people):
+  Mens E-Mail     267 buyers, mean $113.53, median $66.98
+  Womens E-Mail   189 buyers, mean $121.89, median $94.71
+  No E-Mail       122 buyers, mean $114.00, median $88.37
+Actual output from this lesson's run.
+
+======================================================================
+3. PERMUTATION TESTS: THE SAME QUESTION, NO FORMULA
+======================================================================
+10000 shuffles each; formula's p against the shuffles' p
+  bought, men's vs women's email: difference +0.0037; z test p 0.0002, permutation p 0.0001 (8 s)
+    (the smallest p that 10000 shuffles can give is 1/10001 = 0.0001)
+  spend, men's vs women's email: difference +0.3454; Welch p 0.0305, permutation p 0.0288 (7 s)
+    (the shuffles' p carries its own sampling spread: about 0.0017 at this p)
+  spend among buyers, women's email vs none: difference +7.8921; Welch p 0.5140, permutation p 0.5099 (0 s)
+Actual output from this lesson's run.
+
+======================================================================
+4. A/A TESTS: NO EFFECT EXISTS, SO 5% SHOULD BE 'SIGNIFICANT'; AND PEEKING
+======================================================================
+2000 A/A experiments: the 21306 untreated customers split at random into two groups of 10653
+  visit     : p < 0.05 in 0.0475, p < 0.01 in 0.0065
+  conversion: p < 0.05 in 0.0555, p < 0.01 in 0.0090
+  spend     : p < 0.05 in 0.0490, p < 0.01 in 0.0080
+peeking: a test after every 500 customers per group (21 looks), stopping at the first p < 0.05
+  visit     : falsely 'significant' at some look 0.2430 (1 look 0.0470, 5 looks 0.1350, 10 looks 0.1860); at the last look alone 0.0475
+  conversion: falsely 'significant' at some look 0.2445 (1 look 0.0480, 5 looks 0.1350, 10 looks 0.1870); at the last look alone 0.0555
+Actual output from this lesson's run.
+
+======================================================================
+5. POWER: HOW MANY CUSTOMERS DOES AN EXPERIMENT NEED?
+======================================================================
+customers per group for 80% power at alpha 0.05, if the true rates are the ones observed:
+  Mens E-Mail vs none, visit     : 0.1828 vs 0.1062 -> 330 per group
+  Mens E-Mail vs none, conversion: 0.0125 vs 0.0057 -> 3066 per group
+  Womens E-Mail vs none, visit     : 0.1514 vs 0.1062 -> 860 per group
+  Womens E-Mail vs none, conversion: 0.0088 vs 0.0057 -> 11723 per group
+checked by simulation: 1000 experiments of n per group, drawn with replacement from the real groups
+  Mens E-Mail vs none, visit: n 100: 0.358 / 0.337; n 200: 0.632 / 0.587; n 300: 0.775 / 0.762; n 500: 0.929 / 0.932; n 800: 0.996 / 0.992  (simulated / formula)
+  Mens E-Mail vs none, conversion: n 500: 0.186 / 0.204; n 1000: 0.361 / 0.359; n 2000: 0.650 / 0.619; n 3000: 0.789 / 0.792; n 4000: 0.899 / 0.893; n 6000: 0.980 / 0.975; n 8000: 0.998 / 0.995  (simulated / formula)
+  Womens E-Mail vs none, conversion: n 2000: 0.195 / 0.211; n 5000: 0.441 / 0.448; n 10000: 0.743 / 0.735; n 15000: 0.879 / 0.887; n 20000: 0.961 / 0.955  (simulated / formula)
+Actual output from this lesson's run.
+
+======================================================================
+6. COMPARING TWO MODELS ON THE SAME ROWS: McNEMAR'S TEST
+======================================================================
+validation rows 6032; error rates: logistic 0.1592, boost 100 0.1376, boost 200 0.1338
+  logistic vs boost 200: only logistic wrong 279, only boost 200 wrong 126; McNemar chi2 57.05, p 4.26e-14 (exact 2.09e-14); unpaired z test p 0.0001
+  boost 100 vs boost 200: only boost 100 wrong 49, only boost 200 wrong 26; McNemar chi2 6.45, p 1.11e-02 (exact 1.06e-02); unpaired z test p 0.5409
+same procedure, different training rows: 100 times, the fitting rows cut into two random halves,
+one model trained on each, McNemar on the validation rows (no real difference in the procedure):
+  logistic : p < 0.05 in 0.09 of 100 (a test of fixed models expects 0.05; spread of that share about 0.022) (17 s)
+  deep tree: p < 0.05 in 0.14 of 100 (a test of fixed models expects 0.05; spread of that share about 0.022) (131 s)
+Actual output from this lesson's run.
+
+saved hypothesis_testing_results.png
+saved hypothesis_testing_diagram.png
+total time 193 s
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 163: confidence intervals and the bootstrap. Today's intervals came from formulas that
+assume large, well-behaved samples; tomorrow resamples the data itself, and checks how often
+each kind of interval really contains the truth.

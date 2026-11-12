@@ -1,0 +1,11 @@
+two_prop_test, 30/100 vs 20/100: by hand pooled 0.25, spread sqrt(0.25 x 0.75 x 2/100) = 0.0612, z = 0.1/0.0612 = 1.633, p = 0.1025; interval 0.1 +/- 1.96 x sqrt(0.21/100 + 0.16/100) = [-0.0192, 0.2192]
+  got z 1.633, p 0.1025, interval [-0.0192, 0.2192]
+welch_test, (1, 2, 3, 4) vs (2, 4, 6, 8): by hand variances 1.667 and 6.667, spread sqrt(1.667/4 + 6.667/4) = 1.443, t = -2.5/1.443 = -1.732, normal p 0.0833 (with 4 rows a t table would give a larger p; the lesson's groups have thousands)
+  got t -1.732, p 0.0833
+permutation_test, (1, 2, 3) vs (4, 5, 6): by hand 20 ways to choose 3 of 6, and only 2 are as extreme ((1, 2, 3) and (4, 5, 6)), so p = 2/20 = 0.1
+  got difference -3.0, p 0.1052 from 10000 shuffles (their own spread: sqrt(0.1 x 0.9 / 10000) = 0.0030)
+n_per_arm, 0.2 vs 0.1: by hand (1.960 x sqrt(2 x 0.15 x 0.85) + 0.842 x sqrt(0.16 + 0.09))^2 / 0.1^2 = (0.9897 + 0.4208)^2 / 0.01 = 199.0
+  got 199.0; power_two_prop at 199 per group: 0.8001 (by hand 0.80)
+mcnemar, b = 10 rows only model 1 got wrong, c = 2 only model 2: by hand chi2 (|10 - 2| - 1)^2 / 12 = 4.083, p 0.0433; exact 2 x (1 + 12 + 66) / 2^12 = 0.0386
+  got b 10, c 2, chi2 4.083, p 0.0433, exact 0.0386
+load_hillstrom: 64000 customers; Mens E-Mail 21307, Womens E-Mail 21387, No E-Mail 21306

@@ -18,5 +18,22 @@ Exercise: [`day161_exercise.py`](day161_exercise.py) holds the week's data loade
 ![Learning curves and the direct bias-variance measurement](bias_variance_diagram.png)
 ![Learning curves, bias and variance by size, the depth sweep and extrapolation](bias_variance_results.png)
 
+## Day 162 — Hypothesis testing for ML: a real A/B test, and comparing two models
+[`day162_hypothesis_testing_ab.py`](day162_hypothesis_testing_ab.py) — Kevin Hillstrom's MineThatData email experiment (2008): 64000 customers assigned at random to a men's email, a women's email or no email, with visits, purchases and spend recorded for two weeks. Every test is written from scratch; section 6 returns to Day 161's UCI Adult models, imported from their exercise files.
+
+- **Randomisation check:** none of 22 tests of before-email columns fell below 0.05; the largest standardised difference was 0.0137.
+- **The effects:** the men's email raised visits by +0.0766 (+72%) with p 5.7e-112, and purchases by +119%. Men's against women's email on spend: p 0.030, with interval [+0.033, +0.658].
+- **Permutation tests agree with the formulas:** Welch 0.0305 against 0.0288 from 10000 shuffles, within the shuffles' own spread of 0.0017.
+- **A/A tests and peeking:** with no effect, p < 0.05 in 0.0475 (visits) to 0.0555 (purchases) of 2000 splits. Testing after every 500 customers (21 looks) and stopping at the first success raised false positives to 0.2430.
+- **Power:** 330 per group to see the men's email's effect on visits, 11723 per group for the women's email's effect on purchases. A simulation on the real data matched the formula (0.789 against 0.792 at 3,000 per group).
+- **McNemar's test:** 200 boosting rounds against 100 on the same 6032 rows gave p 1.11e-02, where an unpaired test gave 0.5409. **Control:** two models from the *same* procedure on different training halves were called different in 0.09 (logistic) and 0.14 (deep tree) of 100 repeats, not 0.05. McNemar compares fixed models and ignores the variation that comes from the training sample.
+
+Study guide: [`day162_hypothesis_testing_ab_complete_guide.pdf`](day162_hypothesis_testing_ab_complete_guide.pdf) · Syntax walkthrough: [`day162_syntax_line_by_line.pdf`](day162_syntax_line_by_line.pdf) · [Run output](day162_run_output.txt)
+
+Exercise: [`day162_exercise.py`](day162_exercise.py) holds the data loader, the two-proportion and Welch tests, the permutation test, sample size and power, and McNemar's test. Each is checked by hand: a z test gives z 1.633, p 0.1025; a sample size of 199.0; McNemar's exact p 0.0386. [Exercise output](day162_exercise_run_output.txt)
+
+![An A/B test and its three safeguards](hypothesis_testing_diagram.png)
+![Effects with intervals, a permutation null, A/A p values, peeking, power and McNemar](hypothesis_testing_results.png)
+
 ---
 [← Back to main README](../README.md)
