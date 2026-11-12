@@ -51,5 +51,21 @@ Exercise: [`day163_exercise.py`](day163_exercise.py) holds Wald and Wilson inter
 ![The bootstrap, and the check of its 95% promise](bootstrap_diagram.png)
 ![Coverage for rates and means, a bootstrapped ratio, resample counts, model-score intervals and the maximum](bootstrap_results.png)
 
+## Day 164 — Multiple comparisons: an honest p-hacking demonstration
+[`day164_multiple_comparisons.py`](day164_multiple_comparisons.py) — one test at the 5% level raises a false alarm 5% of the time; 66 tests raise one most of the time. Hillstrom's customers are cut into 22 segments and 3 outcomes are tested in each. Bonferroni, Holm and Benjamini-Hochberg are built from scratch and scored on data where the truth is known. Day 162's tests and Day 161's Adult data and logistic regression are imported unchanged.
+
+- **No effect at all (1,000 A/A splits of the no-email customers):** at least one 'significant' finding in 0.892 of experiments, 3.13 on average. Bonferroni and Holm brought that to 0.030; Benjamini-Hochberg to 0.032.
+- **Known truth (32 certainly real effects mixed with 66 nulls, on 30% samples):** no correction found 29.35 real effects with 2.70 false ones. Holm found 21.44 with 0.01 false; Benjamini-Hochberg found 26.70 with 0.61 false, a false discovery rate of 0.0210, but at least one false discovery in 0.350 of repeats.
+- **Replication on fresh customers:** with no effect, the best of 66 tests was significant again in 0.045 of repeats (0.052 of all discoveries); with the real email effect, 1.000 (0.776 of all discoveries).
+- **The same trap in ML:** choosing the best of 100 logistic regressions on half the validation rows flattered its accuracy by +0.0034; a model fixed in advance changed by -0.0001.
+- **First draft:** Welch's test divided 0 by 0 in small segments with no buyer on either side, and the replication step picked a NaN as its 'best' test. Such tests now get p = 1 and are counted in the output.
+
+Study guide: [`day164_multiple_comparisons_complete_guide.pdf`](day164_multiple_comparisons_complete_guide.pdf) · Syntax walkthrough: [`day164_syntax_line_by_line.pdf`](day164_syntax_line_by_line.pdf) · [Run output](day164_run_output.txt)
+
+Exercise: [`day164_exercise.py`](day164_exercise.py) holds the segments, the 66 tests and the three corrections. Its hand checks include five p values where Benjamini-Hochberg's step-up rejects one above its own line ([0, 1, 1, 1, 1]) and three where Holm finds more than Bonferroni ([1, 1, 0] against [1, 0, 0]). [Exercise output](day164_exercise_run_output.txt)
+
+![One family of tests, three ways to read it](multiple_comparisons_diagram.png)
+![A/A p values, the best false finding, what each rule finds, the errors they control, replication and the best of 100 models](multiple_comparisons_results.png)
+
 ---
 [← Back to main README](../README.md)

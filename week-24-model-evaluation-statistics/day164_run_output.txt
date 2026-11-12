@@ -1,0 +1,66 @@
+
+======================================================================
+1. p-HACKING ON DATA WITH NO EFFECT
+======================================================================
+one A/A split of the 21306 no-email customers into 'A' (10657) and 'B' (10649); 66 tests (22 segments x 3 outcomes)
+  'significant' at 0.05: 2 (chance alone expects 3.3):
+    recency 4-6, conversion: p 0.0013
+    recency 4-6, spend: p 0.0118
+  after correction: Bonferroni 0, Holm 0, Benjamini-Hochberg 0
+Actual output from this lesson's run.
+
+======================================================================
+2. THE CORRECTIONS ON 1,000 A/A SPLITS (EVERY 'DISCOVERY' IS FALSE)
+======================================================================
+1000 splits, 66 tests each (44 s); family-wise error = share of splits with at least one false discovery
+  no correction     : family-wise error 0.892, false discoveries per split 3.13
+  Bonferroni        : family-wise error 0.030, false discoveries per split 0.04
+  Holm              : family-wise error 0.030, false discoveries per split 0.04
+  Benjamini-Hochberg: family-wise error 0.032, false discoveries per split 0.05
+if the 66 tests were independent: 1 - 0.95^66 = 0.966; 0 of the 22000 spend tests had no buyer in either group (p = 1)
+Actual output from this lesson's run.
+
+======================================================================
+3. A KNOWN-TRUTH BENCHMARK: REAL EFFECTS MIXED WITH NULLS
+======================================================================
+truth from all 64,000 customers: men's email vs none is certainly real (p < 0.0001) in 32 of 66 segment x outcome tests; the other 34 are left out (truth uncertain)
+each repeat: a random 30% of customers; 32 real tests (men's email vs none) plus 66 null tests (an A/A split of the no-email customers)
+300 repeats (18 s); FDR = mean share of discoveries that are false; FWER = share of repeats with any
+  no correction     : real effects found 29.35 of 32, false discoveries 2.70, FDR 0.0790, FWER 0.790
+  Bonferroni        : real effects found 21.15 of 32, false discoveries 0.01, FDR 0.0003, FWER 0.003
+  Holm              : real effects found 21.44 of 32, false discoveries 0.01, FDR 0.0004, FWER 0.007
+  Benjamini-Hochberg: real effects found 26.70 of 32, false discoveries 0.61, FDR 0.0210, FWER 0.350
+(171 of the 13200 spend tests had no buyer in either group and were given p = 1)
+Actual output from this lesson's run.
+
+======================================================================
+4. DOES THE BEST-LOOKING FINDING REPLICATE ON FRESH CUSTOMERS?
+======================================================================
+  A/A (no effect): over 200 repeats
+    the best of 66 in the discovery half: median p 1.9e-02, below 0.05 in 0.855 of repeats; the same test on fresh customers: below 0.05 in 0.045
+    every test below 0.05 in the discovery half (2.8 per repeat): 0.052 of them below 0.05 again on fresh customers
+  men's email vs none: over 200 repeats
+    the best of 66 in the discovery half: median p 2.8e-34, below 0.05 in 1.000 of repeats; the same test on fresh customers: below 0.05 in 1.000
+    every test below 0.05 in the discovery half (48.8 per repeat): 0.776 of them below 0.05 again on fresh customers
+(60 of the 17600 spend tests here had no buyer in either group and were given p = 1)
+Actual output from this lesson's run.
+
+======================================================================
+5. THE SAME TRAP IN ML: THE BEST OF 100 MODELS ON ONE VALIDATION SET
+======================================================================
+100 logistic regressions, each on a random half of the 12 features (15 s); validation accuracy 0.7512 to 0.8394
+choose the best on one half of the validation rows, score it on the other half (500 random halvings):
+  the winner's accuracy drops by +0.0034 on average (spread of that mean 0.0004); 6 different models won at least once
+  for comparison, a model fixed in advance drops by -0.0001
+Actual output from this lesson's run.
+
+saved multiple_comparisons_results.png
+saved multiple_comparisons_diagram.png
+total time 114 s
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 165: calibration. When a model says 70%, does the event happen 70% of the time? Reliability
+diagrams for Day 161's models, the expected calibration error, and two fixes (Platt scaling and
+isotonic regression) fitted on held-out rows.

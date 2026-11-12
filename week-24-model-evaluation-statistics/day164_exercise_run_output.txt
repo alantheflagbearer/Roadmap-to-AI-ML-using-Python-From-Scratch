@@ -1,0 +1,15 @@
+five p values (0.3, 0.025, 0.005, 0.035, 0.028), m = 5:
+  Bonferroni: only p <= 0.05/5 = 0.01, so only 0.005; got [0, 0, 1, 0, 0]
+  Holm: 0.005 <= 0.05/5 = 0.01 yes; 0.025 <= 0.05/4 = 0.0125 no, stop; got [0, 0, 1, 0, 0]
+  Benjamini-Hochberg: sorted 0.005, 0.025, 0.028, 0.035, 0.3 against 0.01, 0.02, 0.03, 0.04, 0.05;
+    0.025 > 0.02 fails its own line, but 0.035 <= 0.04 passes, so the four smallest are all rejected; got [0, 1, 1, 1, 1]
+three p values (0.01, 0.02, 0.3), m = 3:
+  Bonferroni: p <= 0.0167 keeps 0.01 only; got [1, 0, 0]
+  Holm: 0.01 <= 0.0167 yes; 0.02 <= 0.05/2 = 0.025 yes; 0.3 <= 0.05 no; got [1, 1, 0]
+segments: 22; 22 x 3 outcomes = 66 tests
+  channel segments cover 64000 of 64000 customers
+  zip_code segments cover 64000 of 64000 customers
+  history segments cover 64000 of 64000 customers
+  recency segments cover 64000 of 64000 customers
+  men's only + women's only + both cover 64000 of 64000 customers
+segment_tests on the lesson's first A/A split: 66 p values, smallest 0.0013 (recency 4-6, conversion)
