@@ -1,0 +1,82 @@
+
+======================================================================
+1. THE DATA, THE SPLIT, AND THE MODELS
+======================================================================
+UCI Adult: 30162 training-file rows and 15060 test-file rows without missing values
+share above $50K: training file 0.249, test file 0.246
+Week 24's split of the training file: 24130 fitting rows, 6032 validation rows (seed 0)
+features: 12 columns for trees, 87 one-hot columns for logistic regression
+logistic regression, Newton: 8 steps, largest gradient left 5.2e-17; validation log loss 0.3410, error 0.1592 (0.2 s)
+  first draft, Day 116's Adam, 500 steps at rate 0.5: validation log loss 0.4070, error 0.1928
+  first draft, Day 116's Adam, 500 steps at rate 0.1: validation log loss 0.3403, error 0.1596
+  first draft, Day 116's Adam, 5000 steps at rate 0.1: validation log loss 0.3402, error 0.1601
+always predicting the fitting rows' share (0.249): validation Brier 0.1869
+Actual output from this lesson's run.
+
+======================================================================
+2. LEARNING CURVES: ERROR AS THE TRAINING SET GROWS
+======================================================================
+Brier score (mean squared error of the probability), mean of 5 random subsets (1 at the full 24130); training / validation
+  logistic regression (1 s)
+    250: 0.087 / 0.130; 500: 0.091 / 0.119; 1000: 0.104 / 0.114; 2000: 0.106 / 0.113; 4000: 0.108 / 0.111; 8000: 0.107 / 0.111; 16000: 0.108 / 0.110; 24130: 0.108 / 0.110
+  gradient boosting (55 s)
+    250: 0.007 / 0.142; 500: 0.029 / 0.122; 1000: 0.049 / 0.108; 2000: 0.066 / 0.102; 4000: 0.076 / 0.097; 8000: 0.082 / 0.095; 16000: 0.085 / 0.093; 24130: 0.087 / 0.092
+  one deep tree (8 s)
+    250: 0.000 / 0.229; 500: 0.001 / 0.217; 1000: 0.001 / 0.208; 2000: 0.003 / 0.200; 4000: 0.004 / 0.195; 8000: 0.007 / 0.188; 16000: 0.010 / 0.184; 24130: 0.013 / 0.182
+validation error rate at the full size: logistic regression 0.1592, gradient boosting 0.1338, one deep tree 0.1897
+Actual output from this lesson's run.
+
+======================================================================
+3. BIAS AND VARIANCE, MEASURED FROM MANY DISJOINT TRAINING SETS
+======================================================================
+Brier on validation = (bias^2 + noise) + variance; B = disjoint training sets of n rows
+  logistic regression:
+    n 250 (B 20): 0.1299 = 0.1104 + 0.0186; n 500 (B 20): 0.1201 = 0.1102 + 0.0094; n 1000 (B 20): 0.1149 = 0.1099 + 0.0048; n 2000 (B 12): 0.1126 = 0.1099 + 0.0025; n 4000 (B 6): 0.1112 = 0.1099 + 0.0010; n 8000 (B 3): 0.1106 = 0.1099 + 0.0005
+  gradient boosting:
+    n 250 (B 20): 0.1416 = 0.1002 + 0.0394; n 500 (B 20): 0.1231 = 0.0975 + 0.0243; n 1000 (B 20): 0.1098 = 0.0949 + 0.0141; n 2000 (B 12): 0.1026 = 0.0937 + 0.0082; n 4000 (B 6): 0.0977 = 0.0930 + 0.0039; n 8000 (B 3): 0.0949 = 0.0922 + 0.0018
+  one deep tree:
+    n 250 (B 20): 0.2207 = 0.1009 + 0.1138; n 500 (B 20): 0.2152 = 0.1012 + 0.1083; n 1000 (B 20): 0.2018 = 0.0949 + 0.1015; n 2000 (B 12): 0.2029 = 0.0975 + 0.0966; n 4000 (B 6): 0.1982 = 0.0952 + 0.0858; n 8000 (B 3): 0.1862 = 0.0880 + 0.0655
+Actual output from this lesson's run.
+
+======================================================================
+4. A COMPLEXITY SWEEP: TREE DEPTH, AND A FIRST-DRAFT ERROR
+======================================================================
+one tree, 12 disjoint training sets of 2000 rows; validation Brier = (bias^2 + noise) + variance
+  depth  1: 0.1494 = 0.1492 + 0.0002   first draft's bias^2 + noise: 0.1492
+  depth  2: 0.1285 = 0.1236 + 0.0045   first draft's bias^2 + noise: 0.1240
+  depth  3: 0.1187 = 0.1117 + 0.0064   first draft's bias^2 + noise: 0.1123
+  depth  4: 0.1155 = 0.1065 + 0.0082   first draft's bias^2 + noise: 0.1073
+  depth  5: 0.1144 = 0.1021 + 0.0113   first draft's bias^2 + noise: 0.1031
+  depth  6: 0.1149 = 0.0997 + 0.0139   first draft's bias^2 + noise: 0.1010
+  depth  8: 0.1232 = 0.0972 + 0.0239   first draft's bias^2 + noise: 0.0994
+  depth 10: 0.1393 = 0.0964 + 0.0393   first draft's bias^2 + noise: 0.1000
+  depth 12: 0.1571 = 0.0966 + 0.0555   first draft's bias^2 + noise: 0.1016
+  depth 14: 0.1720 = 0.0964 + 0.0693   first draft's bias^2 + noise: 0.1027
+  depth 16: 0.1845 = 0.0966 + 0.0806   first draft's bias^2 + noise: 0.1040
+  depth 20: 0.1973 = 0.0973 + 0.0917   first draft's bias^2 + noise: 0.1056
+best depth 5 (Brier 0.1144); from depth 1 to 20 the corrected bias^2 + noise falls 0.1492 -> 0.0973, the first draft's 0.1492 -> 0.1056
+Actual output from this lesson's run.
+
+======================================================================
+5. CAN A LEARNING CURVE BE EXTRAPOLATED?
+======================================================================
+validation Brier fitted as a + b n^(-c) on the small sizes only, then predicted at the full size
+fitted on sizes up to 2000:
+  logistic regression: a 0.1110, b 17.540, c 1.24; predicted at 24130: 0.1111, actual 0.1102 (error +0.0009)
+    gradient boosting: a 0.0895, b 2.664, c 0.71; predicted at 24130: 0.0916, actual 0.0918 (error -0.0003)
+        one deep tree: a 0.1708, b 0.361, c 0.33; predicted at 24130: 0.1837, actual 0.1825 (error +0.0012)
+fitted on sizes up to 4000:
+  logistic regression: a 0.1104, b 11.307, c 1.15; predicted at 24130: 0.1105, actual 0.1102 (error +0.0003)
+    gradient boosting: a 0.0897, b 2.730, c 0.72; predicted at 24130: 0.0917, actual 0.0918 (error -0.0001)
+        one deep tree: a 0.1781, b 0.453, c 0.40; predicted at 24130: 0.1865, actual 0.1825 (error +0.0040)
+Actual output from this lesson's run.
+
+saved bias_variance_results.png
+saved bias_variance_diagram.png
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 162: hypothesis testing for ML. A real randomised email experiment (Hillstrom's 64,000
+customers) is analysed as an A/B test: two-proportion tests, permutation tests, an A/A check, power,
+and McNemar's test for comparing two models on the same rows.

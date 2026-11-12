@@ -1,0 +1,6 @@
+tree_matrix: sex coded by its rate: F -> 0.0, M -> 1.0 (by hand: 0/2 and 2/2)
+onehot_matrix: age (20, 40, 60, 30) standardised -> [-1.183, 0.169, 1.521, -0.507] (by hand: mean 37.5, spread 14.79); sex columns F, M -> [[1, 0], [0, 1], [0, 1], [1, 0]]
+fit_logistic on two groups with 20% and 70% positives: probabilities [0.2, 0.7] in 5 steps (by hand: 0.2 and 0.7, so intercept log(0.2/0.8) = -1.3863, got -1.3863)
+bias_variance, models (0.2, 0.9) and (0.6, 0.5), targets (0, 1): by hand Brier (0.04 + 0.01 + 0.36 + 0.25)/4 = 0.165; average model (0.4, 0.7) errs (0.16 + 0.09)/2 = 0.125; spread per row 0.08 and 0.08 (n - 1 = 1), so variance 0.08 x 1/2 = 0.04 and bias^2 + noise 0.125 - 0.08/2 = 0.085
+  bias_variance: Brier 0.165 = 0.085 + 0.040
+load_adult: 30162 training-file rows, 15060 test-file rows; split_rows: 24130 fitting, 6032 validation
