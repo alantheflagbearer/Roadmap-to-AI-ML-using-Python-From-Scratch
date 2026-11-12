@@ -1,0 +1,11 @@
+wald_ci, 5 of 100: by hand 0.05 +/- 1.96 x sqrt(0.05 x 0.95 / 100) = 0.05 +/- 0.0427 = [0.0073, 0.0927]
+  got [0.0073, 0.0927]; and for 0 of 50: [0.0, 0.0] (a zero-width interval)
+wilson_ci, 0 of 50: by hand centre (0 + 3.8415/100) / (1 + 3.8415/50) = 0.0357, half-width 1.96 x sqrt(3.8415 / 10000) / 1.0768 = 0.0357, so [0.0000, 0.0713]
+  got [0.0000, 0.0713]
+bootstrap_reps of the mean of (1, 2, 3): by hand 27 equally likely resamples, mean 2, spread sqrt((2/3)/3) = 0.4714; a mean of 1 has chance 1/27 = 0.037, above 0.025, so the 95% percentile interval is [1, 3]
+  got mean 1.991, spread 0.460, interval (1.0, 3.0)
+jackknife of the mean of (1, 2, 3, 10): by hand 15/3, 14/3, 13/3, 6/3 = 5.0, 4.667, 4.333, 2.0; got [5.0, 4.667, 4.333, 2.0]
+bca_ci on 1..9 (symmetric, so the acceleration is 0 and BCa should sit close to the percentile interval):
+  percentile [3.333, 6.667], BCa [3.222, 6.556]
+  BCa sits one step lower: 0.055 of resample means land exactly on 5 and only the 0.471 strictly below count, so its bias correction z0 is below 0
+bca_ci when every value is 0: (0.0, 0.0) (a single point)

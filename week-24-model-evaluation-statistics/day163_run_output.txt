@@ -1,0 +1,74 @@
+
+======================================================================
+1. INTERVALS FOR A RATE: WALD, WILSON, AND THE BOOTSTRAP
+======================================================================
+population: the 21306 no-email customers; 4000 samples per size, drawn with replacement;
+coverage = share of 95% intervals that contain the population's true rate (should be 0.95)
+  conversion (true rate 0.0057):
+    n   50: Wald 0.234, Wilson 0.975, bootstrap 0.234; samples with no successes 0.766
+    n  100: Wald 0.429, Wilson 0.982, bootstrap 0.429; samples with no successes 0.570
+    n  300: Wald 0.832, Wilson 0.965, bootstrap 0.825; samples with no successes 0.167
+    n 1000: Wald 0.925, Wilson 0.946, bootstrap 0.918; samples with no successes 0.004
+    n 3000: Wald 0.947, Wilson 0.949, bootstrap 0.939; samples with no successes 0.000
+  visit (true rate 0.1062):
+    n   50: Wald 0.904, Wilson 0.936, bootstrap 0.898; samples with no successes 0.003
+    n  100: Wald 0.957, Wilson 0.953, bootstrap 0.950; samples with no successes 0.000
+    n  300: Wald 0.951, Wilson 0.951, bootstrap 0.947; samples with no successes 0.000
+    n 1000: Wald 0.945, Wilson 0.947, bootstrap 0.942; samples with no successes 0.000
+    n 3000: Wald 0.953, Wilson 0.948, bootstrap 0.949; samples with no successes 0.000
+Actual output from this lesson's run.
+
+======================================================================
+2. INTERVALS FOR A MEAN OF MOSTLY ZEROS: NORMAL, PERCENTILE, BCa
+======================================================================
+population: spend of the 21307 men's-email customers: mean $1.423, 0.9875 spent nothing, largest $499
+300 samples per size; each interval from 1000 bootstrap resamples
+  n  200: coverage normal 0.730, percentile 0.740, BCa 0.740; mean width $4.087 / $3.764 / $4.793; samples with no buyer 0.070 (2 s)
+  n 1000: coverage normal 0.880, percentile 0.883, BCa 0.923; mean width $2.040 / $2.007 / $2.280; samples with no buyer 0.000 (3 s)
+  n 5000: coverage normal 0.933, percentile 0.940, BCa 0.953; mean width $0.970 / $0.967 / $0.997; samples with no buyer 0.000 (21 s)
+(with 300 samples, a coverage of 0.95 is measured with a spread of about 0.013)
+Actual output from this lesson's run.
+
+======================================================================
+3. THE BOOTSTRAP WHERE NO SIMPLE FORMULA EXISTS
+======================================================================
+median spend of the 267 men's-email buyers: $66.98; 95% percentile [58.13, 83.26], BCa [57.73, 80.14]
+  the bootstrap medians take only 50 different values: a median can only be one of the data's values
+relative lift in spend, men's email vs none: +1.179; 95% percentile [+0.629, +1.952] (each group resampled separately, 2000 times)
+how many resamples? the median's 95% interval, 10 times with different seeds:
+  B  200: lower end 57.30 to 60.62, upper end 80.15 to 83.28
+  B 1000: lower end 57.73 to 58.13, upper end 80.61 to 83.32
+  B 5000: lower end 57.90 to 58.13, upper end 81.64 to 83.30
+Actual output from this lesson's run.
+
+======================================================================
+4. INTERVALS FOR A MODEL'S SCORE (UCI ADULT, WEEK 24'S VALIDATION ROWS)
+======================================================================
+  logistic: accuracy 0.8408 [0.8324, 0.8498], AUC 0.8972
+  boosting: accuracy 0.8662 [0.8581, 0.8748], AUC 0.9258
+accuracy gap, boosting minus logistic: +0.0254; paired [+0.0192, +0.0318] (width 0.0126), unpaired [+0.0133, +0.0375] (width 0.0242)
+AUC gap, boosting minus logistic: +0.0286; paired [+0.0245, +0.0326] from 1000 resamples (63 s)
+refitting: each model retrained on bootstrap resamples of the fitting rows, scored on the same validation rows
+  logistic: 50 refits, validation accuracy spread 0.0010, against 0.0045 from resampling the validation rows (9 s)
+  boosting: 20 refits, validation accuracy spread 0.0017, against 0.0043 from resampling the validation rows (176 s)
+Actual output from this lesson's run.
+
+======================================================================
+5. WHERE THE BOOTSTRAP FAILS: THE LARGEST VALUE
+======================================================================
+population: last year's spend of 21307 customers; 500 samples of 500, 1000 resamples each
+  largest        : true $3215.97, 95% percentile interval covered it in 0.030 of samples
+  95th percentile: true $761.73, 95% percentile interval covered it in 0.940 of samples
+one sample: largest $1460.57; 0.660 of its bootstrap resamples repeat that same largest value
+Actual output from this lesson's run.
+
+saved bootstrap_results.png
+saved bootstrap_diagram.png
+total time 325 s
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 164: the multiple-comparisons problem. Hillstrom's customers are cut into many segments
+and each is tested; some come out 'significant' by chance alone. Bonferroni, Holm and
+Benjamini-Hochberg are built and checked on data where the truth is known.

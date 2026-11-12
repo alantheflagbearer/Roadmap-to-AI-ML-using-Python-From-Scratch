@@ -2,7 +2,7 @@
 
 A daily-practice log following a 52-week (365-day) roadmap from Python fundamentals through classical ML, deep learning, and into applied AI. Most lessons don't just call a library function — they build the underlying idea (gradient descent, backprop, convolution, dropout...) from scratch in NumPy first, then show the framework equivalent. Each day is a self-contained script; from Week 1 onward, most days add a paired study guide (a concept walkthrough and a line-by-line syntax breakdown, both PDF).
 
-**Currently on Day 162** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
+**Currently on Day 163** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
 
 ## How this repo is organized
 
@@ -37,7 +37,7 @@ A daily-practice log following a 52-week (365-day) roadmap from Python fundament
 | 21 | 140–146 | Diffusion Models & Modern Generative AI | [→ folder](week-21-diffusion-models-modern-generative-ai) |
 | 22 | 147–153 | Time Series Analysis | [→ folder](week-22-time-series-analysis) |
 | 23 | 154–160 | Recommender Systems | [→ folder](week-23-recommender-systems) |
-| 24 | 161–162 (of 161–167) | Model Evaluation & Statistics — in progress | [→ folder](week-24-model-evaluation-statistics) |
+| 24 | 161–163 (of 161–167) | Model Evaluation & Statistics — in progress | [→ folder](week-24-model-evaluation-statistics) |
 
 Weeks 25 onward (hyperparameter tuning and experimentation, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
 
@@ -105,7 +105,7 @@ Starting with Week 6, the same small neural-network library — written entirely
 | ![Content-based filtering results](week-23-recommender-systems/content_based_results.png) Content-based filtering: profiles, a shuffled-content control and the cold start — Day 156 | ![Hybrid recommender results](week-23-recommender-systems/hybrid_recommenders_results.png) Hybrid recommenders: weighted, switching and in-model hybrids with noise and leak checks — Day 157 |
 | ![Implicit feedback results](week-23-recommender-systems/implicit_feedback_results.png) Implicit feedback: implicit ALS against popularity, co-occurrence and PureSVD, with new-user cold start — Day 158 | ![Evaluating recommenders results](week-23-recommender-systems/evaluating_recommenders_results.png) Evaluating recommenders: precision, recall, MAP, NDCG, coverage, bootstrap and sampled negatives — Day 159 |
 | ![Neural collaborative filtering results](week-23-recommender-systems/neural_cf_results.png) Neural collaborative filtering: GMF, MLP and NeuMF against the week's models — Day 160 | ![Bias-variance results](week-24-model-evaluation-statistics/bias_variance_results.png) Bias and variance: learning curves and a direct decomposition on census data — Day 161 |
-| ![Hypothesis testing results](week-24-model-evaluation-statistics/hypothesis_testing_results.png) Hypothesis testing: an A/B test, A/A checks, peeking, power and McNemar — Day 162 | |
+| ![Hypothesis testing results](week-24-model-evaluation-statistics/hypothesis_testing_results.png) Hypothesis testing: an A/B test, A/A checks, peeking, power and McNemar — Day 162 | ![Bootstrap results](week-24-model-evaluation-statistics/bootstrap_results.png) Confidence intervals: coverage of Wald, Wilson, percentile and BCa, and model-score intervals — Day 163 |
 
 ## Featured project: Titanic EDA (Day 13)
 

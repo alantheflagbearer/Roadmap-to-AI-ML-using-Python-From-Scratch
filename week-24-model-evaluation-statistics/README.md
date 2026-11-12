@@ -35,5 +35,21 @@ Exercise: [`day162_exercise.py`](day162_exercise.py) holds the data loader, the 
 ![An A/B test and its three safeguards](hypothesis_testing_diagram.png)
 ![Effects with intervals, a permutation null, A/A p values, peeking, power and McNemar](hypothesis_testing_results.png)
 
+## Day 163 — Confidence intervals and the bootstrap: checking the 95% promise
+[`day163_confidence_intervals_bootstrap.py`](day163_confidence_intervals_bootstrap.py) — a 95% interval promises to contain the truth 95% of the time; today measures how often it really does. A whole Hillstrom group plays the population, so the true values are known. Thousands of samples are drawn from it, and every interval is scored. Days 161 and 162's data and models, Day 109's boosting and Day 117's AUC are imported unchanged.
+
+- **A rare rate (purchases, true rate 0.0057):** the textbook Wald interval covered the truth in 0.234 of samples at 50 customers and 0.429 at 100; 0.570 of samples of 100 had no buyer at all. The bootstrap failed the same way. Wilson's interval stayed between 0.936 and 0.982 at every size.
+- **A mean of mostly zeros (spend; 0.9875 of customers spent nothing):** at 200 customers coverage was 0.730 (normal), 0.740 (percentile) and 0.740 (BCa). At 5,000, BCa reached 0.953.
+- **No formula needed:** the median spend of men's-email buyers was $66.98 [58.13, 83.26]; the lift in spend was +1.179 [+0.629, +1.952]. With B = 200 the interval's lower end moved from 57.30 to 60.62 across seeds; with 5,000 from 57.90 to 58.13.
+- **Model scores (UCI Adult):** the accuracy gap between boosting and logistic regression was +0.0254. Its paired interval had width 0.0126; unpaired, 0.0242. Retraining on resampled fitting rows moved validation accuracy by only 0.0010 (logistic) and 0.0017 (boosting), against 0.0045 from resampling the test rows.
+- **Where it fails:** an interval for the largest value covered the truth in 0.030 of samples; one for the 95th percentile, in 0.940.
+
+Study guide: [`day163_confidence_intervals_bootstrap_complete_guide.pdf`](day163_confidence_intervals_bootstrap_complete_guide.pdf) · Syntax walkthrough: [`day163_syntax_line_by_line.pdf`](day163_syntax_line_by_line.pdf) · [Run output](day163_run_output.txt)
+
+Exercise: [`day163_exercise.py`](day163_exercise.py) holds Wald and Wilson intervals, the bootstrap, percentile and BCa intervals and the jackknife. Its hand checks include Wilson's interval for 0 successes in 50 ([0.0000, 0.0713]) and a bootstrap of (1, 2, 3), whose 27 possible resamples give the interval (1.0, 3.0). [Exercise output](day163_exercise_run_output.txt)
+
+![The bootstrap, and the check of its 95% promise](bootstrap_diagram.png)
+![Coverage for rates and means, a bootstrapped ratio, resample counts, model-score intervals and the maximum](bootstrap_results.png)
+
 ---
 [← Back to main README](../README.md)
