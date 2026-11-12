@@ -2,7 +2,7 @@
 
 A daily-practice log following a 52-week (365-day) roadmap from Python fundamentals through classical ML, deep learning, and into applied AI. Most lessons don't just call a library function — they build the underlying idea (gradient descent, backprop, convolution, dropout...) from scratch in NumPy first, then show the framework equivalent. Each day is a self-contained script; from Week 1 onward, most days add a paired study guide (a concept walkthrough and a line-by-line syntax breakdown, both PDF).
 
-**Currently on Day 165** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
+**Currently on Day 166** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
 
 ## How this repo is organized
 
@@ -37,7 +37,7 @@ A daily-practice log following a 52-week (365-day) roadmap from Python fundament
 | 21 | 140–146 | Diffusion Models & Modern Generative AI | [→ folder](week-21-diffusion-models-modern-generative-ai) |
 | 22 | 147–153 | Time Series Analysis | [→ folder](week-22-time-series-analysis) |
 | 23 | 154–160 | Recommender Systems | [→ folder](week-23-recommender-systems) |
-| 24 | 161–165 (of 161–167) | Model Evaluation & Statistics — in progress | [→ folder](week-24-model-evaluation-statistics) |
+| 24 | 161–166 (of 161–167) | Model Evaluation & Statistics — in progress | [→ folder](week-24-model-evaluation-statistics) |
 
 Weeks 25 onward (hyperparameter tuning and experimentation, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
 
@@ -107,6 +107,7 @@ Starting with Week 6, the same small neural-network library — written entirely
 | ![Neural collaborative filtering results](week-23-recommender-systems/neural_cf_results.png) Neural collaborative filtering: GMF, MLP and NeuMF against the week's models — Day 160 | ![Bias-variance results](week-24-model-evaluation-statistics/bias_variance_results.png) Bias and variance: learning curves and a direct decomposition on census data — Day 161 |
 | ![Hypothesis testing results](week-24-model-evaluation-statistics/hypothesis_testing_results.png) Hypothesis testing: an A/B test, A/A checks, peeking, power and McNemar — Day 162 | ![Bootstrap results](week-24-model-evaluation-statistics/bootstrap_results.png) Confidence intervals: coverage of Wald, Wilson, percentile and BCa, and model-score intervals — Day 163 |
 | ![Multiple comparisons results](week-24-model-evaluation-statistics/multiple_comparisons_results.png) Multiple comparisons: false findings under A/A, Bonferroni, Holm and Benjamini-Hochberg against known truth, and the best of 100 models — Day 164 | ![Calibration results](week-24-model-evaluation-statistics/calibration_results.png) Calibration: reliability diagrams, ECE against its chance floor, Platt and isotonic fixes on held-out rows — Day 165 |
+| ![Fairness results](week-24-model-evaluation-statistics/fairness_results.png) Fairness: four rates per group, unawareness and proxies, the identity behind the conflict, per-group thresholds — Day 166 | |
 
 ## Featured project: Titanic EDA (Day 13)
 

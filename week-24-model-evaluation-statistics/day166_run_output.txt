@@ -1,0 +1,90 @@
+two models trained on the 24130 fitting rows (22 s); scored on 6032 validation rows
+
+======================================================================
+1. ONE MODEL, TWO GROUPS: THE RATES THAT FAIRNESS CRITERIA COMPARE (THRESHOLD 0.5)
+======================================================================
+  Female: 1925 validation people, 0.1174 earn above $50K
+  Male  : 4107 validation people, 0.3104 earn above $50K
+  logistic: accuracy 0.8408
+    Female: selected 0.0790, TPR 0.4956, FPR 0.0235, precision 0.7368
+    Male  : selected 0.2652, TPR 0.6110, FPR 0.1095, precision 0.7153
+    women's selection rate / men's = 0.298 (the '80% rule' asks for at least 0.8)
+    gap men - women in sel: +0.1862 [+0.1684, +0.2033]; between random groups: spread 0.0111
+    gap men - women in tpr: +0.1154 [+0.0455, +0.1833]; between random groups: spread 0.0264
+    gap men - women in fpr: +0.0859 [+0.0731, +0.1002]; between random groups: spread 0.0088
+    gap men - women in ppv: -0.0215 [-0.0931, +0.0527]; between random groups: spread 0.0275
+  boosting: accuracy 0.8662
+    Female: selected 0.0831, TPR 0.5796, FPR 0.0171, precision 0.8187
+    Male  : selected 0.2600, TPR 0.6510, FPR 0.0840, precision 0.7772
+    women's selection rate / men's = 0.320 (the '80% rule' asks for at least 0.8)
+    gap men - women in sel: +0.1769 [+0.1588, +0.1943]; between random groups: spread 0.0111
+    gap men - women in tpr: +0.0713 [+0.0057, +0.1396]; between random groups: spread 0.0254
+    gap men - women in fpr: +0.0670 [+0.0553, +0.0790]; between random groups: spread 0.0086
+    gap men - women in ppv: -0.0416 [-0.1062, +0.0213]; between random groups: spread 0.0281
+Actual output from this lesson's run.
+
+======================================================================
+2. 'FAIRNESS THROUGH UNAWARENESS': DELETE THE SEX COLUMN, THEN ITS PROXIES
+======================================================================
+  removed nothing                              : accuracy 0.8408, AUC 0.8972; sex predictable from the rest with AUC 0.9341
+    selected women 0.0790, men 0.2652; TPR women 0.4956, men 0.6110; FPR women 0.0235, men 0.1095
+  removed sex                                  : accuracy 0.8400, AUC 0.8956; sex predictable from the rest with AUC 0.9341
+    selected women 0.0842, men 0.2605; TPR women 0.5221, men 0.6008; FPR women 0.0259, men 0.1073
+  removed sex, relationship                    : accuracy 0.8397, AUC 0.8936; sex predictable from the rest with AUC 0.8637
+    selected women 0.0691, men 0.2642; TPR women 0.4513, men 0.6071; FPR women 0.0182, men 0.1098
+  removed sex, relationship, marital-status    : accuracy 0.8037, AUC 0.8372; sex predictable from the rest with AUC 0.8010
+    selected women 0.0862, men 0.1838; TPR women 0.3274, men 0.4275; FPR women 0.0541, men 0.0742
+Actual output from this lesson's run.
+
+======================================================================
+3. WHY THE CRITERIA CONFLICT: CALIBRATED, YET UNEQUAL ERROR RATES
+======================================================================
+  logistic:
+    Female: mean probability 0.1173 against a rate of 0.1174 (ECE 0.0208); precision 0.7368, TPR 0.4956, FPR 0.0235; identity gives FPR 0.0235
+    Male  : mean probability 0.3126 against a rate of 0.3104 (ECE 0.0178); precision 0.7153, TPR 0.6110, FPR 0.1095; identity gives FPR 0.1095
+  boosting:
+    Female: mean probability 0.1167 against a rate of 0.1174 (ECE 0.0128); precision 0.8187, TPR 0.5796, FPR 0.0171; identity gives FPR 0.0171
+    Male  : mean probability 0.3093 against a rate of 0.3104 (ECE 0.0101); precision 0.7772, TPR 0.6510, FPR 0.0840; identity gives FPR 0.0840
+  base-rate odds: women 0.1330, men 0.4502 (ratio 3.38); with equal precision and equal TPR the identity would force men's FPR to be 3.38 times women's
+Actual output from this lesson's run.
+
+======================================================================
+4. ONE THRESHOLD PER GROUP, CHOSEN ON HALF THE ROWS, CHECKED ON THE OTHER HALF
+======================================================================
+means over 50 random halvings (boosting; thresholds chosen on half A, everything below measured on half B):
+  one threshold 0.5: thresholds women 0.500, men 0.500; accuracy 0.8669 (spread 0.0046); change against one threshold on the same halves +0.0000 (spread 0.0000)
+    women: selected 0.084, TPR 0.582, FPR 0.017, precision 0.826
+    men:   selected 0.261, TPR 0.653, FPR 0.084, precision 0.779
+  parity (equal selection): thresholds women 0.124, men 0.624; accuracy 0.8499 (spread 0.0051); change against one threshold on the same halves -0.0169 (spread 0.0052)
+    women: selected 0.206, TPR 0.899, FPR 0.112, precision 0.522
+    men:   selected 0.205, TPR 0.559, FPR 0.046, precision 0.847
+  equal opportunity (equal TPR): thresholds women 0.437, men 0.515; accuracy 0.8673 (spread 0.0047); change against one threshold on the same halves +0.0004 (spread 0.0010)
+    women: selected 0.097, TPR 0.641, FPR 0.023, precision 0.793
+    men:   selected 0.254, TPR 0.643, FPR 0.079, precision 0.786
+Actual output from this lesson's run.
+
+======================================================================
+5. SMALL GROUPS: RACE x SEX, AND HOW WIDE THEIR INTERVALS ARE
+======================================================================
+  Amer-Indian-Eskimo Female:   23 people, base rate 0.000, selected 0.043 Wilson [0.008, 0.210] (bootstrap [0.000, 0.130]), TPR undefined (nobody positive)
+  Amer-Indian-Eskimo Male  :   36 people, base rate 0.111, selected 0.111 Wilson [0.044, 0.253] (bootstrap [0.028, 0.222]), TPR 0.750 (of 4)
+  Asian-Pac-Islander Female:   67 people, base rate 0.194, selected 0.104 Wilson [0.052, 0.200] (bootstrap [0.045, 0.179]), TPR 0.462 (of 13)
+  Asian-Pac-Islander Male  :  115 people, base rate 0.304, selected 0.339 Wilson [0.259, 0.430] (bootstrap [0.252, 0.435]), TPR 0.657 (of 35)
+  Black              Female:  280 people, base rate 0.075, selected 0.043 Wilson [0.025, 0.073] (bootstrap [0.021, 0.068]), TPR 0.476 (of 21)
+  Black              Male  :  295 people, base rate 0.220, selected 0.139 Wilson [0.104, 0.183] (bootstrap [0.102, 0.180]), TPR 0.538 (of 65)
+  Other              Female:   16 people, base rate 0.000, selected 0.000 Wilson [0.000, 0.194] (bootstrap [0.000, 0.000]), TPR undefined (nobody positive)
+  Other              Male  :   33 people, base rate 0.091, selected 0.091 Wilson [0.031, 0.236] (bootstrap [0.000, 0.212]), TPR 0.667 (of 3)
+  White              Female: 1539 people, base rate 0.125, selected 0.091 Wilson [0.078, 0.106] (bootstrap [0.077, 0.107]), TPR 0.599 (of 192)
+  White              Male  : 3628 people, base rate 0.322, selected 0.270 Wilson [0.256, 0.285] (bootstrap [0.256, 0.284]), TPR 0.657 (of 1168)
+  10 groups x 4 rates = 40 comparisons: Day 164's multiple-comparisons problem returns
+Actual output from this lesson's run.
+
+saved fairness_results.png
+saved fairness_diagram.png
+total time 62 s
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 167: the report card. SHAP and LIME built from scratch, then all six of the week's tools
+applied to one model, scored once on Adult's untouched test file.

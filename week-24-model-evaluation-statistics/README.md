@@ -83,5 +83,21 @@ Exercise: [`day165_exercise.py`](day165_exercise.py) holds the reliability table
 ![Calibrating a model's probabilities on rows it never saw](calibration_diagram.png)
 ![Reliability before and after, ECE per half with chance floors, and how many rows each fix needs](calibration_results.png)
 
+## Day 166 — Fairness: demographic parity, equalized odds, and why they conflict
+[`day166_fairness.py`](day166_fairness.py) — a model can be accurate overall and still treat groups differently. Two UCI Adult models are compared across women and men on four rates (selection, true positive rate, false positive rate, precision), with bootstrap intervals and a shuffled-label control. Deleting the sex column, an identity that explains why the criteria conflict, one threshold per group chosen on half the rows, and small race × sex groups follow. Days 161, 109, 117, 163 and 165 are imported unchanged.
+
+- **Measured:** logistic regression selected 0.0790 of women and 0.2652 of men (base rates 0.1174 and 0.3104), a ratio of 0.298 against the 80% rule's 0.8. Among the truly positive, women were found less often (TPR gap +0.1154 [+0.0455, +0.1833]); precision did not differ detectably (gap -0.0215 [-0.0931, +0.0527]).
+- **Unawareness fails:** without the sex column, the other columns still predicted sex with AUC 0.9341 and the rates barely moved. Deleting relationship and marital-status too dropped accuracy to 0.8037 without making any rate equal.
+- **Why they conflict:** FPR = odds(base) × (1 − precision)/precision × TPR held exactly (0.0235 and 0.1095). With odds 0.1330 and 0.4502 (ratio 3.38), a calibrated model cannot also equalise both error rates.
+- **Per-group thresholds, checked on the other half (50 halvings):** parity changed accuracy by -0.0169 and lowered women's precision to 0.522; equal TPR changed it by +0.0004 (spread 0.0010) but men's FPR stayed above women's (0.079 against 0.023).
+- **First draft:** the bootstrap gave [0.000, 0.000] for a group of 16 with nobody selected; Wilson gives [0.000, 0.194].
+
+Study guide: [`day166_fairness_complete_guide.pdf`](day166_fairness_complete_guide.pdf) · Syntax walkthrough: [`day166_syntax_line_by_line.pdf`](day166_syntax_line_by_line.pdf) · [Run output](day166_run_output.txt)
+
+Exercise: [`day166_exercise.py`](day166_exercise.py) holds rates per group, the gap, thresholds for a chosen selection rate or TPR, per-group decisions, the FPR identity and the feature behind each one-hot column. Its hand checks work through two groups of four people ([0.25, 0.5, 1.0, 0.3333, 0.5] for the men) and a TPR threshold between counted scores (0.4667). [Exercise output](day166_exercise_run_output.txt)
+
+![Three fairness criteria and the identity that links them](fairness_diagram.png)
+![Rates per sex, deleting proxies, per-group thresholds, and small-group intervals](fairness_results.png)
+
 ---
 [← Back to main README](../README.md)
