@@ -67,5 +67,21 @@ Exercise: [`day164_exercise.py`](day164_exercise.py) holds the segments, the 66 
 ![One family of tests, three ways to read it](multiple_comparisons_diagram.png)
 ![A/A p values, the best false finding, what each rule finds, the errors they control, replication and the best of 100 models](multiple_comparisons_results.png)
 
+## Day 165 — Calibration: when a model says 70%, does it happen 70% of the time?
+[`day165_calibration.py`](day165_calibration.py) — a model can rank people well and still give wrong probabilities. Four UCI Adult models are measured with reliability diagrams and the expected calibration error (ECE), next to the ECE a perfectly calibrated model would show by chance. Platt scaling and isotonic regression are built from scratch and fitted on held-out rows. Day 161's data and logistic regression, Day 109's trees and boosting, and Day 117's AUC are imported unchanged.
+
+- **Measured:** logistic regression (ECE 0.0149, chance floor 0.0108) and boosting (0.0096, floor 0.0096) were close to calibrated. Logistic regression trained on a 50/50 sample ranked as well (AUC 0.8968) but had ECE 0.1327 and predicted 2301 high earners where there were 1501. The deep tree said 0% or 100% for almost everyone: log loss 2.3899.
+- **Fixed on held-out rows (each half scored on its own):** Platt took the balanced model to 0.0230 and 0.0269; isotonic took the deep tree's log loss from 2.3899 to 0.4456. On the two models that were already calibrated, both fixes made ECE worse: each copies the base rate of the half it was fitted on (0.2410 against 0.2564).
+- **Pooling flatters:** the deep tree after isotonic scored 0.0025 with both halves pooled, but 0.0164 and 0.0171 on each half alone.
+- **The trap:** a fix fitted on the deep tree's memorised training rows left its ECE at 0.1757; on the balanced model, which had not memorised, training rows worked (0.0128).
+- **First draft:** plain Newton for Platt ran away on the deep tree's 0/1 scores (slope 1.53e+13); step halving fixed it.
+
+Study guide: [`day165_calibration_complete_guide.pdf`](day165_calibration_complete_guide.pdf) · Syntax walkthrough: [`day165_syntax_line_by_line.pdf`](day165_syntax_line_by_line.pdf) · [Run output](day165_run_output.txt)
+
+Exercise: [`day165_exercise.py`](day165_exercise.py) holds the reliability table, ECE, log loss, Platt scaling, isotonic regression and cross-fitting. Its hand checks include Platt recovering the slope and intercept it was built from ([1.975, -0.983] for 2 and -1) and a six-row case where plain Newton runs away and step halving lands on the worked answer ([0.0502, 0.0]). [Exercise output](day165_exercise_run_output.txt)
+
+![Calibrating a model's probabilities on rows it never saw](calibration_diagram.png)
+![Reliability before and after, ECE per half with chance floors, and how many rows each fix needs](calibration_results.png)
+
 ---
 [← Back to main README](../README.md)
