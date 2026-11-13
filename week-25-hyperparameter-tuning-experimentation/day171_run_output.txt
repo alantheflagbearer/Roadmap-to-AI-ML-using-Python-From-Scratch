@@ -1,0 +1,80 @@
+rows: 18130 in the training pool, 6000 in the stop set, 6032 fresh
+20 full runs and 10 control runs recorded in 85 s
+
+======================================================================
+1. WHAT OVER-FITTING LOOKS LIKE (Adam, rate 1e-3, 100 epochs, 10 seeds)
+======================================================================
+   2000 training rows: best epoch on the stop set: median 13 (range 10 to 16); on the fresh rows: median 12
+         training loss at epoch 100 0.1517; fresh loss: at the stop set's best epoch 0.3418, at epoch 100 0.5254, best in hindsight 0.3416
+  18000 training rows: best epoch on the stop set: median 12 (range 6 to 14); on the fresh rows: median 7
+         training loss at epoch 100 0.2211; fresh loss: at the stop set's best epoch 0.3298, at epoch 100 0.4333, best in hindsight 0.3287
+  control, 2000 rows with shuffled labels: best epoch on the stop set: median 9; fresh loss there 0.5669, at epoch 100 0.8872; always predicting the base rate 0.247: 0.5611
+Actual output from this lesson's run.
+
+======================================================================
+2. STOPPING RULES: EPOCHS RUN AGAINST LOSS ON FRESH ROWS (means over 10 seeds)
+======================================================================
+  2000 training rows                 epochs run   fresh loss   regret (mean / worst)   kept the overall best
+    patience 1                      11.2       0.3421   +0.0006 / +0.0021   0.3
+    patience 2                      14.5       0.3419   +0.0004 / +0.0014   0.9
+    patience 5                      17.8       0.3418   +0.0003 / +0.0014   1.0
+    patience 10                     22.8       0.3418   +0.0003 / +0.0014   1.0
+    patience 20                     32.8       0.3418   +0.0003 / +0.0014   1.0
+    GL > 1%                         19.8       0.3418   +0.0003 / +0.0014   1.0
+    GL > 2%                         24.6       0.3418   +0.0003 / +0.0014   1.0
+    GL > 5%                         34.2       0.3418   +0.0003 / +0.0014   1.0
+    no stopping, best              100.0       0.3418   +0.0003 / +0.0014   1.0
+    no stopping, last              100.0       0.5254   +0.1839 / +0.2219   0.0
+  18000 training rows                 epochs run   fresh loss   regret (mean / worst)   kept the overall best
+    patience 1                       4.8       0.3312   +0.0025 / +0.0085   0.0
+    patience 2                       8.8       0.3292   +0.0005 / +0.0012   0.2
+    patience 5                      15.9       0.3298   +0.0011 / +0.0023   1.0
+    patience 10                     20.9       0.3298   +0.0011 / +0.0023   1.0
+    patience 20                     30.9       0.3298   +0.0011 / +0.0023   1.0
+    GL > 1%                         13.4       0.3298   +0.0012 / +0.0023   0.8
+    GL > 2%                         20.9       0.3298   +0.0011 / +0.0023   1.0
+    GL > 5%                         32.6       0.3298   +0.0011 / +0.0023   1.0
+    no stopping, best              100.0       0.3298   +0.0011 / +0.0023   1.0
+    no stopping, last              100.0       0.4333   +0.1046 / +0.1276   0.0
+  (regret: the fresh loss of the kept weights minus the best fresh loss of any epoch, known only in hindsight;
+   kept the overall best: the share of runs whose kept epoch is the stop set's best of all 100)
+Actual output from this lesson's run.
+
+======================================================================
+3. RESTORE THE BEST WEIGHTS, OR KEEP THE LAST ONES?
+======================================================================
+   2000 rows, fresh loss restored / last: p1: 0.3421 / 0.3427, p2: 0.3419 / 0.3429, p5: 0.3418 / 0.3442, p10: 0.3418 / 0.3479, p20: 0.3418 / 0.3622
+  18000 rows, fresh loss restored / last: p1: 0.3312 / 0.3323, p2: 0.3292 / 0.3310, p5: 0.3298 / 0.3316, p10: 0.3298 / 0.3362, p20: 0.3298 / 0.3439
+Actual output from this lesson's run.
+
+======================================================================
+4. HOW BIG MUST THE STOP SET BE? (patience 5; two disjoint halves A and B)
+======================================================================
+   2000 rows, halves of  100: regret +0.0064; optimism +0.0159, control +0.0009, difference +0.0150 (standard error 0.00063); epochs run 19.8
+   2000 rows, halves of  500: regret +0.0019; optimism +0.0038, control -0.0000, difference +0.0038 (standard error 0.00017); epochs run 19.0
+   2000 rows, halves of 3000: regret +0.0005; optimism +0.0004, control -0.0004, difference +0.0008 (standard error 0.00004); epochs run 18.5
+  18000 rows, halves of  100: regret +0.0044; optimism +0.0162, control +0.0007, difference +0.0155 (standard error 0.00060); epochs run 13.9
+  18000 rows, halves of  500: regret +0.0025; optimism +0.0069, control +0.0004, difference +0.0064 (standard error 0.00023); epochs run 14.6
+  18000 rows, halves of 3000: regret +0.0013; optimism +0.0013, control -0.0004, difference +0.0016 (standard error 0.00007); epochs run 15.6
+  (optimism: B's loss minus A's at the epoch A chose; control: the same halves at an epoch chosen on the full stop set;
+   difference: optimism minus control, draw by draw, which removes the luck of which rows fell in A)
+Actual output from this lesson's run.
+
+======================================================================
+5. THE STOPPER RUN FOR REAL, AGAINST THE SAME RULE REPLAYED
+======================================================================
+   2000 rows: run for real, stopped after 21 epochs, best epoch 16, fresh loss 0.3399; replayed: stopped after 21, best 16, fresh 0.3399; curves identical: True
+         time: 0.16 s, against 0.71 s for the same loop with patience 101 (all 100 epochs)
+  18000 rows: run for real, stopped after 17 epochs, best epoch 12, fresh loss 0.3289; replayed: stopped after 17, best 12, fresh 0.3289; curves identical: True
+         time: 0.76 s, against 4.14 s for the same loop with patience 101 (all 100 epochs)
+Actual output from this lesson's run.
+
+saved early_stopping_results.png
+saved early_stopping_diagram.png
+total time 98 s
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 172: cross-validation for time series and grouped data. Shuffled folds leak the future
+and the same user into the test fold; a real leakage demo on CO2, electrical equipment and MovieLens.

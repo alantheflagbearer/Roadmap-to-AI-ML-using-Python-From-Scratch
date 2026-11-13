@@ -1,0 +1,6 @@
+copy_net: original weight now 9, copy 1 (by hand 9 and 1)
+stop_at([5, 4, 4.5, 4.2, 4.1, 3.9], patience 2): (3, 1) (by hand (3, 1): best at epoch 1, then epochs 2 and 3 are no better, so it stops at 3 and never sees 3.9)
+stop_at([1.0, 0.995, 0.99, 0.985], patience 2, min_delta 0.01): (2, 0) (by hand (2, 0): neither 0.995 nor 0.99 is 0.01 better than 1.0)
+gl_stop_at([1.0, 0.8, 0.82, 0.85], alpha 5): (3, 1) (by hand (3, 1): 0.82 is 2.5% above the best 0.8, 0.85 is 6.25%)
+row_losses at logit 0, labels 1 and 0: [0.6931, 0.6931] (by hand ln 2 = 0.6931 for both)
+toy problem (200 training rows, 20% noisy labels): stopped after 15 of 300 epochs, best epoch 10; restored weights score 0.581452, the curve's lowest 0.581452 (must be equal; no model can beat the noise floor -0.2 ln 0.2 - 0.8 ln 0.8 = 0.5004)

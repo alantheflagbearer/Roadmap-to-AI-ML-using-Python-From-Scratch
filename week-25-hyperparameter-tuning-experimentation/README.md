@@ -50,5 +50,21 @@ Exercise: [`day170_exercise.py`](day170_exercise.py) holds `lr_range`, `lr_find`
 ![A learning-rate finder run, Adam on Adult](lr_finder_diagram.png)
 ![The finder against real training: least squares, Adam, SGD and batch size](lr_finder_results.png)
 
+## Day 171 — Early stopping: patience, restoring the best weights, and the stop set's size
+[`day171_early_stopping.py`](day171_early_stopping.py) — early stopping from scratch: score a held-out stop set after every epoch, stop after `patience` epochs without a new best, and restore the best epoch's weights. It uses Day 170's network on UCI Adult, with 2,000 or 18,000 training rows, a 6,000-row stop set and 6,032 fresh rows that only score. Every run is recorded for 100 epochs, so each rule can be replayed exactly.
+
+- **Over-fitting:** with 2,000 rows the fresh loss went from 0.3418 at the stop set's best epoch to 0.5254 at epoch 100, while the training loss fell to 0.1517. **Control:** with shuffled labels, early stopping kept 0.5669, near the 0.5611 of predicting the base rate, while 100 epochs reached 0.8872.
+- **Rules (10 seeds):** patience 5 ran 17.8 epochs (2,000 rows) and 15.9 (18,000 rows) and kept the stop set's best of all 100 epochs in every run. Patience 1 stopped too soon at 18,000 rows (worst +0.0085). Longer patience and Prechelt's GL rule gave the same weights at a higher cost.
+- **Restore or keep the last weights:** with patience 20, restoring gave 0.3418 and keeping the last 0.3622.
+- **Stop-set size (two halves, paired control):** choosing on 100 rows cost +0.0064 on fresh rows, and the chosen epoch's own score was +0.0150 too good (standard error 0.00063); with 3,000 rows, +0.0005 and +0.0008. **Complication:** at 18,000 rows patience 2 beat patience 5 (+0.0005 against +0.0011), because the stop set preferred later epochs than the fresh rows; it is not a recommendation.
+- **Check:** running the stopper for real and replaying it on the recorded curve gave identical curves and the same stopping epoch (`curves identical: True`).
+
+Study guide: [`day171_early_stopping_complete_guide.pdf`](day171_early_stopping_complete_guide.pdf) · Syntax walkthrough: [`day171_syntax_line_by_line.pdf`](day171_syntax_line_by_line.pdf) · [Run output](day171_run_output.txt)
+
+Exercise: [`day171_exercise.py`](day171_exercise.py) holds `copy_net`, `EarlyStopper`, `stop_at`, `gl_stop_at`, `row_losses`, `train_epoch` and `train_es`. Its hand checks include stoppers that must stop at known epochs, `min_delta`, the GL rule, and a toy problem whose restored weights reproduce the curve's lowest loss exactly (0.581452; the noise floor is 0.5004). [Exercise output](day171_exercise_run_output.txt)
+
+![Early stopping on one real run](early_stopping_diagram.png)
+![Early stopping: curves, rules, and stop-set size](early_stopping_results.png)
+
 ---
 [← Back to main README](../README.md)
