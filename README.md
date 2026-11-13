@@ -2,7 +2,7 @@
 
 A daily-practice log following a 52-week (365-day) roadmap from Python fundamentals through classical ML, deep learning, and into applied AI. Most lessons don't just call a library function — they build the underlying idea (gradient descent, backprop, convolution, dropout...) from scratch in NumPy first, then show the framework equivalent. Each day is a self-contained script; from Week 1 onward, most days add a paired study guide (a concept walkthrough and a line-by-line syntax breakdown, both PDF).
 
-**Currently on Day 173** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
+**Currently on Day 174** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
 
 ## How this repo is organized
 
@@ -38,7 +38,7 @@ A daily-practice log following a 52-week (365-day) roadmap from Python fundament
 | 22 | 147–153 | Time Series Analysis | [→ folder](week-22-time-series-analysis) |
 | 23 | 154–160 | Recommender Systems | [→ folder](week-23-recommender-systems) |
 | 24 | 161–167 | Model Evaluation & Statistics | [→ folder](week-24-model-evaluation-statistics) |
-| 25 | 168–173 (of 168–174) | Hyperparameter Tuning & Experimentation — in progress | [→ folder](week-25-hyperparameter-tuning-experimentation) |
+| 25 | 168–174 | Hyperparameter Tuning & Experimentation | [→ folder](week-25-hyperparameter-tuning-experimentation) |
 
 Weeks 26 onward (MLOps and serving models, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
 
@@ -112,6 +112,7 @@ Starting with Week 6, the same small neural-network library — written entirely
 | ![Grid vs random search results](week-25-hyperparameter-tuning-experimentation/grid_random_results.png) Grid against random search: a known-truth benchmark and boosting on Adult — Day 168 | ![Bayesian optimisation results](week-25-hyperparameter-tuning-experimentation/bayes_opt_results.png) Bayesian optimisation from scratch: Hartmann-3, Day 168's pool and new configurations — Day 169 |
 | ![Learning-rate finder results](week-25-hyperparameter-tuning-experimentation/lr_finder_results.png) A learning-rate finder from scratch, checked against real training on UCI Adult — Day 170 | ![Early stopping results](week-25-hyperparameter-tuning-experimentation/early_stopping_results.png) Early stopping: over-fitting curves, stopping rules, and how big the stop set must be — Day 171 |
 | ![Cross-validation leakage results](week-25-hyperparameter-tuning-experimentation/cv_leakage_results.png) Cross-validation for time series and grouped data: shuffled folds chose the wrong model three times — Day 172 | ![Experiment tracking results](week-25-hyperparameter-tuning-experimentation/tracking_results.png) Experiment tracking from scratch: a crashed study resumed, runs reproduced from their records, and the seed's share of the winner's score — Day 173 |
+| ![Reproducibility results](week-25-hyperparameter-tuning-experimentation/reproducibility_results.png) Reproducibility: one tuning study from six parts, rerun to bit-identical results — Day 174 | |
 
 ## Featured project: Titanic EDA (Day 13)
 

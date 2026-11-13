@@ -1,0 +1,63 @@
+
+======================================================================
+1. THE STUDY: SIX PARTS, ONE TRACKED LOG
+======================================================================
+  learning-rate finder (Day 170): min / 10 = 2.18e-02; learning rates searched from 7.26e-05 to 6.53e-02
+  best 3-fold CV log loss after the 8 random trials 0.3439; after all 20 trials 0.3435
+  chosen: trial 14 (Bayesian), lr 2.97e-03, patience 20, batch 33
+  final fit on all 3000 tuning rows: stopped at best epoch 2; validation log loss 0.3358; test log loss 0.3331, test accuracy 0.8421
+  final weights fingerprint 770840edcfac; 22 tracked steps; 58 s in a new process (exit code 0)
+  first draft (rates from 7.26e-04): chose lr 4.02e-02, patience 12, batch 167; best CV 0.3413 against 0.3435; best epoch 1; validation 0.3426, test 0.3401
+Actual output from this lesson's run.
+
+======================================================================
+2. THE SAME STUDY AGAIN, FROM SCRATCH, IN A NEW PROCESS
+======================================================================
+  21 of 21 steps identical to the bit (20 trials and the final fit); exit code 0, 57 s
+  trial 0: A 0.345463331144936, B 0.345463331144936
+  trial 12: A 0.3471156054791289, B 0.3471156054791289
+  final weights: A 770840edcfac, B 770840edcfac; run ids identical: True
+Actual output from this lesson's run.
+
+======================================================================
+3. A STUDY THAT CRASHES IN TRIAL 13 (BAYESIAN PHASE), THEN RESUMES FROM ITS LOG
+======================================================================
+  first attempt: exit code 1, last error line: RuntimeError: simulated crash in trial 13
+  the log after the crash: 14 finished steps (the finder and trials 0 to 12), 1 failed
+  resumed: exit code 0, 23 s; 21 of 21 steps identical to study A, including the final weights 770840edcfac
+Actual output from this lesson's run.
+
+======================================================================
+4. WHAT BREAKS IT: ANOTHER SEED, AN UNSEEDED FOLD SPLIT, ONE BLAS THREAD
+======================================================================
+  S1 (study seed 1 instead of 0): 0 of 21 of A's steps reproduced; chose lr 9.84e-04, patience 3, batch 39; test log loss 0.3364 (A 0.3331), weights 4e81f5f33d1c
+      steps with A's exact settings: 1 of 22; largest score difference among them: none shared
+  U1 (folds with no seed, first run): 0 of 21 of A's steps reproduced; chose lr 1.60e-03, patience 7, batch 47; test log loss 0.3315 (A 0.3331), weights 336b47ebb101
+      steps with A's exact settings: 9 of 22; largest score difference among them: 1.2e-02
+  U2 (folds with no seed, second run): 0 of 21 of A's steps reproduced; chose lr 1.08e-03, patience 16, batch 110; test log loss 0.3338 (A 0.3331), weights 673600440f24
+      steps with A's exact settings: 9 of 22; largest score difference among them: 9.6e-03
+  T1 (seed 0, 1 BLAS thread instead of 4): 0 of 21 of A's steps reproduced; chose lr 2.97e-03, patience 20, batch 33; test log loss 0.3331 (A 0.3331), weights 770840edcfac
+      steps with A's exact settings: 22 of 22; largest score difference among them: 4.6e-07
+  U1 against U2: 0 of 21 steps identical; the same command gave two different studies
+Actual output from this lesson's run.
+
+======================================================================
+5. PINNING: THE ENVIRONMENT RECORDED AND CHECKED, AND A LINE-ENDING TRAP
+======================================================================
+  wrote day174_environment.json
+  pinned: blas_threads 4, machine AMD64, matplotlib 3.11.0, numpy 2.5.0, python 3.14.2, pythonhashseed 0, system Windows
+  this machine against the pin: no differences
+  day174_requirements.txt: numpy==2.5.0, matplotlib==3.11.0 (python 3.14.2)
+  every start record carries its environment too, e.g. study A's first: {'numpy': '2.5.0', 'python': '3.14.2'}
+  code hash of this script on disk e301653f65b9 (the hash every record carries); with LF line endings e301653f65b9, with CRLF line endings 048605463d57: the same code, two hashes
+Actual output from this lesson's run.
+
+saved reproducibility_results.png
+saved reproducibility_diagram.png
+total time 389 s
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Week 26, MLOps I: serving models. Day 175 compares real ways of saving and loading a trained model,
+starting from a model like this one, whose weights must load back identical to the bit.

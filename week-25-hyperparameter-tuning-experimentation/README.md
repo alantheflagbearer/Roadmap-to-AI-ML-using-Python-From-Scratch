@@ -96,5 +96,29 @@ Exercise: [`day173_exercise.py`](day173_exercise.py) holds `fingerprint`, `file_
 ![What the tracker records, and how a crashed study resumes](tracking_diagram.png)
 ![Tracked runs, curves read from the log, seeds, and costs](tracking_results.png)
 
+## Day 174 — Reproducibility: Week 25's build
+[`day174_reproducible_study.py`](day174_reproducible_study.py) — one tuning study built from all six of this week's parts:
+- Day 170's finder sets the learning-rate range.
+- Day 168's 8 random trials and Day 169's 12 Bayesian trials choose configurations.
+- Day 172's 3 folds and Day 171's early stopping score them.
+- Day 173's tracker logs every step to [`day174_runs/`](day174_runs).
+
+Each study runs in its own fresh Python process, with BLAS threads and the hash seed fixed. The chosen settings were scored once on the official test file, which Week 25 had not touched before. The environment is pinned in [`day174_environment.json`](day174_environment.json) and [`day174_requirements.txt`](day174_requirements.txt).
+
+- **The study:** it chose a Bayesian trial (lr 2.97e-03). Test log loss 0.3331, test accuracy 0.8421.
+- **First draft:** it searched a range only 30 times below the finder's suggestion and chose lr 4.02e-02, which peaked at epoch 1 (validation 0.3426). I widened the range after seeing that draft's validation and test numbers, and the guide says so. The draft is kept as study D30.
+- **Same command, new process:** 21 of 21 steps identical to the bit, with final weights 770840edcfac in both.
+- **Crash and resume:** a study that crashed in trial 13 and resumed from its log matched all 21 steps. A first draft of the resume passed silently but reproduced only 13 of 21: it proposed Bayesian trials from a history that included their own future.
+- **What breaks it:**
+  - Seed 1 chose other settings, with a test loss of 0.3364.
+  - Unseeded folds made one command give two different studies (0 of 21 identical).
+  - One BLAS thread instead of four kept every choice and the weights, but changed scores by up to 4.6e-07.
+- **Line-ending trap:** the same script hashes differently with CRLF line endings, so the code hash should be computed on normalised text.
+
+Study guide: [`day174_reproducible_study_complete_guide.pdf`](day174_reproducible_study_complete_guide.pdf) · Syntax walkthrough: [`day174_syntax_line_by_line.pdf`](day174_syntax_line_by_line.pdf) · [Run output](day174_run_output.txt)
+
+![Day 174's study pipeline and reproducibility checks](reproducibility_diagram.png)
+![Reproducibility results: the finder's range, trials per study, test loss, and what reproduced](reproducibility_results.png)
+
 ---
 [← Back to main README](../README.md)
