@@ -2,7 +2,7 @@
 
 A daily-practice log following a 52-week (365-day) roadmap from Python fundamentals through classical ML, deep learning, and into applied AI. Most lessons don't just call a library function — they build the underlying idea (gradient descent, backprop, convolution, dropout...) from scratch in NumPy first, then show the framework equivalent. Each day is a self-contained script; from Week 1 onward, most days add a paired study guide (a concept walkthrough and a line-by-line syntax breakdown, both PDF).
 
-**Currently on Day 169** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
+**Currently on Day 170** of 365. Full syllabus: [`full_syllabus_days_1_365.md`](full_syllabus_days_1_365.md).
 
 ## How this repo is organized
 
@@ -38,7 +38,7 @@ A daily-practice log following a 52-week (365-day) roadmap from Python fundament
 | 22 | 147–153 | Time Series Analysis | [→ folder](week-22-time-series-analysis) |
 | 23 | 154–160 | Recommender Systems | [→ folder](week-23-recommender-systems) |
 | 24 | 161–167 | Model Evaluation & Statistics | [→ folder](week-24-model-evaluation-statistics) |
-| 25 | 168–169 (of 168–174) | Hyperparameter Tuning & Experimentation — in progress | [→ folder](week-25-hyperparameter-tuning-experimentation) |
+| 25 | 168–170 (of 168–174) | Hyperparameter Tuning & Experimentation — in progress | [→ folder](week-25-hyperparameter-tuning-experimentation) |
 
 Weeks 26 onward (MLOps and serving models, and much further — see the full syllabus) haven't been built yet. Starting Week 9, weeks whose theme is one major model get built with a new two-track structure: Days 1–6 each add a short, lightweight exercise script alongside the usual full lesson, and Day 7 combines the six exercises into one final trained model.
 
@@ -110,6 +110,7 @@ Starting with Week 6, the same small neural-network library — written entirely
 | ![Multiple comparisons results](week-24-model-evaluation-statistics/multiple_comparisons_results.png) Multiple comparisons: false findings under A/A, Bonferroni, Holm and Benjamini-Hochberg against known truth, and the best of 100 models — Day 164 | ![Calibration results](week-24-model-evaluation-statistics/calibration_results.png) Calibration: reliability diagrams, ECE against its chance floor, Platt and isotonic fixes on held-out rows — Day 165 |
 | ![Fairness results](week-24-model-evaluation-statistics/fairness_results.png) Fairness: four rates per group, unawareness and proxies, the identity behind the conflict, per-group thresholds — Day 166 | ![Report card results](week-24-model-evaluation-statistics/report_card_results.png) The report card: SHAP and LIME from scratch, and the week's six tools on one model, scored once on test — Day 167 |
 | ![Grid vs random search results](week-25-hyperparameter-tuning-experimentation/grid_random_results.png) Grid against random search: a known-truth benchmark and boosting on Adult — Day 168 | ![Bayesian optimisation results](week-25-hyperparameter-tuning-experimentation/bayes_opt_results.png) Bayesian optimisation from scratch: Hartmann-3, Day 168's pool and new configurations — Day 169 |
+| ![Learning-rate finder results](week-25-hyperparameter-tuning-experimentation/lr_finder_results.png) A learning-rate finder from scratch, checked against real training on UCI Adult — Day 170 | |
 
 ## Featured project: Titanic EDA (Day 13)
 

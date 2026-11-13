@@ -1,0 +1,71 @@
+
+======================================================================
+1. A KNOWN TRUTH: LEAST SQUARES, WHERE THE LIMIT IS 2 / (LARGEST EIGENVALUE)
+======================================================================
+  largest eigenvalue of X^T X / n: 3.5522; gradient descent diverges above 2 / 3.5522 = 0.5630
+  constant rate 0.90 x the limit, 2000 steps: loss 0.05795
+  constant rate 0.99 x the limit, 2000 steps: loss 0.05795
+  constant rate 1.01 x the limit, 2000 steps: loss 9.08e+32
+  constant rate 1.10 x the limit, 2000 steps: loss inf
+  finder (smoothing 0.0): lowest loss at rate 4.94 x the limit; stopped at 5.87 x the limit; min / 10 suggests 0.494 x the limit
+  finder (smoothing 0.98): lowest loss at rate 5.54 x the limit; stopped at 6.22 x the limit; min / 10 suggests 0.554 x the limit
+Actual output from this lesson's run.
+
+======================================================================
+2. THE FINDER ON A NEURAL NETWORK FOR ADULT
+======================================================================
+  network 87 -> 64 -> 32 -> 1, batches of 128; 300 steps from 1e-06 to 10
+  Adam seed 0: 271 steps, stopped at 2.09e+00; lowest smoothed loss 0.3914 at 2.42e-01; min / 10 suggests 2.42e-02; steepest 3.25e-03
+  Adam seed 1: 300 steps, stopped at 1.00e+01; lowest smoothed loss 0.3824 at 3.54e-01; min / 10 suggests 3.54e-02; steepest 1.04e+00
+  Adam seed 2: 300 steps, stopped at 1.00e+01; lowest smoothed loss 0.3889 at 1.75e-01; min / 10 suggests 1.75e-02; steepest 4.49e-03
+  Adam seed 3: 261 steps, stopped at 1.22e+00; lowest smoothed loss 0.3871 at 2.85e-01; min / 10 suggests 2.85e-02; steepest 8.38e-01
+  Adam seed 4: 300 steps, stopped at 1.00e+01; lowest smoothed loss 0.3816 at 1.41e-01; min / 10 suggests 1.41e-02; steepest 2.09e+00
+  Adam min_over_10: suggestions span a factor of 2.5 over 5 seeds
+  Adam steepest   : suggestions span a factor of 644.7 over 5 seeds
+  SGD  seed 0: 299 steps, stopped at 9.48e+00; lowest smoothed loss 0.4283 at 6.86e+00; min / 10 suggests 6.86e-01; steepest 9.33e-01
+  SGD  seed 1: 300 steps, stopped at 1.00e+01; lowest smoothed loss 0.4326 at 6.50e+00; min / 10 suggests 6.50e-01; steepest 1.85e-01
+  SGD  seed 2: 300 steps, stopped at 1.00e+01; lowest smoothed loss 0.4423 at 5.24e+00; min / 10 suggests 5.24e-01; steepest 3.94e-01
+  SGD  seed 3: 300 steps, stopped at 1.00e+01; lowest smoothed loss 0.4425 at 4.00e+00; min / 10 suggests 4.00e-01; steepest 4.16e-01
+  SGD  seed 4: 300 steps, stopped at 1.00e+01; lowest smoothed loss 0.4364 at 4.70e+00; min / 10 suggests 4.70e-01; steepest 1.75e-01
+  SGD  min_over_10: suggestions span a factor of 1.7 over 5 seeds
+  SGD  steepest   : suggestions span a factor of 5.3 over 5 seeds
+Actual output from this lesson's run.
+
+======================================================================
+3. THE CHECK: REAL TRAINING AT 13 LEARNING RATES, AND AT THE SUGGESTIONS
+======================================================================
+  each run: 5 epochs on the 24130 fitting rows, log loss on the 6032 validation rows
+  Adam: 1e-05 0.5669, 3e-05 0.4377, 1e-04 0.3459, 3e-04 0.3313, 1e-03 0.3288, 3e-03 0.3277, 1e-02 0.3298, 3e-02 0.3349, 1e-01 0.3396, 3e-01 0.4326, 1e+00 0.5579, 3e+00 0.5506, 1e+01 3.0660
+  Adam: best 3e-03 (0.3277); within 0.005 of it from 3e-04 to 1e-02; its 3 seeds there: 0.3271, 0.3271, 0.3288
+  Adam: training at each finder run's min_over_10 suggestion (3 seeds each): 0.3313, 0.3365, 0.3298, 0.3321, 0.3286 (worst +0.0088 against the sweep's best)
+  Adam: training at each finder run's steepest    suggestion (3 seeds each): 0.3278, 0.6278, 0.3272, 0.5514, 0.7767 (worst +0.4491 against the sweep's best)
+  SGD: 1e-05 0.6725, 3e-05 0.6654, 1e-04 0.6459, 3e-04 0.6014, 1e-03 0.5243, 3e-03 0.4197, 1e-02 0.3583, 3e-02 0.3388, 1e-01 0.3303, 3e-01 0.3330, 1e+00 0.3359, 3e+00 0.3641, 1e+01 diverged
+  SGD: best 1e-01 (0.3303); within 0.005 of it from 1e-01 to 3e-01; its 3 seeds there: 0.3301, 0.3308, 0.3301
+  SGD: training at each finder run's min_over_10 suggestion (3 seeds each): 0.3335, 0.3346, 0.3344, 0.3331, 0.3314 (worst +0.0043 against the sweep's best)
+  SGD: training at each finder run's steepest    suggestion (3 seeds each): 0.3358, 0.3305, 0.3342, 0.3330, 0.3307 (worst +0.0055 against the sweep's best)
+  (38 s for the sweeps and the checks)
+Actual output from this lesson's run.
+
+======================================================================
+4. DOES THE FINDER FOLLOW A CHANGE OF BATCH SIZE? (SGD)
+======================================================================
+  batch  32: finder (min / 10) suggests 2.60e-01, 2.74e-01, 1.98e-01; real training there 0.3509, 0.3552, 0.3444; the sweep's best 3e-02 (0.3358), within 0.01 of it from 1e-02 to 3e-01
+  batch 512: finder (min / 10) suggests 4.70e-01, 4.45e-01, 4.96e-01; real training there 0.3679, 0.3712, 0.3680; the sweep's best 1e-01 (0.3437), within 0.01 of it from 1e-01 to 1e-01
+Actual output from this lesson's run.
+
+======================================================================
+5. WHAT THE FINDER COSTS
+======================================================================
+  one finder run: 293 steps on average (1.55 of an epoch), 0.10 s
+  the check in section 3: 78 runs of 5 epochs, plus the suggestions, 38 s
+Actual output from this lesson's run.
+
+saved lr_finder_results.png
+saved lr_finder_diagram.png
+total time 136 s
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 171: early stopping. Watch the validation loss while training and stop when it stops
+improving: patience, restoring the best weights, and what each rule costs and saves.

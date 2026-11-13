@@ -34,5 +34,21 @@ Exercise: [`day169_exercise.py`](day169_exercise.py) holds the normal distributi
 ![Bayesian optimisation on a 1-D test function, step by step](bayes_opt_diagram.png)
 ![Hartmann-3, Day 168's pool, and proposing new configurations](bayes_opt_results.png)
 
+## Day 170 — Learning-rate finders, checked against real training
+[`day170_learning_rate_finder.py`](day170_learning_rate_finder.py) — a learning-rate finder from scratch: raise the rate by the same factor every step from 1e-6 to 10, smooth the loss, stop when it blows up, and read a rate off the curve. It is checked against real training of Day 126's network (87 → 64 → 32 → 1) on Week 24's UCI Adult split, scored on the validation rows.
+
+- **Known truth:** on least squares, gradient descent diverges above 2 / (largest eigenvalue) = 0.5630. Constant rates confirm it: 0.99× the limit settles at 0.05795, while 1.01× reaches 9.08e+32. The finder's lowest smoothed loss came at 5.54× the limit, far above it. One tenth of that is 0.554× the limit: safe.
+- **Two reading rules, five seeds:** with Adam, "one tenth of the minimum" moved by a factor of 2.5 between seeds, while "steepest slope" moved by a factor of 644.7.
+- **The check (13 rates × 3 seeds of real training, and each suggestion with the same 3 seeds):** Adam's best rate was 3e-03 (0.3277). The min / 10 suggestions trained to within +0.0088 of it; the steepest-slope suggestions were up to +0.4491 worse. With SGD both rules worked (+0.0043 and +0.0055).
+- **Complication, batch size:** at batch 512 the finder suggested about 4.70e-01, and real training there gave 0.3679, against the sweep's best of 0.3437 at 1e-01. The suggestion rose with batch size, but not reliably to a good rate.
+- **Cost:** one finder run took 0.10 s (1.55 epochs); the real check took 38 s. **First draft:** it compared one seed at a suggestion with a sweep averaged over seeds, an unfair comparison; everything now uses the same 3 seeds.
+
+Study guide: [`day170_learning_rate_finder_complete_guide.pdf`](day170_learning_rate_finder_complete_guide.pdf) · Syntax walkthrough: [`day170_syntax_line_by_line.pdf`](day170_syntax_line_by_line.pdf) · [Run output](day170_run_output.txt)
+
+Exercise: [`day170_exercise.py`](day170_exercise.py) holds `lr_range`, `lr_find`, `suggest`, `SGD`, `bce_logits`, `train_mlp` and `mlp_stepper`. Its hand checks include a finder that must stop at a known step, both rules on a curve with a known minimum, one SGD step, the log loss at logit 0 (0.6931), and a toy problem where the finder's suggestion (0.227) trains to validation log loss 0.141. [Exercise output](day170_exercise_run_output.txt)
+
+![A learning-rate finder run, Adam on Adult](lr_finder_diagram.png)
+![The finder against real training: least squares, Adam, SGD and batch size](lr_finder_results.png)
+
 ---
 [← Back to main README](../README.md)
