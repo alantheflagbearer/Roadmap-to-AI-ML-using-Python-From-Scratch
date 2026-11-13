@@ -1,0 +1,75 @@
+
+======================================================================
+1. A KNOWN-TRUTH BENCHMARK: HOW MANY SETTINGS MATTER?
+======================================================================
+  one of three matters     ,  8 trials: mean shortfall grid 0.02127, random 0.01124; random better in 0.676 of 1000 problems
+  one of three matters     , 27 trials: mean shortfall grid 0.00937, random 0.00268; random better in 0.715 of 1000 problems
+  one of three matters     , 64 trials: mean shortfall grid 0.00532, random 0.00136; random better in 0.757 of 1000 problems
+  all three matter equally ,  8 trials: mean shortfall grid 0.06261, random 0.12378; random better in 0.285 of 1000 problems
+  all three matter equally , 27 trials: mean shortfall grid 0.02822, random 0.05002; random better in 0.335 of 1000 problems
+  all three matter equally , 64 trials: mean shortfall grid 0.01595, random 0.02587; random better in 0.361 of 1000 problems
+Actual output from this lesson's run.
+
+======================================================================
+2. THE REAL THING: GRID AGAINST RANDOM SEARCH FOR BOOSTING ON ADULT
+======================================================================
+  6000 rows train each configuration, 6000 score it (log loss), 6032 fresh rows are kept for section 5; 100 trees
+  grid of  8: values [[0.0316227766016838, 0.31622776601683794], [3, 7], [4, 72]]; best log loss 0.2973 at {'learning rate': 0.31622776601683794, 'depth': 3, 'min leaf': 4}
+  grid of 27: values [[0.02154434690031884, 0.1, 0.46415888336127803], [2, 5, 7], [2, 17, 116]]; best log loss 0.2934 at {'learning rate': 0.1, 'depth': 5, 'min leaf': 2}
+  grid of 64: values [[0.01778279410038923, 0.05623413251903491, 0.1778279410038923, 0.5623413251903491], [2, 4, 6, 8], [2, 8, 35, 147]]; best log loss 0.2924 at {'learning rate': 0.1778279410038923, 'depth': 4, 'min leaf': 2}
+  (200 random configurations and 99 grid points evaluated in 1020 s)
+  pool's best: log loss 0.2918 at learning rate 0.0956, depth 5, min leaf 1
+  pool's best: log loss 0.2924 at learning rate 0.108, depth 4, min leaf 2
+  pool's best: log loss 0.2927 at learning rate 0.143, depth 4, min leaf 3
+  pool's worst: log loss 0.7371 at learning rate 0.566, depth 8, min leaf 1
+   8 trials: grid 0.2973; random median 0.2977 (2.5% to 97.5%: 0.2918 to 0.3091); random at least as good in 0.491 of 1000 searches
+  27 trials: grid 0.2934; random median 0.2949 (2.5% to 97.5%: 0.2918 to 0.3007); random at least as good in 0.344 of 1000 searches
+  64 trials: grid 0.2924; random median 0.2924 (2.5% to 97.5%: 0.2918 to 0.2961); random at least as good in 0.325 of 1000 searches
+  5 shifted grids of 27: best 0.2946, 0.2929, 0.2949, 0.2947, 0.2928 (mean 0.2940; the centred grid 0.2934); random of 27 at least as good as a shifted grid in 0.410 of comparisons
+  the best of all 299 configurations: 0.2918
+Actual output from this lesson's run.
+
+======================================================================
+3. WHICH HYPERPARAMETERS MATTERED, AND HOW MANY VALUES EACH SEARCH TRIED
+======================================================================
+  learning rate: explains 0.293 of the spread in log loss on its own
+  depth        : explains 0.046 of the spread in log loss on its own
+  min leaf     : explains 0.056 of the spread in log loss on its own
+  learning rate and depth together (4 x 4 cells): explain 0.535
+  in the better half of the pool, learning rate ran from 0.023 to 0.785; outside it from 0.010 to 0.985
+   8 trials: grid tries 2 values of each hyperparameter; random tries 8 learning rate, 5 depth, 6 min leaf (first random order)
+  27 trials: grid tries 3 values of each hyperparameter; random tries 27 learning rate, 8 depth, 20 min leaf (first random order)
+  64 trials: grid tries 4 values of each hyperparameter; random tries 64 learning rate, 8 depth, 38 min leaf (first random order)
+Actual output from this lesson's run.
+
+======================================================================
+4. WHAT EACH SEARCH COSTS
+======================================================================
+  depth 1: 0.66 s per configuration on average (23 in the pool)
+  depth 4: 2.53 s per configuration on average (21 in the pool)
+  depth 8: 6.76 s per configuration on average (32 in the pool)
+   8 trials: grid 26 s; random 23 s (first random order)
+  27 trials: grid 78 s; random 105 s (first random order)
+  64 trials: grid 200 s; random 238 s (first random order)
+  pool of 200: 717 s in all
+Actual output from this lesson's run.
+
+======================================================================
+5. THE WINNER'S CURSE: THE BEST SCORE ON ITS OWN ROWS AGAINST FRESH ROWS
+======================================================================
+  over all 200 configurations: tuning and fresh log loss correlate 0.996; mean fresh - tuning +0.0056
+   8 trials: random winner's fresh - tuning +0.0054 on average, -0.0002 beyond the average configuration's (fresh log loss 0.3040); grid winner +0.0034 (fresh 0.3007)
+  27 trials: random winner's fresh - tuning +0.0064 on average, +0.0008 beyond the average configuration's (fresh log loss 0.3011); grid winner +0.0086 (fresh 0.3020)
+  64 trials: random winner's fresh - tuning +0.0074 on average, +0.0018 beyond the average configuration's (fresh log loss 0.3005); grid winner +0.0069 (fresh 0.2993)
+  the pool's winner on tuning rows ranks 9 of 200 on fresh rows (fresh 0.3010; best on fresh 0.2971)
+Actual output from this lesson's run.
+
+saved grid_random_results.png
+saved grid_random_diagram.png
+total time 1463 s
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 169: Bayesian optimisation from scratch. A Gaussian process learns the score from the trials
+so far and picks the next one, against today's random search on the same budget.
