@@ -66,5 +66,20 @@ Exercise: [`day171_exercise.py`](day171_exercise.py) holds `copy_net`, `EarlySto
 ![Early stopping on one real run](early_stopping_diagram.png)
 ![Early stopping: curves, rules, and stop-set size](early_stopping_results.png)
 
+## Day 172 — Cross-validation for time series and grouped data, with real leaks
+[`day172_cv_time_series_grouped.py`](day172_cv_time_series_grouped.py) — shuffled, blocked, blocked-with-a-gap, forward-chaining and grouped folds from scratch. Each is checked against a truth: simulated series whose real forecast error is known, five held-out years of two real series (statsmodels' CO2 and electrical-equipment orders), and 300 MovieLens users never used in any fold.
+
+- **Known truth (50 simulated series, 12-month forecasts):** shuffled folds rated a "3 nearest months" forecaster at 0.780 when its real error was 2.104, and so would have chosen the worst of three forecasters. Forward folds estimated 2.125 and chose correctly. For a pure lag model, shuffled folds were nearly right (0.972 against 0.989), as Bergmeir, Hyndman and Koo (2018) predict.
+- **Real series:** on electrical equipment, shuffled folds chose the trend model, while forward folds and the held-out years chose the lag model. **Complication:** the forward estimate (10.187) was far above the held-out error (2.907) because its folds include the 2008 crash (14.16 and 16.92 for those years).
+- **Grouped data (MovieLens, boosted trees):** shuffled rows chose depth 8 (0.9458). Folds grouped by user and 300 new users both chose depth 1 (1.0318 and 1.0360).
+- **What carried the leak:** dropping the timestamp barely helped (+0.0954 at depth 6). With film facts only the leak vanished (-0.0003), so the users' own age, sex and occupation let deep trees recognise them.
+
+Study guide: [`day172_cv_time_series_grouped_complete_guide.pdf`](day172_cv_time_series_grouped_complete_guide.pdf) · Syntax walkthrough: [`day172_syntax_line_by_line.pdf`](day172_syntax_line_by_line.pdf) · [Run output](day172_run_output.txt)
+
+Exercise: [`day172_exercise.py`](day172_exercise.py) holds `shuffled_folds`, `blocked_folds`, `forward_folds`, `group_folds` and `cross_val`. Its hand checks cover every row being tested once, a gap, a forward fold, no group split across sides, and a toy random walk where shuffled folds give 0.83 and forward folds 3.04. [Exercise output](day172_exercise_run_output.txt)
+
+![One fold of each cross-validation scheme](cv_schemes_diagram.png)
+![Cross-validation leaks: simulated series, electrical equipment, and MovieLens](cv_leakage_results.png)
+
 ---
 [← Back to main README](../README.md)

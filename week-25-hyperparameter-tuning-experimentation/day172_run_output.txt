@@ -1,0 +1,76 @@
+
+======================================================================
+1. A KNOWN TRUTH: SIMULATED SERIES, 12-MONTH FORECASTS (mean absolute error)
+======================================================================
+  50 series of 300 months: random walk with drift + season + noise; truth from 400 simulated futures each
+  forecaster           shuffled           blocked   blocked, gap 24           forward             truth
+  trend                   1.013             1.783             2.407             1.453             1.244
+  knn                     0.780             2.667             3.722             2.125             2.104
+  lag                     0.972             1.080             1.162             1.058             0.989
+  choice by shuffled        : knn
+  choice by blocked         : lag
+  choice by blocked, gap 24 : lag
+  choice by forward         : lag
+  choice by truth           : lag
+Actual output from this lesson's run.
+
+======================================================================
+2. REAL SERIES: CV ESTIMATES AGAINST THE FINAL FIVE YEARS (mean absolute error)
+======================================================================
+  CO2: 526 months, 1958-03 to 2001-12; folds use months up to 1996-12; held out 1997-01 to 2001-12
+    trend  shuffled 0.613, blocked 1.293, blocked, gap 24 1.529, forward 1.709; held-out years 0.888
+    knn    shuffled 0.919, blocked 3.693, blocked, gap 24 6.071, forward 3.125; held-out years 3.111
+    lag    shuffled 0.466, blocked 0.551, blocked, gap 24 0.538, forward 0.647; held-out years 0.742
+    choice by shuffled : lag
+    choice by forward  : lag
+    choice by held_out : lag
+  electrical equipment: 257 months, 1995-01 to 2016-05; folds use months up to 2011-05; held out 2011-06 to 2016-05
+    trend  shuffled 7.513, blocked 9.171, blocked, gap 24 11.415, forward 12.464; held-out years 8.835
+    knn    shuffled 9.788, blocked 11.590, blocked, gap 24 18.496, forward 10.792; held-out years 7.098
+    lag    shuffled 7.633, blocked 11.529, blocked, gap 24 10.633, forward 10.187; held-out years 2.907
+    choice by shuffled : trend
+    choice by forward  : lag
+    choice by held_out : lag
+Actual output from this lesson's run.
+
+======================================================================
+3. FORWARD FOLDS ESTIMATE A PERIOD: ONE ERROR PER ORIGIN (lag model)
+======================================================================
+  CO2: 1992-01 1.11, 1993-01 1.20, 1994-01 0.31, 1995-01 0.36, 1996-01 0.25; held-out origins 0.66, 1.17, 0.62, 0.81, 0.45
+  electrical equipment: 2006-06 8.23, 2007-06 4.52, 2008-06 14.16, 2009-06 16.92, 2010-06 7.11; held-out origins 3.40, 4.76, 3.52, 1.98, 0.88
+Actual output from this lesson's run.
+
+======================================================================
+4. GROUPED DATA: RATINGS FOR NEW USERS (MovieLens, boosted trees, RMSE)
+======================================================================
+  43908 ratings from 400 users for the folds; 29961 ratings from 300 new users, never in a fold
+  depth 1: shuffled rows 1.0230, grouped by user 1.0318, new users 1.0360
+  depth 2: shuffled rows 1.0041, grouped by user 1.0370, new users 1.0390
+  depth 4: shuffled rows 0.9750, grouped by user 1.0490, new users 1.0433
+  depth 6: shuffled rows 0.9534, grouped by user 1.0657, new users 1.0498
+  depth 8: shuffled rows 0.9458, grouped by user 1.0729, new users 1.0678
+  choice by shuffled rows  : depth 8
+  choice by grouped by user: depth 1
+  choice by new users      : depth 1
+  (403 s)
+Actual output from this lesson's run.
+
+======================================================================
+5. WHAT CARRIED THE LEAK? DROPPING THE TIMESTAMP, THEN THE USERS' OWN FACTS
+======================================================================
+  depth 2, no timestamp   : shuffled rows 1.0098, grouped by user 1.0399, new users 1.0451; grouped minus shuffled +0.0301
+  depth 2, film facts only: shuffled rows 1.0368, grouped by user 1.0355, new users 1.0365; grouped minus shuffled -0.0014
+  depth 6, no timestamp   : shuffled rows 0.9719, grouped by user 1.0673, new users 1.0618; grouped minus shuffled +0.0954
+  depth 6, film facts only: shuffled rows 1.0420, grouped by user 1.0417, new users 1.0382; grouped minus shuffled -0.0003
+  ratings sorted by time: the next rating is by the same user 0.934 of the time
+Actual output from this lesson's run.
+
+saved cv_leakage_results.png
+saved cv_schemes_diagram.png
+total time 596 s
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 173: experiment tracking. Every run's settings, data version, seed, code version and
+scores written down automatically, so a result can be found, compared and trusted later.

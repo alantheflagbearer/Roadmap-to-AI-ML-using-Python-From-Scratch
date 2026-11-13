@@ -1,0 +1,7 @@
+shuffled_folds(10, 5): test sizes [2, 2, 2, 2, 2], every row tested once: True (by hand [2, 2, 2, 2, 2], True)
+blocked_folds(10, 5), fold 3: test [4, 5], train [0, 1, 2, 3, 6, 7, 8, 9] (by hand [4, 5] and the other 8)
+  with gap 1: train [0, 1, 2, 7, 8, 9] (by hand [0, 1, 2, 7, 8, 9]: rows 3 and 6 touch the test block)
+forward_folds(0..9, origin 5, horizon 2): train [0, 1, 2, 3, 4, 5], test [6, 7] (by hand 0..5 and [6, 7])
+group_folds on groups [0, 0, 1, 1, 1, 2, 3, 3, 4, 4], 2 folds: no group on both sides: True (by hand True)
+cross_val with score = test size: mean 2.0, per fold [2, 2, 2, 2, 2] (by hand 2.0)
+random walk, 'copy the nearest training day': shuffled folds 0.83, forward folds 3.04 (by hand: shuffled copies a neighbour usually 1 step away, so about E|N(0,1)| = 0.80, a little more when it is 2; forward copies a day 1 to 20 steps back, 0.80 x the mean of sqrt(1)..sqrt(20) = 2.46 on average, from only 5 origins here)
