@@ -1,0 +1,75 @@
+
+======================================================================
+1. A GAUSSIAN PROCESS FROM SCRATCH
+======================================================================
+  two trials (0 -> 0, 1 -> 1), length scale 1: mean [0.0001, 0.5, 0.9999], sd [0.005, 0.1573, 0.005] (by hand: 0, 0.5, 1; sd at 0.5 = 0.5 x sqrt(1 - 2 x 0.8287^2 / 1.5240) = 0.157)
+  Forrester, 4 trials: length scale 0.05: log marginal likelihood   -5.673
+  Forrester, 4 trials: length scale 0.10: log marginal likelihood   -5.607
+  Forrester, 4 trials: length scale 0.20: log marginal likelihood   -5.481
+  Forrester, 4 trials: length scale 0.30: log marginal likelihood   -5.625
+  Forrester, 4 trials: length scale 0.50: log marginal likelihood   -7.309
+  Forrester, 4 trials: length scale 0.80: log marginal likelihood  -16.276
+  Forrester, 4 trials: length scale 1.20: log marginal likelihood  -51.409
+  Forrester, 4 trials: length scale 2.00: log marginal likelihood -265.629
+  chosen length scale 0.2; mean at the trials [3.027, 0.115, -0.149, 15.829] against [3.027, 0.115, -0.149, 15.83] (it passes through them)
+  largest uncertainty 4.624 at x = 0.198; true minimum -6.021 at x = 0.758
+  Bayesian optimisation from trials at 0.1, 0.45 and 0.9; trials 4 to 15 at 0.240, 0.000, 0.145, 0.593, 0.338, 0.685, 0.710, 0.733, 0.750, 0.765, 0.758, 0.758
+  best score after each of trials 4 to 15: -0.66, -0.66, -0.99, -0.99, -0.99, -3.92, -5.01, -5.72, -5.99, -5.99, -6.02, -6.02
+Actual output from this lesson's run.
+
+======================================================================
+2. EXPECTED IMPROVEMENT: THE FORMULA AGAINST SIMULATION
+======================================================================
+  mean +0.0, sd 1.0, best 0.0: formula 0.39894, simulation 0.39821
+  mean +1.0, sd 0.5, best 0.0: formula 0.00425, simulation 0.00419
+  mean -0.5, sd 0.2, best 0.0: formula 0.50040, simulation 0.50058
+  mean +0.3, sd 2.0, best 0.0: formula 0.65684, simulation 0.65507
+  (the first: 0.39894 = 1 / sqrt(2 pi), by hand)
+Actual output from this lesson's run.
+
+======================================================================
+3. A KNOWN-TRUTH BENCHMARK: HARTMANN-3
+======================================================================
+  check: the function at its known minimiser -3.86278
+  10 trials: median gap from the minimum: EI 0.4333, greedy 0.8645, random 1.0322
+  20 trials: median gap from the minimum: EI 0.0906, greedy 0.1293, random 0.6604
+  30 trials: median gap from the minimum: EI 0.0475, greedy 0.1178, random 0.5043
+  40 trials: median gap from the minimum: EI 0.0111, greedy 0.0856, random 0.3968
+  ei    : runs still more than 0.1 from the minimum after 40 trials: 0.12
+  mean  : runs still more than 0.1 from the minimum after 40 trials: 0.48
+  random: runs still more than 0.1 from the minimum after 40 trials: 0.92
+  (12 s)
+Actual output from this lesson's run.
+
+======================================================================
+4. DAY 168'S 200 REAL CONFIGURATIONS: BAYESIAN OPTIMISATION AGAINST RANDOM SEARCH
+======================================================================
+  Day 168's pool recomputed in 347 s: best 0.2918, worst 0.7371 (Day 168 printed 0.2918 and 0.7371)
+  (400 Bayesian optimisation runs of 64 trials in 26 s)
+  random search (1000)          : median best at 8 / 16 / 27 / 64 trials 0.2977 / 0.2958 / 0.2949 / 0.2924; found the pool's best by 27: 0.13, by 64: 0.33
+  BO, expected improvement      : median best at 8 / 16 / 27 / 64 trials 0.2962 / 0.2945 / 0.2924 / 0.2918; found the pool's best by 27: 0.43, by 64: 0.99
+  BO, greedy (lowest mean)      : median best at 8 / 16 / 27 / 64 trials 0.2961 / 0.2945 / 0.2918 / 0.2918; found the pool's best by 27: 0.61, by 64: 0.95
+  BO, explore only (largest sd) : median best at 8 / 16 / 27 / 64 trials 0.2999 / 0.2961 / 0.2924 / 0.2918; found the pool's best by 27: 0.40, by 64: 0.66
+  BO on shuffled scores         : median best at 8 / 16 / 27 / 64 trials 0.2970 / 0.2957 / 0.2949 / 0.2924; found the pool's best by 27: 0.09, by 64: 0.33
+  trials until within 0.001 of the pool's best: EI median 20, random median 44
+  the GP fitted on 30 configurations, predicting the other 170 (20 repeats): correlation 0.74, rank correlation 0.84, length scale chosen 0.3; its predicted best is in the true best 10% in 0.70 of repeats
+Actual output from this lesson's run.
+
+======================================================================
+5. BAYESIAN OPTIMISATION PROPOSING NEW CONFIGURATIONS, FITTED FOR REAL
+======================================================================
+  run 1: best of its 5 random starting trials 0.2962; best tuning log loss 0.2924 at trial 20 (learning rate 0.118, depth 4, min leaf 15); fresh rows 0.2968; repeated configurations 0; GP time 0.1 s against fitting 52 s
+  run 2: best of its 5 random starting trials 0.2916; best tuning log loss 0.2910 at trial 26 (learning rate 0.128, depth 4, min leaf 1); fresh rows 0.2995; repeated configurations 0; GP time 0.1 s against fitting 50 s
+  run 3: best of its 5 random starting trials 0.3008; best tuning log loss 0.2915 at trial 22 (learning rate 0.138, depth 4, min leaf 1); fresh rows 0.2999; repeated configurations 0; GP time 0.1 s against fitting 49 s
+  random search of 30 trials (from Day 168's pool): median 0.2949; 10% of searches reach 0.2918; the pool's best 0.2918, its fresh score 0.3010
+Actual output from this lesson's run.
+
+saved bayes_opt_results.png
+saved bayes_opt_diagram.png
+total time 541 s
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 170: learning-rate finders. Raise the learning rate step by step during one short run and
+read a good value off the loss curve, then check that choice against full training runs.

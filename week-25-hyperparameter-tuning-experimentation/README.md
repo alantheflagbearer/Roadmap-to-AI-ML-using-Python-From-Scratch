@@ -18,5 +18,21 @@ Exercise: [`day168_exercise.py`](day168_exercise.py) holds the search space, the
 ![Nine trials as a grid and at random](grid_random_diagram.png)
 ![The benchmark, best-so-far curves on Adult, the random pool, importance and fresh scores](grid_random_results.png)
 
+## Day 169 — Bayesian optimisation from scratch
+[`day169_bayesian_optimisation.py`](day169_bayesian_optimisation.py) — a Gaussian process (Matérn 5/2 kernel, length scale chosen by log marginal likelihood) learns the score from the trials so far, and expected improvement chooses the next trial. Everything is written in NumPy, including the normal CDF via `math.erf`. It reuses Day 168's rows, search space and parts.
+
+- **Checked by hand and by simulation:** a GP on two trials gives sd 0.1573 halfway, matching the hand calculation. Expected improvement's formula gives 0.39894 against 0.39821 from a million simulated draws.
+- **First draft: the GP can be confidently wrong.** On a 1-D test function, from 3 trials it spent trials 4–8 away from the dip, then walked into it and reached the true minimum (-6.021).
+- **Hartmann-3 (known minimum -3.86278), 40 trials:** median gap EI 0.0111, greedy 0.0856, random 0.3968. 0.48 of greedy runs got stuck more than 0.1 away.
+- **Day 168's 200 real configurations, recomputed exactly (0.2918, 0.7371):** EI got within 0.001 of the best in a median of 20 trials, random search in 44. **Control:** with the scores shuffled, Bayesian optimisation fell to random search's level (0.09 against 0.13 finding the best by 27 trials). A GP fitted on 30 configurations predicts the other 170 with rank correlation 0.84. **Complication:** a greedy rule did as well early on this smooth problem (0.61 by 27 trials).
+- **Proposing anywhere, fitted for real (3 runs × 30 trials):** the runs ended at 0.2924, 0.2910 and 0.2915, against a random-search median of 0.2949. Run 2's random start had already reached 0.2916. The GP cost 0.1 s per run against about 50 s of fitting. **First run:** the computer slept during it and one timing read 29,907 s; it was rerun with identical scores.
+
+Study guide: [`day169_bayesian_optimisation_complete_guide.pdf`](day169_bayesian_optimisation_complete_guide.pdf) · Syntax walkthrough: [`day169_syntax_line_by_line.pdf`](day169_syntax_line_by_line.pdf) · [Run output](day169_run_output.txt)
+
+Exercise: [`day169_exercise.py`](day169_exercise.py) holds the normal distribution, the kernel, GP fitting and prediction, length-scale choice, expected improvement and `propose`. Its hand checks include the kernel at distance 0.5 (0.8286), a two-trial GP (sd 0.157) and EI = 0.39894 at mean 0, sd 1. [Exercise output](day169_exercise_run_output.txt)
+
+![Bayesian optimisation on a 1-D test function, step by step](bayes_opt_diagram.png)
+![Hartmann-3, Day 168's pool, and proposing new configurations](bayes_opt_results.png)
+
 ---
 [← Back to main README](../README.md)
