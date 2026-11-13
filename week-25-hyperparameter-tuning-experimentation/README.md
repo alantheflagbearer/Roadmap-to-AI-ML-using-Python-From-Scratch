@@ -81,5 +81,20 @@ Exercise: [`day172_exercise.py`](day172_exercise.py) holds `shuffled_folds`, `bl
 ![One fold of each cross-validation scheme](cv_schemes_diagram.png)
 ![Cross-validation leaks: simulated series, electrical equipment, and MovieLens](cv_leakage_results.png)
 
+## Day 173 — Experiment tracking from scratch, on a real tuning study
+[`day173_experiment_tracking.py`](day173_experiment_tracking.py) — a small tracker written from scratch, without MLflow. It keeps an append-only JSON Lines log ([`day173_runs.jsonl`](day173_runs.jsonl)) where every run writes a start record and an end record. Each run records its settings, seed, a hash of the data, a hash of the code, the Python and numpy versions, its status and time, and its per-epoch curve. It is used on a 40-configuration random search with Day 171's network and early stopping on UCI Adult.
+
+- **Crash and resume:** the study crashed on purpose at run 17. The log kept 16 finished runs and 1 failed one with its error. On restart, 16 runs were skipped and 24 were run.
+- **Reproduced from the record alone:** 5 of 5 logged runs were retrained from their settings and seed to the identical last bit (for example 0.33849483922349605). This was in the same process; Day 174 tests a fresh one.
+- **The seed:** the top five configurations scored worse with ten new seeds, by +0.0039 for the winner. A control of five unchosen configurations lost +0.0022 too, so about half of that was seed 0 being a good seed. The top five lost +0.0017 more from being chosen, and their order became [2, 1, 5, 4, 3].
+- **Fingerprints:** dropping 17 of 2000 training rows moved the score only from 0.3385 -> 0.3384, but it changed the data hash and the run id. Tracking cost 2.5 ms to read the whole log, against 0.31 s per run.
+
+Study guide: [`day173_experiment_tracking_complete_guide.pdf`](day173_experiment_tracking_complete_guide.pdf) · Syntax walkthrough: [`day173_syntax_line_by_line.pdf`](day173_syntax_line_by_line.pdf) · [Run output](day173_run_output.txt)
+
+Exercise: [`day173_exercise.py`](day173_exercise.py) holds `fingerprint`, `file_hash`, `run_id`, `Run`, `Tracker` and `query`. Its hand checks cover fingerprints that change with one value, a shape or a type, and ids that ignore dictionary order. They also run a toy study that crashes and resumes, checking for 4 and then 8 log lines. [Exercise output](day173_exercise_run_output.txt)
+
+![What the tracker records, and how a crashed study resumes](tracking_diagram.png)
+![Tracked runs, curves read from the log, seeds, and costs](tracking_results.png)
+
 ---
 [← Back to main README](../README.md)

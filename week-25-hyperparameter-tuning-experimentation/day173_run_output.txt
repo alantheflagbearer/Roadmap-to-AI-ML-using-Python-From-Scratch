@@ -1,0 +1,68 @@
+
+======================================================================
+1. A TRACKED RANDOM SEARCH THAT CRASHES, THEN RESUMES
+======================================================================
+  first attempt stopped: simulated crash in run 17
+  log after the crash: 16 finished, 1 failed (RuntimeError('simulated crash in run 17'))
+  resumed: 16 runs skipped as already finished, 24 run now; the log holds 40 runs, 40 finished
+  82 lines in day173_runs.jsonl, 71 KB; data ed1c86d3dc20, code 00a6b58363c8; (12 s)
+Actual output from this lesson's run.
+
+======================================================================
+2. QUERYING THE LOG
+======================================================================
+  the five best runs by validation log loss:
+    f45132550c3b  lr 1.84e-04  patience  4  batch 128  ->  val 0.3385, best epoch 66, 70 epochs, 0.69 s
+    d101e475f6ee  lr 1.77e-04  patience  4  batch 128  ->  val 0.3385, best epoch 66, 70 epochs, 0.67 s
+    645d7f93bce5  lr 2.10e-04  patience 15  batch 256  ->  val 0.3385, best epoch 95, 100 epochs, 1.04 s
+    d717a098b146  lr 1.45e-04  patience 19  batch 128  ->  val 0.3386, best epoch 88, 100 epochs, 1.27 s
+    3bea164b1ee4  lr 1.11e-04  patience  6  batch 128  ->  val 0.3386, best epoch 99, 100 epochs, 1.03 s
+  log10 lr  : correlation with validation loss +0.79
+  patience  : correlation with validation loss -0.18
+  log2 batch: correlation with validation loss -0.38
+  runs with lr < 3e-4: 8, mean epochs 73.5, mean val 0.3389; the rest: mean val 0.3444
+Actual output from this lesson's run.
+
+======================================================================
+3. REPRODUCING RUNS FROM THEIR RECORDS ALONE
+======================================================================
+  f45132550c3b: logged val 0.33849483922349605, rerun 0.33849483922349605; identical: True
+  462b274d7337: logged val 0.3390067135740327, rerun 0.3390067135740327; identical: True
+  7607dbc39d9b: logged val 0.3403018890474152, rerun 0.3403018890474152; identical: True
+  950ef5a09d15: logged val 0.3423205796216293, rerun 0.3423205796216293; identical: True
+  32d57eeecd8d: logged val 0.34997097718587017, rerun 0.34997097718587017; identical: True
+  5 of 5 reproduced bit for bit (Python 3.14.2, numpy 2.5.0)
+Actual output from this lesson's run.
+
+======================================================================
+4. THE SEED: THE TOP 5 CONFIGURATIONS, 10 NEW SEEDS EACH
+======================================================================
+  rank 1 (f45132550c3b): logged 0.3385; new seeds mean 0.3423 (sd 0.0017, 0.3402 to 0.3451)
+  rank 2 (d101e475f6ee): logged 0.3385; new seeds mean 0.3423 (sd 0.0017, 0.3402 to 0.3452)
+  rank 3 (645d7f93bce5): logged 0.3385; new seeds mean 0.3426 (sd 0.0017, 0.3406 to 0.3453)
+  rank 4 (d717a098b146): logged 0.3386; new seeds mean 0.3425 (sd 0.0018, 0.3403 to 0.3454)
+  rank 5 (3bea164b1ee4): logged 0.3386; new seeds mean 0.3425 (sd 0.0018, 0.3405 to 0.3454)
+  the logged winner's score 0.3385 against its new-seed mean 0.3423: +0.0039
+  ranked by new-seed means, the logged ranks 1 to 5 become: [2, 1, 5, 4, 3]
+  new-seed mean minus logged score: top 5 [0.0039, 0.0038, 0.004, 0.0039, 0.0039]; control ranks 18-22 [0.0034, 0.0015, 0.0022, 0.0019, 0.002]
+  means: top +0.0039, control +0.0022; seed 0 helped the unselected controls too, and the top 5 gain +0.0017 more from being chosen
+Actual output from this lesson's run.
+
+======================================================================
+5. FINGERPRINTS: A SILENTLY CHANGED DATASET, A CHANGED LINE OF CODE, AND THE COST
+======================================================================
+  17 of 2000 training rows dropped: data ed1c86d3dc20 -> 8e22cb683997; same settings and seed, val 0.3385 -> 0.3384; run ids differ: True
+  one value changed by 1e-6: fingerprint a5ea75426ce5 against ed1c86d3dc20
+  this script 00a6b58363c8; with one constant changed 6b7276b0c6a4
+  cost: a run took 0.31 s on average; reading and searching the 41-run log took 2.5 ms
+Actual output from this lesson's run.
+
+saved tracking_results.png
+saved tracking_diagram.png
+total time 70 s
+
+======================================================================
+WHAT COMES NEXT
+======================================================================
+Day 174: reproducibility. One tracked tuning study built from all six of this week's parts,
+run twice to bit-identical results, with seeds controlled and the environment pinned.

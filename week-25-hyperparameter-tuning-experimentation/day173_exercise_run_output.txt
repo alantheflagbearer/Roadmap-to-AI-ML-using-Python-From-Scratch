@@ -1,0 +1,5 @@
+fingerprint: equal copies match True, one value changed False, reshaped False, float64 False (by hand True, False, False, False)
+run_id ignores dictionary order: True, but not the seed: False (by hand True, False)
+after the crash: statuses ['finished', 'failed'], lines 4 (by hand ['finished', 'failed']: lr 0.4 never started; 4 lines, a start and an end each)
+after resuming: statuses ['finished', 'finished', 'finished'], lines 8 (by hand three finished; 4 + 2 for lr 0.2 again + 2 for lr 0.4 = 8)
+query by score: lr [0.2, 0.1, 0.4], scores [0.0, 0.01, 0.04] (by hand 0.2 first with 0, then 0.1 with 0.01, then 0.4 with 0.04)
